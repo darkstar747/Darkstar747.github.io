@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IBS Morning Timing Calculator and Guide – Fix Unpredictable Mornings</title>
+    <title>IBS Morning Timing Calculator - Make Mornings Less Chaotic</title>
 
-    <meta name="description" content="A free IBS morning timing calculator and guide. Learn how evening timing, last liquid intake, magnesium, and sleep patterns can calm unpredictable IBS mornings and morning urgency. No signup, no tracking, runs entirely in your browser.">
+    <meta name="description" content="Free IBS morning timing calculator. Not another food list, but a timing model that looks at liquids, magnesium, sleep, and evening rhythm to calm unpredictable IBS mornings. No login, no tracking.">
 
-    <!-- Open Graph for sharing -->
-    <meta property="og:title" content="IBS Morning Timing Calculator – Fix Unpredictable Mornings">
-    <meta property="og:description" content="A free IBS morning timing calculator to help reduce morning urgency and unpredictable IBS days by tracking evening timing, liquids, magnesium, and sleep. No signup, no tracking.">
+    <!-- Open Graph -->
+    <meta property="og:title" content="IBS Morning Timing Calculator - Make Mornings Less Chaotic">
+    <meta property="og:description" content="A free IBS morning timing calculator that focuses on evening timing, not food lists. Built from years of tracking visceral hypersensitivity and morning IBS patterns.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://YOUR-STORY-PAGE-URL.com">
     <meta property="og:image" content="https://YOUR-STORY-PAGE-URL.com/preview.jpg">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="IBS Morning Timing Calculator – Fix Unpredictable Mornings">
-    <meta name="twitter:description" content="Free IBS morning timing calculator and guide based on years of tracking visceral hypersensitivity and timing patterns.">
+    <meta name="twitter:title" content="IBS Morning Timing Calculator - Make Mornings Less Chaotic">
+    <meta name="twitter:description" content="Free IBS morning timing calculator that models evening timing and nervous system rhythm instead of just diet.">
 
     <style>
         body {
@@ -26,330 +26,296 @@
             max-width: 720px;
             margin: 0 auto;
             padding: 30px 20px;
-            background: #0a0a0a;
-            color: #a0a0a0;
-            font-size: 18px;
+            background: #050505;
+            color: #b0b0b0;
+            font-size: 17px;
         }
         h1 {
-            font-size: 2.4em;
-            margin-bottom: 0.3em;
-            color: #e0e0e0;
+            font-size: 2.3em;
+            margin-bottom: 0.2em;
+            color: #ffffff;
             font-weight: 600;
             line-height: 1.2;
         }
         h2 {
-            font-size: 1.6em;
+            font-size: 1.5em;
             margin-top: 2em;
-            margin-bottom: 0.8em;
-            color: #d0d0d0;
+            margin-bottom: 0.6em;
+            color: #e0e0e0;
             font-weight: 500;
         }
         h3 {
-            font-size: 1.15em;
-            margin-top: 1.4em;
-            margin-bottom: 0.5em;
+            font-size: 1.1em;
+            margin-top: 1.3em;
+            margin-bottom: 0.4em;
             color: #d5d5d5;
         }
         .subtitle {
-            font-size: 1.2em;
-            color: #909090;
-            margin-bottom: 1.4em;
-            font-style: italic;
+            font-size: 1.05em;
+            color: #929292;
+            margin-bottom: 1.2em;
         }
-        .divider {
-            border-top: 1px solid #2a2a2a;
-            margin: 2em 0;
-        }
-        .highlight-box {
-            background: #151515;
-            padding: 20px 25px;
-            border-left: 3px solid #505050;
-            margin: 2em 0;
-            border-radius: 3px;
-        }
-        .highlight-box strong {
-            color: #c0c0c0;
+        .pill {
+            display: inline-block;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid #333;
+            color: #aaaaaa;
+            margin-bottom: 12px;
         }
         .cta {
-            background: #1a1a1a;
-            color: #e0e0e0;
-            padding: 14px 30px;
+            background: #181818;
+            color: #f0f0f0;
+            padding: 12px 26px;
             text-decoration: none;
             border-radius: 4px;
             display: inline-block;
-            margin: 1.2em 0;
+            margin: 1em 0 0.5em 0;
             font-weight: 600;
             border: 1px solid #404040;
-            font-size: 1.05em;
-            transition: all 0.2s;
+            font-size: 1em;
+            transition: all 0.15s ease-out;
         }
         .cta:hover {
-            background: #252525;
-            border-color: #555555;
+            background: #232323;
+            border-color: #5a5a5a;
         }
-        .timeline {
-            background: #0f0f0f;
-            padding: 20px 25px;
-            border-left: 3px solid #404040;
-            margin: 2em 0;
+        .cta-small {
+            font-size: 0.9em;
+            margin-top: 0.3em;
+            color: #888888;
         }
-        .timeline ul {
-            margin: 0.5em 0;
-            padding-left: 1.5em;
+        .section-box {
+            background: #0e0e0e;
+            border: 1px solid #262626;
+            border-radius: 6px;
+            padding: 18px 20px;
+            margin: 1.7em 0;
         }
-        .timeline li {
-            margin: 0.7em 0;
-            color: #b0b0b0;
+        .section-box h3 {
+            margin-top: 0;
         }
-        .note-box {
-            background: #1a1a0a;
-            padding: 20px 25px;
-            border-left: 3px solid #605020;
-            margin: 2em 0;
-            color: #c0b090;
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
         }
-        .note-box strong {
-            color: #d0c0a0;
+        .col {
+            flex: 1 1 220px;
         }
-        .list-section ul {
-            margin: 1em 0;
-            padding-left: 1.5em;
+        ul {
+            margin: 0.6em 0 0.6em 1.2em;
+            padding: 0;
         }
-        .list-section li {
-            margin: 0.6em 0;
+        li {
+            margin: 0.4em 0;
         }
-        em {
-            color: #c0c0c0;
-            font-style: italic;
+        .label {
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #888888;
+            margin-bottom: 0.3em;
         }
-        strong {
-            color: #d0d0d0;
-        }
-        hr {
+        .divider {
             border: none;
-            border-top: 1px solid #1a1a1a;
-            margin: 3em 0;
+            border-top: 1px solid #202020;
+            margin: 2.2em 0;
+        }
+        .note {
+            font-size: 0.95em;
+            color: #8a8a8a;
+        }
+        .emphasis {
+            color: #dddddd;
+            font-weight: 500;
         }
         .footer-note {
-            font-size: 0.95em;
+            font-size: 0.9em;
             margin-top: 3em;
-            padding-top: 2em;
-            border-top: 1px solid #1a1a1a;
-            color: #808080;
+            padding-top: 1.8em;
+            border-top: 1px solid #202020;
+            color: #777777;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 22px 16px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Why My Mornings Were Hell Until I Fixed My Evening Timing</h1>
-    
+
+    <div class="pill">Personal IBS tool - not a product</div>
+
+    <h1>IBS Morning Timing Calculator</h1>
     <p class="subtitle">
-        This is a free IBS morning timing calculator based on years of tracking visceral hypersensitivity and nervous system timing. 
-        It does not tell you what to eat. It shows how your evenings are setting you up for either a stable or chaotic morning.
+        Not another food list. This is a timing model for people whose IBS mornings are random and brutal, 
+        even after they have tried changing what they eat.
     </p>
 
-    <!-- Option A: Clean simple CTA -->
+    <!-- Top primary CTA -->
     <a href="https://spectacular-florentine-8c268f.netlify.app" class="cta">
-        Open the IBS Timing Calculator
+        Open the free timing calculator
+    </a>
+    <div class="cta-small">
+        Runs in your browser only. No login, no data upload, no tracking.
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-box">
+        <div class="columns">
+            <div class="col">
+                <div class="label">What this is</div>
+                <p>
+                    A simple calculator that turns your evening timing 
+                    into a single Morning Stability Score from 0 to 100.
+                </p>
+            </div>
+            <div class="col">
+                <div class="label">What this is not</div>
+                <p>
+                    Not medical advice, not a cure, not a diet program, 
+                    and not connected to any account or subscription.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <h2>Who this is for</h2>
+    <ul>
+        <li>Your IBS or visceral hypersensitivity hits hardest in the morning.</li>
+        <li>You have tried food elimination and low FODMAP, but mornings are still unpredictable.</li>
+        <li>You notice that sleep, late liquids, or supplements change your gut, but you cannot see the pattern clearly.</li>
+        <li>You are willing to keep your evening timing consistent for a few weeks to test a theory.</li>
+    </ul>
+
+    <h2>The basic idea</h2>
+    <p>
+        For some people (including me), the main driver is not 
+        <span class="emphasis">what</span> you eat, it is 
+        <span class="emphasis">when</span> your system has to process water, magnesium, sugar, and meals
+        relative to sleep and wake time.
+    </p>
+    <p>
+        If you have visceral hypersensitivity and a jumpy gut-brain loop, your nervous system cares a lot about rhythm, delay, and predictability. 
+        When evenings are all over the place, mornings follow that same chaos.
+    </p>
+
+    <div class="section-box">
+        <h3>The pattern I kept seeing</h3>
+        <p>After tracking a lot of days, these four things mattered most for my mornings:</p>
+        <ul>
+            <li>When I stopped drinking liquids in the evening.</li>
+            <li>When I took magnesium glycinate.</li>
+            <li>When I actually fell asleep, not when I meant to.</li>
+            <li>How long and how consistently I slept.</li>
+        </ul>
+        <p>
+            When those lined up in a stable window, my mornings were calmer and more predictable. 
+            When they drifted or stacked badly, mornings got much worse.
+        </p>
+    </div>
+
+    <h2>What the calculator actually does</h2>
+    <p>The tool asks for a small set of inputs from the previous evening and night, then scores that day.</p>
+
+    <div class="columns">
+        <div class="col">
+            <div class="label">Core timing inputs</div>
+            <ul>
+                <li>Dinner time and any late food or snacks.</li>
+                <li>Last liquid time for the night.</li>
+                <li>Magnesium glycinate timing and dose.</li>
+                <li>Sleep start time and wake time.</li>
+            </ul>
+        </div>
+        <div class="col">
+            <div class="label">Extra context</div>
+            <ul>
+                <li>Rough sugar load.</li>
+                <li>Electrolyte use.</li>
+                <li>Fiber, stress, and exercise level.</li>
+            </ul>
+        </div>
+    </div>
+
+    <p>
+        It then gives a Morning Stability Score from 0 to 100 and lets you save the result locally in your browser 
+        along with how your gut actually behaved the next morning.
+    </p>
+
+    <a href="https://spectacular-florentine-8c268f.netlify.app" class="cta">
+        Try the calculator now
     </a>
 
-    <!-- Option B: Start Here Box -->
-    <div class="highlight-box">
-        <strong>Start here:</strong><br>
-        If you want to jump straight to the tool without reading the full breakdown, open the calculator below.<br><br>
-        <a href="https://spectacular-florentine-8c268f.netlify.app" class="cta">
-            Launch the Timing Calculator
-        </a>
-    </div>
+    <hr class="divider">
+
+    <h2>How to use it in real life</h2>
+    <ol>
+        <li>Pick a reasonable timing window for yourself (for example: last liquids by late evening, magnesium about 60 to 90 minutes before sleep, sleep within a consistent range, at least 7 hours in bed).</li>
+        <li>Use the calculator each night or the following morning and log what actually happened the next day (urgency, pain, stool type, or just "good" vs "bad").</li>
+        <li>Do this for at least 3 to 4 weeks before judging it. One random bad morning does not mean the pattern is wrong.</li>
+        <li>Look for clusters. On higher scores, do your mornings tend to be calmer? On low scores, do you see more chaos?</li>
+    </ol>
+
+    <p class="note">
+        The point is not to chase a perfect score. The point is to make the pattern visible enough that you are not guessing every single day.
+    </p>
 
     <hr class="divider">
 
-    <div class="highlight-box">
-        <strong>This tool is completely free. No catch. No signup. No data collection.</strong><br>
-        I built it for myself, it worked, and I am sharing it because I know what it feels like to dread the morning. 
-        It runs entirely in your browser and your history stays on your own device.
-    </div>
+    <h2>What you can reasonably expect</h2>
+    <ul>
+        <li>You will see how sensitive your mornings are to late liquids, drifting magnesium timing, or inconsistent sleep.</li>
+        <li>You may find there is a narrow timing window that gives you noticeably better mornings if you hold it steady.</li>
+        <li>Even if your IBS does not vanish, you may feel less ambushed and more in control of the rhythm.</li>
+    </ul>
 
-    <p>For years, every morning with IBS was unpredictable. Some days I woke up fine. Other days it was instant chaos the moment my feet hit the floor.</p>
-
-    <p>I did everything the books and forums suggest. I eliminated foods. I tracked every bite. I tried gluten free, dairy free, low FODMAP, no FODMAP, and every version of the “maybe it is this food” approach.</p>
-
-    <p><strong>Eventually it clicked.<br>
-    The main problem was not what I ate. It was when I did things.</strong></p>
-
-    <hr class="divider">
-
-    <h2>The IBS Morning Pattern I Could Not See</h2>
-
-    <p>I have visceral hypersensitivity with a very reactive gut–brain loop. In plain language, my gut and nervous system are loud, and the timing of inputs matters more than the exact foods most of the time.</p>
-
-    <p>The real problem was not breakfast.<br>
-    It was not one specific food group.<br>
-    It was not bread, dairy, vegetables, oils, spices, or any of the usual suspects.</p>
-
-    <p><strong>The real driver was the timing of my evenings.</strong></p>
-
-    <p>After tracking hundreds of days, these became the best predictors of my morning stability:</p>
+    <p class="note">
+        There are no guarantees. This is a model built by one person who has visceral hypersensitivity and got tired of random advice.
+        If your nervous system behaves anything like mine, it may still be worth testing.
+    </p>
 
     <hr class="divider">
 
-    <h2>The Evening Timeline That Controls the Morning (for me)</h2>
-
-    <div class="timeline">
-        <ul>
-            <li><strong>Last liquid intake:</strong> stop a few hours before bed (for me that is roughly 6 PM, with an absolute cutoff around 9:40 PM)</li>
-            <li><strong>Magnesium glycinate timing:</strong> about 60 to 90 minutes before sleep</li>
-            <li><strong>Sleep start time:</strong> a consistent window (for me between midnight and 1 AM)</li>
-            <li><strong>Minimum sleep:</strong> about 7 hours, ideally stable</li>
-        </ul>
-    </div>
-
-    <p>When those four things line up, my mornings are predictable.<br>
-    When they do not, mornings go sideways.</p>
-
-    <hr class="divider">
-
-    <h2>Why Timing Can Matter More Than Diet</h2>
-
-    <p>Most IBS advice focuses on food lists and restriction. That helps some people. 
-       There is another group, people like me, where:</p>
-
-    <p><em>the nervous system's timing and delay are the real problem.</em></p>
-
-    <p>If you have visceral hypersensitivity, your body may not care as much about one specific food. 
-       It cares a lot about when your gut is trying to process water, magnesium, sugar, and meals relative to your sleep cycle.</p>
-
-    <p><strong>Your nervous system values timing consistency more than dietary purity.</strong></p>
-
-    <p>This is not about perfection or restriction. It is about rhythm and repeatable patterns.</p>
-
-    <hr class="divider">
-
-    <div class="note-box">
-        <strong>A Quick Reality Check</strong><br><br>
-        This worked for me after years of obsessive tracking.<br>
-        Your body is your own.<br>
-        This is not medical advice. It is one person’s system for turning a chaotic pattern into something measurable and repeatable.
-    </div>
-
-    <hr class="divider">
-
-    <h2>The IBS Morning Timing Calculator</h2>
-
-    <p>Once I understood my timing window, I built a simple tool to predict my morning stability.</p>
-
-    <p>It calculates a Morning Stability Score from 0 to 100 using:</p>
-
-    <div class="list-section">
-        <ul>
-            <li>last liquid time</li>
-            <li>dinner and snack timing</li>
-            <li>magnesium timing</li>
-            <li>sleep start and wake time</li>
-            <li>sugar intake</li>
-            <li>electrolytes</li>
-            <li>fiber</li>
-            <li>stress</li>
-            <li>exercise</li>
-        </ul>
-    </div>
-
-    <p>There is no signup, no email, and no tracking.<br>
-    Just a timing model I wish I had ten years ago.</p>
-
-    <a href="https://spectacular-florentine-8c268f.netlify.app" class="cta">Open the free timing calculator</a>
-
-    <hr class="divider">
-
-    <h2>The One Month Rule</h2>
-
-    <p><strong>This is not a three day hack.</strong></p>
-
-    <p>Your nervous system learns through repetition.<br>
-    Your motility stabilizes with rhythm, not random nights.<br>
-    A hypersensitive gut finds calm through predictability.</p>
-
-    <p><strong>Give it about one month of consistent timing before you judge it.</strong><br>
-    That is when the pattern became undeniable for me.</p>
-
-    <hr class="divider">
-
-    <h2>Who This Might Help</h2>
-
-    <p>This may be worth testing if:</p>
-
-    <div class="list-section">
-        <ul>
-            <li>Your IBS mornings are unpredictable</li>
-            <li>You wake with urgency, diarrhea, or cramps</li>
-            <li>Food elimination did not fully fix things</li>
-            <li>You strongly suspect timing matters</li>
-            <li>You are willing to keep strict evening timing for 30 days</li>
-        </ul>
-    </div>
-
-    <hr class="divider">
-
-    <h2>Yes, This Requires Discipline</h2>
-
-    <p>I will not pretend this is effortless.</p>
-
-    <p>You may need to:</p>
-
-    <div class="list-section">
-        <ul>
-            <li>stop liquids hours before bed</li>
-            <li>take magnesium around the same nightly time</li>
-            <li>keep a consistent sleep schedule</li>
-            <li>log your timing for a while</li>
-        </ul>
-    </div>
-
-    <p>It is inconvenient.<br>
-    Daily chaos is worse.</p>
-
-    <p><strong>This gave me my mornings back. When my timing is stable, my gut is quieter and more predictable.</strong></p>
-
-    <hr class="divider">
-
-    <h2>What To Expect From The Tool</h2>
-
-    <p>The calculator gives you a score for each day and lets you build a history. Over time you will see how specific timing changes move that score up or down, and how that lines up with your actual mornings.</p>
-
-    <p>Based on the logic behind it, my rough expectation is:</p>
-
-    <div class="list-section">
-        <ul>
-            <li>many people who stick with it should see noticeable improvement</li>
-            <li>some will finally feel, “this describes my gut better than anything else has”</li>
-        </ul>
-    </div>
-
-    <p>No guarantees. But if you have hypersensitivity or unpredictable IBS mornings, at least this gives you a concrete pattern to test instead of more guessing.</p>
-
-    <hr class="divider">
-
-    <h2>Frequently Asked Questions</h2>
-
-    <h3>Can evening timing really affect IBS mornings?</h3>
-    <p>For some people, yes. If your nervous system is highly reactive, the timing of fluids, magnesium, sugar, and sleep can matter as much as the foods themselves. This tool is built around that idea.</p>
-
-    <h3>Does this replace a low FODMAP or elimination diet?</h3>
-    <p>No. This does not replace medical care or dietary work. It is mainly for people who still have unpredictable mornings even after trying food changes, or for people who already suspect timing is a missing piece.</p>
-
-    <h3>How long does it take to see a pattern?</h3>
-    <p>Most people will need at least two to four weeks of consistent timing before a trend becomes clear. One random good or bad morning does not tell you much. The power is in the pattern.</p>
+    <h2>Quick FAQ</h2>
 
     <h3>Is this medical advice?</h3>
-    <p>No. This is one person’s model and experiment, shared so others can test their own timing in a structured way. Always work with a medical professional for diagnosis and treatment decisions.</p>
+    <p>No. This is a personal tracking framework, not a treatment. Always work with a medical professional for diagnosis, medications, and health decisions.</p>
+
+    <h3>Does this replace diet work?</h3>
+    <p>No. Diet still matters. This is aimed at the group of people who have already tried diet changes and still wake up to chaos, or who feel timing is a missing piece.</p>
+
+    <h3>Do you collect any of my data?</h3>
+    <p>No. The calculator runs in your browser only. Your entries are stored locally in your own device storage. There are no accounts, no email, and no analytics.</p>
+
+    <h3>How long should I try this?</h3>
+    <p>
+        Realistically, you need at least a few weeks of consistent timing to see a trend. 
+        The nervous system learns through repetition, not single nights.
+    </p>
 
     <hr class="divider">
 
-    <h2>Start Using The Calculator</h2>
+    <h2>Open the calculator</h2>
+    <p>
+        If any of this sounds like your mornings, you can try the timing model for yourself. 
+        Worst case, you spent some time learning more about your own pattern. Best case, your mornings become less of a coin flip.
+    </p>
 
-    <a href="https://spectacular-florentine-8c268f.netlify.app" class="cta">Open the free timing calculator</a>
+    <a href="https://spectacular-florentine-8c268f.netlify.app" class="cta">
+        Open the free IBS timing calculator
+    </a>
 
     <div class="footer-note">
-        <p>Built by someone who spent years reverse engineering their own digestive system. Not a doctor, not selling anything, just sharing a pattern in case it helps you see yours.</p>
+        Built by a person with IBS and visceral hypersensitivity who got tired of guessing.
+        Not a company, not a product, just a tool that made life better and is now shared in case it does the same for you.
     </div>
 
 </body>
