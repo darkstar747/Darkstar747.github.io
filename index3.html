@@ -914,24 +914,160 @@
         <script>
       const $ = (id) => document.getElementById(id);
 
-      // Meal presets (short list to keep it snappy)
-      const mealPresets = [
-        { id: "pastaPlate", emoji: "🍝", name: "Plate of pasta", category: "Dinner, Italian", carbs: 80, sugarBase: 3, tag: "High carb" },
-        { id: "riceBowl", emoji: "🍚", name: "Rice bowl", category: "Lunch or dinner", carbs: 70, sugarBase: 2, tag: "High carb" },
-        { id: "ramenBowl", emoji: "🍜", name: "Ramen or noodle bowl", category: "Dinner, noodles", carbs: 65, sugarBase: 3, tag: "High carb" },
-        { id: "friedRice", emoji: "🍛", name: "Fried rice", category: "Takeout, Chinese", carbs: 75, sugarBase: 3, tag: "High carb" },
-        { id: "orangeChickenRice", emoji: "🍛", name: "Orange chicken plus rice", category: "Takeout, Chinese", carbs: 85, sugarBase: 10, tag: "High carb and sugar" },
-        { id: "pizza2", emoji: "🍕", name: "Pizza, 2 slices", category: "Dinner, pizza", carbs: 60, sugarBase: 3, tag: "High carb and fat" },
-        { id: "burgerFries", emoji: "🍔", name: "Burger with fries", category: "Fast food", carbs: 70, sugarBase: 4, tag: "Heavy" },
-        { id: "burgerOnly", emoji: "🍔", name: "Burger, no fries", category: "Fast food", carbs: 45, sugarBase: 2, tag: "Medium carb" },
-        { id: "burrito", emoji: "🌯", name: "Burrito", category: "Mexican", carbs: 75, sugarBase: 3, tag: "High carb" },
-        { id: "tacos", emoji: "🌮", name: "Tacos, 2 to 3", category: "Mexican", carbs: 45, sugarBase: 2, tag: "Medium carb" },
-        { id: "chipotleBowl", emoji: "🥗", name: "Burrito bowl", category: "Mexican bowl", carbs: 65, sugarBase: 3, tag: "High carb, higher fiber" },
-        { id: "sushi12", emoji: "🍣", name: "Sushi, 12 pieces", category: "Dinner, lighter", carbs: 70, sugarBase: 2, tag: "High carb, low fat" },
-        { id: "saladLowCarb", emoji: "🥗", name: "Salad, low carb", category: "Lighter meal", carbs: 18, sugarBase: 1, tag: "Light" },
-        { id: "proteinMeal", emoji: "🍗", name: "Protein heavy, low carb", category: "Chicken, fish, meat", carbs: 20, sugarBase: 1, tag: "Lower carb" },
-        { id: "dessertOnly", emoji: "🍰", name: "Dessert only", category: "Cake, pastry etc", carbs: 55, sugarBase: 30, tag: "High sugar" }
-      ];
+      // Meal presets with more variety
+const mealPresets = [
+  // --- Your original core meals ---
+  { id: "pasta", emoji: "🍝", name: "Plate of pasta", category: "Dinner, Italian", carbs: 80, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "High carb" },
+  { id: "riceBowl", emoji: "🍚", name: "Rice bowl", category: "Lunch or dinner", carbs: 70, fiber: 2, fatLevel: 0, sugarBase: 2, tag: "High carb" },
+  { id: "ramen", emoji: "🍜", name: "Ramen or noodle bowl", category: "Dinner, noodles", carbs: 65, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "High carb" },
+  { id: "friedRice", emoji: "🍛", name: "Fried rice", category: "Takeout, Chinese", carbs: 75, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb" },
+  { id: "orangeChickenRice", emoji: "🍛", name: "Orange chicken plus rice", category: "Takeout, Chinese", carbs: 85, fiber: 3, fatLevel: 2, sugarBase: 10, tag: "High carb and sugar" },
+  { id: "pizza2", emoji: "🍕", name: "Pizza, 2 slices", category: "Dinner, pizza", carbs: 60, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb and fat" },
+  { id: "burgerFries", emoji: "🍔", name: "Burger with fries", category: "Fast food", carbs: 70, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "Heavy" },
+  { id: "burgerOnly", emoji: "🍔", name: "Burger, no fries", category: "Fast food", carbs: 45, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb" },
+  { id: "burrito", emoji: "🌯", name: "Burrito", category: "Mexican style", carbs: 75, fiber: 6, fatLevel: 2, sugarBase: 3, tag: "High carb" },
+  { id: "tacos", emoji: "🌮", name: "Tacos, 2 to 3", category: "Mexican style", carbs: 45, fiber: 4, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
+  { id: "chipotleBowl", emoji: "🥗", name: "Burrito bowl", category: "Mexican bowl", carbs: 65, fiber: 7, fatLevel: 2, sugarBase: 3, tag: "High carb, higher fiber" },
+  { id: "sushi12", emoji: "🍣", name: "Sushi, 12 pieces", category: "Dinner, lighter", carbs: 70, fiber: 3, fatLevel: 0, sugarBase: 2, tag: "High carb, low fat" },
+  { id: "saladLowCarb", emoji: "🥗", name: "Salad, low carb", category: "Lighter meal", carbs: 18, fiber: 6, fatLevel: 1, sugarBase: 1, tag: "Light" },
+  { id: "proteinMeal", emoji: "🍗", name: "Protein heavy, low carb", category: "Chicken, fish, meat", carbs: 20, fiber: 3, fatLevel: 1, sugarBase: 1, tag: "Lower carb" },
+  { id: "sandwich", emoji: "🥪", name: "Sandwich", category: "Lunch", carbs: 45, fiber: 4, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
+  { id: "breakfastCombo", emoji: "🥓", name: "Breakfast combo", category: "Eggs, hash browns, toast", carbs: 55, fiber: 3, fatLevel: 2, sugarBase: 2, tag: "Medium carb and fat" },
+  { id: "cereal", emoji: "🥣", name: "Cereal bowl", category: "Breakfast", carbs: 55, fiber: 3, fatLevel: 0, sugarBase: 8, tag: "Sugary" },
+  { id: "bagelCreamCheese", emoji: "🥯", name: "Bagel with cream cheese", category: "Breakfast or snack", carbs: 60, fiber: 3, fatLevel: 2, sugarBase: 4, tag: "High carb" },
+  { id: "potato", emoji: "🥔", name: "Baked potato with toppings", category: "Dinner side", carbs: 60, fiber: 4, fatLevel: 1, sugarBase: 1, tag: "High carb" },
+  { id: "smoothie", emoji: "🥤", name: "Fruit smoothie", category: "Drink or snack", carbs: 55, fiber: 4, fatLevel: 0, sugarBase: 30, tag: "High sugar" },
+  { id: "iceCream", emoji: "🍨", name: "Ice cream bowl", category: "Dessert", carbs: 45, fiber: 1, fatLevel: 2, sugarBase: 28, tag: "High sugar" },
+  { id: "dessertOnly", emoji: "🍰", name: "Dessert only", category: "Cake, pastry, etc", carbs: 55, fiber: 1, fatLevel: 1, sugarBase: 30, tag: "High sugar" },
+  { id: "snackPlate", emoji: "🧀", name: "Snack plate", category: "Cheese, crackers, nuts", carbs: 25, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "Medium carb" },
+  { id: "soupBread", emoji: "🍲", name: "Soup with bread", category: "Lunch or dinner", carbs: 45, fiber: 3, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
+  { id: "otherHeavy", emoji: "🍽️", name: "Other heavy carb dinner", category: "General", carbs: 75, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "Heavy" },
+
+  // --- Extra breakfast / morning stuff ---
+  { id: "oatmealFruit", emoji: "🥣", name: "Oatmeal with fruit", category: "Breakfast, warm", carbs: 45, fiber: 6, fatLevel: 0, sugarBase: 8, tag: "Medium carb, higher fiber" },
+  { id: "pancakesSyrup", emoji: "🥞", name: "Pancakes with syrup", category: "Breakfast, sweet", carbs: 65, fiber: 2, fatLevel: 1, sugarBase: 20, tag: "High carb and sugar" },
+  { id: "wafflesSyrup", emoji: "🧇", name: "Waffles with syrup", category: "Breakfast, sweet", carbs: 65, fiber: 2, fatLevel: 1, sugarBase: 20, tag: "High carb and sugar" },
+  { id: "frenchToast", emoji: "🍞", name: "French toast with syrup", category: "Breakfast, sweet", carbs: 60, fiber: 2, fatLevel: 1, sugarBase: 18, tag: "High carb and sugar" },
+  { id: "cerealMilk", emoji: "🥣", name: "Cereal with milk", category: "Breakfast, boxed cereal", carbs: 55, fiber: 3, fatLevel: 0, sugarBase: 12, tag: "Sugary" },
+  { id: "granolaYogurt", emoji: "🥣", name: "Granola with yogurt", category: "Breakfast or snack", carbs: 50, fiber: 4, fatLevel: 1, sugarBase: 15, tag: "Medium carb, sweet" },
+  { id: "toastButterJam", emoji: "🍞", name: "Toast with butter and jam", category: "Breakfast or snack", carbs: 35, fiber: 2, fatLevel: 1, sugarBase: 10, tag: "Medium carb and sugar" },
+  { id: "eggsToast", emoji: "🍳", name: "Eggs with toast", category: "Breakfast plate", carbs: 25, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb, higher fat" },
+  { id: "bigBreakfastPlatter", emoji: "🥓", name: "Big breakfast platter", category: "Eggs, meat, potatoes, toast", carbs: 55, fiber: 3, fatLevel: 2, sugarBase: 4, tag: "Medium carb and fat" },
+  { id: "yogurtCup", emoji: "🥛", name: "Yogurt cup", category: "Breakfast or snack", carbs: 20, fiber: 0, fatLevel: 1, sugarBase: 12, tag: "Light, sweet" },
+  { id: "fruitBowl", emoji: "🍓", name: "Fresh fruit bowl", category: "Breakfast or snack", carbs: 30, fiber: 4, fatLevel: 0, sugarBase: 12, tag: "Light, natural sugar" },
+  { id: "veggieOmelet", emoji: "🍳", name: "Veggie omelet", category: "Breakfast, low carb", carbs: 10, fiber: 2, fatLevel: 2, sugarBase: 1, tag: "Lower carb" },
+  { id: "breakfastBurrito", emoji: "🌯", name: "Breakfast burrito", category: "Breakfast wrap", carbs: 55, fiber: 4, fatLevel: 2, sugarBase: 3, tag: "Medium carb and fat" },
+  { id: "breakfastSandwich", emoji: "🥪", name: "Breakfast sandwich", category: "Egg, cheese, bread", carbs: 40, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "Medium carb" },
+
+  // --- Sandwiches / lunch ---
+  { id: "turkeySandwich", emoji: "🥪", name: "Turkey sandwich", category: "Lunch sandwich", carbs: 40, fiber: 4, fatLevel: 1, sugarBase: 3, tag: "Medium carb" },
+  { id: "hamCheeseSandwich", emoji: "🥪", name: "Ham and cheese sandwich", category: "Lunch sandwich", carbs: 40, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "Medium carb and fat" },
+  { id: "grilledCheese", emoji: "🧀", name: "Grilled cheese sandwich", category: "Lunch sandwich", carbs: 35, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb, high fat" },
+  { id: "chickenSaladSandwich", emoji: "🥪", name: "Chicken salad sandwich", category: "Lunch sandwich", carbs: 40, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "Medium carb and fat" },
+  { id: "veggieWrap", emoji: "🌯", name: "Veggie wrap", category: "Lunch wrap", carbs: 40, fiber: 5, fatLevel: 1, sugarBase: 3, tag: "Medium carb, higher fiber" },
+  { id: "chickenCaesarWrap", emoji: "🌯", name: "Chicken Caesar wrap", category: "Lunch wrap", carbs: 45, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "Medium carb and fat" },
+
+  // --- Soups / bowls ---
+  { id: "brothSoupLight", emoji: "🍲", name: "Broth based soup", category: "Light meal", carbs: 20, fiber: 2, fatLevel: 0, sugarBase: 1, tag: "Light" },
+  { id: "chiliAndBread", emoji: "🍲", name: "Chili with bread or crackers", category: "Hearty bowl", carbs: 50, fiber: 8, fatLevel: 2, sugarBase: 3, tag: "Medium carb, high fiber" },
+  { id: "pokeBowl", emoji: "🍚", name: "Poke bowl", category: "Rice bowl", carbs: 60, fiber: 4, fatLevel: 1, sugarBase: 4, tag: "High carb" },
+  { id: "grainBowl", emoji: "🥗", name: "Grain bowl", category: "Rice or quinoa bowl", carbs: 55, fiber: 6, fatLevel: 1, sugarBase: 3, tag: "Medium carb, higher fiber" },
+
+  // --- Asian noodles / rice ---
+  { id: "phoBowl", emoji: "🍜", name: "Pho bowl", category: "Vietnamese soup", carbs: 60, fiber: 3, fatLevel: 1, sugarBase: 2, tag: "High carb" },
+  { id: "stirFryNoodles", emoji: "🍜", name: "Stir fried noodles", category: "Asian noodles", carbs: 70, fiber: 3, fatLevel: 2, sugarBase: 4, tag: "High carb and fat" },
+  { id: "loMein", emoji: "🍜", name: "Lo mein", category: "Chinese noodles", carbs: 70, fiber: 3, fatLevel: 2, sugarBase: 4, tag: "High carb and fat" },
+  { id: "curryRice", emoji: "🍛", name: "Curry with rice", category: "Indian or Thai", carbs: 70, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "High carb, higher fat" },
+  { id: "butterChickenRice", emoji: "🍛", name: "Butter chicken with rice", category: "Indian style", carbs: 70, fiber: 3, fatLevel: 2, sugarBase: 4, tag: "High carb and fat" },
+  { id: "stirFryRice", emoji: "🍚", name: "Stir fry with rice", category: "Rice bowl", carbs: 65, fiber: 4, fatLevel: 1, sugarBase: 3, tag: "High carb" },
+  { id: "chickenRice", emoji: "🍗", name: "Chicken with rice", category: "Dinner plate", carbs: 55, fiber: 3, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
+
+  // --- Sushi / lighter bowls ---
+  { id: "sushi8", emoji: "🍣", name: "Sushi, 8 pieces", category: "Lighter dinner", carbs: 50, fiber: 2, fatLevel: 0, sugarBase: 2, tag: "Medium carb" },
+  { id: "sashimiSalad", emoji: "🥗", name: "Sashimi with salad", category: "Very light carb", carbs: 15, fiber: 3, fatLevel: 1, sugarBase: 1, tag: "Lower carb" },
+  { id: "pokeBowlLight", emoji: "🍚", name: "Light poke bowl", category: "Rice bowl", carbs: 50, fiber: 4, fatLevel: 1, sugarBase: 3, tag: "Medium carb" },
+
+  // --- Mexican extras ---
+  { id: "tacos2", emoji: "🌮", name: "Tacos, 2", category: "Mexican style", carbs: 35, fiber: 3, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
+  { id: "tacos3", emoji: "🌮", name: "Tacos, 3", category: "Mexican style", carbs: 50, fiber: 4, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
+  { id: "nachosShare", emoji: "🧀", name: "Nachos, shared plate", category: "Mexican snack", carbs: 60, fiber: 4, fatLevel: 2, sugarBase: 2, tag: "High carb and fat" },
+  { id: "quesadilla", emoji: "🧀", name: "Cheese quesadilla", category: "Mexican snack", carbs: 45, fiber: 3, fatLevel: 2, sugarBase: 2, tag: "Medium carb and fat" },
+
+  // --- Italian / pasta extras ---
+  { id: "pastaRedSauce", emoji: "🍝", name: "Pasta with tomato sauce", category: "Italian, dinner", carbs: 80, fiber: 4, fatLevel: 1, sugarBase: 4, tag: "High carb" },
+  { id: "pastaAlfredo", emoji: "🍝", name: "Pasta with Alfredo sauce", category: "Italian, creamy", carbs: 80, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb and fat" },
+  { id: "lasagna", emoji: "🍝", name: "Lasagna", category: "Italian, baked", carbs: 70, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "High carb and fat" },
+  { id: "spaghettiMeatballs", emoji: "🍝", name: "Spaghetti with meatballs", category: "Italian, dinner", carbs: 75, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "High carb and fat" },
+  { id: "macCheese", emoji: "🧀", name: "Mac and cheese", category: "Comfort food", carbs: 70, fiber: 2, fatLevel: 2, sugarBase: 3, tag: "High carb and fat" },
+  { id: "bakedZiti", emoji: "🍝", name: "Baked ziti", category: "Italian, baked", carbs: 70, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb" },
+  { id: "pizza3", emoji: "🍕", name: "Pizza, 3 slices", category: "Pizza dinner", carbs: 90, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "Very high carb and fat" },
+  { id: "cheesePizzaSlice", emoji: "🍕", name: "Cheese pizza, 1 slice", category: "Pizza", carbs: 30, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb, high fat" },
+  { id: "pepperoniPizzaSlice", emoji: "🍕", name: "Pepperoni pizza, 1 slice", category: "Pizza", carbs: 30, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb, high fat" },
+
+  // --- Meat and potatoes / mains extras ---
+  { id: "steakPotato", emoji: "🥩", name: "Steak with baked potato", category: "Dinner plate", carbs: 50, fiber: 4, fatLevel: 2, sugarBase: 1, tag: "Medium carb, high fat" },
+  { id: "chickenVeg", emoji: "🍗", name: "Grilled chicken with vegetables", category: "Dinner plate", carbs: 20, fiber: 4, fatLevel: 1, sugarBase: 1, tag: "Lower carb" },
+  { id: "salmonVeg", emoji: "🐟", name: "Salmon with vegetables", category: "Dinner plate", carbs: 15, fiber: 4, fatLevel: 2, sugarBase: 1, tag: "Lower carb" },
+  { id: "porkChopPotato", emoji: "🍖", name: "Pork chop with potatoes", category: "Dinner plate", carbs: 45, fiber: 3, fatLevel: 2, sugarBase: 2, tag: "Medium carb" },
+  { id: "meatloafMashed", emoji: "🍖", name: "Meatloaf with mashed potatoes", category: "Dinner plate", carbs: 55, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "Medium carb and fat" },
+
+  // --- Extra salads / low carb ---
+  { id: "cobbSalad", emoji: "🥗", name: "Cobb salad", category: "Salad with protein", carbs: 20, fiber: 5, fatLevel: 2, sugarBase: 2, tag: "Lower carb, higher fat" },
+  { id: "greekSaladPita", emoji: "🥗", name: "Greek salad with pita", category: "Mediterranean salad", carbs: 35, fiber: 5, fatLevel: 1, sugarBase: 3, tag: "Medium carb" },
+  { id: "lettuceWraps", emoji: "🥬", name: "Lettuce wraps", category: "Low carb wrap", carbs: 15, fiber: 3, fatLevel: 1, sugarBase: 1, tag: "Lower carb" },
+  { id: "tofuStirFry", emoji: "🥦", name: "Tofu stir fry with vegetables", category: "Plant based", carbs: 35, fiber: 6, fatLevel: 1, sugarBase: 3, tag: "Medium carb, higher fiber" },
+
+  // --- Snacks ---
+  { id: "chipsBag", emoji: "🍟", name: "Bag of chips", category: "Snack", carbs: 30, fiber: 2, fatLevel: 2, sugarBase: 1, tag: "Medium carb, high fat" },
+  { id: "popcornBowl", emoji: "🍿", name: "Bowl of popcorn", category: "Snack", carbs: 25, fiber: 4, fatLevel: 1, sugarBase: 1, tag: "Medium carb" },
+  { id: "nutsHandful", emoji: "🥜", name: "Handful of nuts", category: "Snack", carbs: 8, fiber: 3, fatLevel: 2, sugarBase: 1, tag: "Mostly fat and fiber" },
+  { id: "trailMix", emoji: "🥜", name: "Trail mix", category: "Snack", carbs: 25, fiber: 4, fatLevel: 2, sugarBase: 10, tag: "Medium carb and sugar" },
+  { id: "hummusVeg", emoji: "🥕", name: "Hummus with vegetables", category: "Snack", carbs: 20, fiber: 5, fatLevel: 1, sugarBase: 1, tag: "Light to medium carb" },
+  { id: "hummusPita", emoji: "🥙", name: "Hummus with pita", category: "Snack", carbs: 35, fiber: 5, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
+  { id: "cheeseCrackers", emoji: "🧀", name: "Cheese and crackers", category: "Snack", carbs: 25, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb, high fat" },
+  { id: "applePeanutButter", emoji: "🍎", name: "Apple with peanut butter", category: "Snack", carbs: 30, fiber: 4, fatLevel: 1, sugarBase: 15, tag: "Medium carb" },
+  { id: "bananaSnack", emoji: "🍌", name: "Banana", category: "Snack", carbs: 25, fiber: 3, fatLevel: 0, sugarBase: 14, tag: "Medium carb, natural sugar" },
+  { id: "proteinBar", emoji: "🍫", name: "Protein bar", category: "Snack", carbs: 25, fiber: 4, fatLevel: 1, sugarBase: 8, tag: "Medium carb" },
+
+  // --- Desserts ---
+  { id: "iceCreamBowl", emoji: "🍨", name: "Ice cream bowl (big)", category: "Dessert", carbs: 45, fiber: 1, fatLevel: 2, sugarBase: 28, tag: "High sugar" },
+  { id: "milkshake", emoji: "🥤", name: "Milkshake", category: "Dessert drink", carbs: 60, fiber: 1, fatLevel: 2, sugarBase: 40, tag: "Very high sugar" },
+  { id: "brownie", emoji: "🍫", name: "Brownie", category: "Dessert", carbs: 40, fiber: 2, fatLevel: 2, sugarBase: 25, tag: "High sugar" },
+  { id: "cookie2", emoji: "🍪", name: "Cookies, 2", category: "Dessert or snack", carbs: 30, fiber: 1, fatLevel: 2, sugarBase: 18, tag: "High sugar" },
+  { id: "donut", emoji: "🍩", name: "Donut", category: "Dessert or breakfast", carbs: 40, fiber: 1, fatLevel: 2, sugarBase: 20, tag: "High sugar and fat" },
+  { id: "cinnamonRoll", emoji: "🍩", name: "Cinnamon roll", category: "Dessert or breakfast", carbs: 60, fiber: 2, fatLevel: 2, sugarBase: 30, tag: "Very high sugar" },
+  { id: "cakeSlice", emoji: "🍰", name: "Slice of cake", category: "Dessert", carbs: 45, fiber: 1, fatLevel: 2, sugarBase: 28, tag: "High sugar" },
+  { id: "cupcake", emoji: "🧁", name: "Cupcake", category: "Dessert", carbs: 35, fiber: 1, fatLevel: 2, sugarBase: 22, tag: "High sugar" },
+  { id: "candyBar", emoji: "🍫", name: "Candy bar", category: "Dessert or snack", carbs: 30, fiber: 1, fatLevel: 2, sugarBase: 24, tag: "High sugar" },
+  { id: "fruitDessert", emoji: "🍓", name: "Fruit salad dessert", category: "Light dessert", carbs: 25, fiber: 3, fatLevel: 0, sugarBase: 14, tag: "Medium sugar, lighter" },
+
+  // --- Sugary drinks ---
+  { id: "sodaCan", emoji: "🥤", name: "Soda, 12 oz can", category: "Sugary drink", carbs: 39, fiber: 0, fatLevel: 0, sugarBase: 39, tag: "High sugar" },
+  { id: "sodaLarge", emoji: "🥤", name: "Soda, large fountain", category: "Sugary drink", carbs: 60, fiber: 0, fatLevel: 0, sugarBase: 60, tag: "Very high sugar" },
+  { id: "sweetTea", emoji: "🥤", name: "Sweet tea", category: "Sugary drink", carbs: 35, fiber: 0, fatLevel: 0, sugarBase: 35, tag: "High sugar" },
+  { id: "sportsDrink", emoji: "🥤", name: "Sports drink", category: "Sugary drink", carbs: 30, fiber: 0, fatLevel: 0, sugarBase: 30, tag: "High sugar" },
+  { id: "lemonade", emoji: "🍋", name: "Lemonade", category: "Sugary drink", carbs: 35, fiber: 0, fatLevel: 0, sugarBase: 35, tag: "High sugar" },
+  { id: "fruitJuiceGlass", emoji: "🧃", name: "Fruit juice glass", category: "Sugary drink", carbs: 30, fiber: 0, fatLevel: 0, sugarBase: 28, tag: "High sugar" },
+  { id: "frappuccino", emoji: "☕️", name: "Frappuccino style drink", category: "Coffee dessert", carbs: 55, fiber: 1, fatLevel: 2, sugarBase: 40, tag: "Very high sugar" },
+  { id: "bobaTea", emoji: "🧋", name: "Boba tea", category: "Sugary drink", carbs: 55, fiber: 1, fatLevel: 1, sugarBase: 35, tag: "High sugar" },
+
+  // --- Coffee / caffeine ---
+  { id: "blackCoffeeSmall", emoji: "☕️", name: "Black coffee, small", category: "Coffee, low sugar", carbs: 0, fiber: 0, fatLevel: 0, sugarBase: 0, tag: "No sugar" },
+  { id: "blackCoffeeLarge", emoji: "☕️", name: "Black coffee, large", category: "Coffee, low sugar", carbs: 0, fiber: 0, fatLevel: 0, sugarBase: 0, tag: "No sugar" },
+  { id: "latteMedium", emoji: "☕️", name: "Latte, medium", category: "Coffee drink", carbs: 18, fiber: 0, fatLevel: 1, sugarBase: 15, tag: "Medium sugar" },
+  { id: "energyDrinkCan", emoji: "⚡️", name: "Energy drink, 1 can", category: "Sugary caffeine drink", carbs: 28, fiber: 0, fatLevel: 0, sugarBase: 28, tag: "High sugar" },
+  { id: "energyDrinkLarge", emoji: "⚡️", name: "Energy drink, large", category: "Sugary caffeine drink", carbs: 45, fiber: 0, fatLevel: 0, sugarBase: 45, tag: "Very high sugar" },
+  { id: "teaWithSugar", emoji: "🍵", name: "Tea with sugar", category: "Light drink", carbs: 18, fiber: 0, fatLevel: 0, sugarBase: 18, tag: "Medium sugar" },
+
+  // --- Catch-all / other ---
+  { id: "gyroFries", emoji: "🥙", name: "Gyro with fries", category: "Greek fast casual", carbs: 70, fiber: 4, fatLevel: 2, sugarBase: 3, tag: "High carb and fat" },
+  { id: "shawarmaWrap", emoji: "🥙", name: "Shawarma wrap", category: "Middle Eastern wrap", carbs: 55, fiber: 4, fatLevel: 2, sugarBase: 3, tag: "Medium carb and fat" },
+  { id: "casserolePlate", emoji: "🍲", name: "Casserole plate", category: "Home style dinner", carbs: 55, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "Medium carb" },
+  { id: "otherHeavyDinner", emoji: "🍽️", name: "Other heavy carb dinner (alt)", category: "General heavy meal", carbs: 75, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "Heavy" },
+  { id: "otherLightMeal", emoji: "🥗", name: "Other lighter plate", category: "General light meal", carbs: 25, fiber: 4, fatLevel: 1, sugarBase: 2, tag: "Light to medium carb" },
+  { id: "snackUnknown", emoji: "🍿", name: "Random snack combo", category: "Chips, sweets, random", carbs: 40, fiber: 2, fatLevel: 2, sugarBase: 15, tag: "Medium carb and sugar" },
+  { id: "mealUnknown", emoji: "🍽️", name: "Not sure, mixed meal", category: "Guess template", carbs: 65, fiber: 3, fatLevel: 2, sugarBase: 8, tag: "Estimated heavy" }
+];
 
       // State
       let currentMode = "simple";
