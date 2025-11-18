@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>FREE Carb / Sugar Anxiety Timing Calculator – Gut & Nerve Timing Tool</title>
+  <title>FREE Carb / Sugar Anxiety Timing Calculator – Gut and Nerve Timing Tool</title>
 
   <!-- SEO Meta -->
-  <meta name="description" content="A completely FREE biology-based anxiety timing calculator that predicts spike → crash → anxiety windows after carbs, sugar, caffeine, and gut sensitivity. Built for IBS, sensitive gut, and reactive nervous systems.">
-  <meta name="keywords" content="free anxiety tool, free anxiety calculator, sugar anxiety, carb anxiety, timing anxiety, hypoglycemia anxiety, IBS visceral hypersensitivity, gut brain axis, anxiety spike after eating, sugar crash anxiety tool" />
+  <meta name="description" content="A completely FREE biology-based anxiety timing calculator that predicts spike → crash → anxiety windows after carbs, sugar, caffeine, and gut sensitivity. Built for IBS, sensitive gut, and reactive nervous systems." />
+  <meta name="keywords" content="free anxiety tool, free anxiety calculator, sugar anxiety, carb anxiety, timing anxiety, hypoglycemia anxiety, IBS visceral hypersensitivity, gut brain axis, anxiety after eating, sugar crash anxiety tool" />
   <meta name="author" content="Darkstar747" />
 
   <!-- Social Sharing -->
@@ -18,127 +18,520 @@
   <meta property="og:url" content="https://darkstar747.github.io/" />
 
   <style>
+    :root {
+      font-size: 18px;
+      --accent: #3ef2c3;
+      --accent-dark: #29c9a4;
+      --bg: #0a0b13;
+      --text-main: #e3e3e3;
+      --text-soft: #b3bac8;
+      --text-subtle: #8a90a0;
+      --card: #0f172a;
+      --card-soft: #111827;
+      --border-subtle: rgba(148, 163, 184, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0a0b13;
-      color: #e3e3e3;
+      font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text-main);
       margin: 0;
-      padding: 30px;
+      padding: 26px 16px 40px;
       line-height: 1.6;
     }
+
+    .shell {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
     h1 {
-      font-size: 2.2rem;
-      margin-bottom: 10px;
+      font-size: 2.1rem;
+      margin-bottom: 8px;
       color: #ffffff;
     }
-    .free-tag {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 6px 12px;
-      background: #3ef2c3;
-      color: #000;
-      font-weight: 600;
-      border-radius: 8px;
-      font-size: 0.95rem;
-    }
+
     h2 {
       font-size: 1.4rem;
       color: #b8f3dc;
-      margin-top: 30px;
+      margin: 28px 0 8px;
     }
-    p {
-      max-width: 800px;
+
+    h3 {
       font-size: 1.05rem;
+      margin: 20px 0 6px;
+      color: #e5e7eb;
     }
+
+    p {
+      max-width: 820px;
+      font-size: 0.98rem;
+      color: var(--text-soft);
+      margin: 6px 0;
+    }
+
+    ul {
+      padding-left: 1.1rem;
+      margin: 6px 0 10px;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    li { margin-bottom: 3px; }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 7px 14px;
+      background: var(--accent);
+      color: #000;
+      font-weight: 650;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+
+    .hero-tag span.sub {
+      font-weight: 500;
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+
+    .hero-intro {
+      margin-top: 14px;
+    }
+
+    .hero-intro strong { color: #ffffff; }
+
     .button-area {
-      margin-top: 30px;
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
     }
+
     .main-btn {
       display: inline-block;
-      padding: 16px 32px;
+      padding: 14px 26px;
       border-radius: 12px;
-      background: #3ef2c3;
+      background: var(--accent);
       color: #000;
       font-weight: 700;
-      font-size: 1.25rem;
+      font-size: 1.05rem;
       text-decoration: none;
+      border: none;
     }
+
     .main-btn:hover {
-      background: #29c9a4;
+      background: var(--accent-dark);
     }
-    .small-links {
-      margin-top: 20px;
-    }
-    .small-links a {
-      display: block;
-      margin-top: 6px;
-      color: #8dddc6;
+
+    .ghost-link {
+      font-size: 0.9rem;
+      color: #a5f3fc;
       text-decoration: none;
     }
+
+    .ghost-link:hover { color: #e0f2fe; }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      white-space: nowrap;
+    }
+
+    .section-card {
+      margin-top: 20px;
+      padding: 16px 16px 18px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left, #111827, #020617);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+    }
+
+    .section-card h2,
+    .section-card h3 {
+      margin-top: 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 820px) {
+      .two-col {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .step-list {
+      counter-reset: steps;
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .step-list li {
+      counter-increment: steps;
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .step-list li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #000;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 0.85rem;
+    }
+
+    .badge {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #0f172a;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-soft);
+    }
+
+    .faq-item {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.4);
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .faq-q {
+      font-weight: 600;
+      color: #e5e7eb;
+      font-size: 0.98rem;
+    }
+
+    .faq-a {
+      font-size: 0.94rem;
+      color: var(--text-soft);
+    }
+
+    .share-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 0.94rem;
+    }
+
+    .share-list li { margin-bottom: 4px; }
+
+    .highlight-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #020617;
+      border: 1px solid rgba(248, 250, 252, 0.08);
+      font-size: 0.94rem;
+      color: var(--text-soft);
+    }
+
     footer {
-      margin-top: 60px;
-      opacity: 0.65;
-      font-size: 0.9rem;
+      margin-top: 40px;
+      font-size: 0.88rem;
+      color: var(--text-subtle);
+      opacity: 0.8;
     }
   </style>
 </head>
 
 <body>
+  <div class="shell">
 
-  <h1>Carb / Sugar Anxiety Timing Calculator</h1>
-  <div class="free-tag">100% Free – No login, no ads, no data collection</div>
+    <header>
+      <h1>Carb / Sugar Anxiety Timing Calculator</h1>
+      <div class="hero-tag">
+        100% Free
+        <span class="sub">No login, no ads, no data collection</span>
+      </div>
 
-  <p>
-    This is a completely <strong>free, biology-based tool</strong> that estimates when carbs,
-    sugar, caffeine, gut sensitivity, and your nervous system might combine to create a
-    <strong>spike → crash → anxiety</strong> window.
-  </p>
+      <p class="hero-intro">
+        A completely <strong>free, biology-based tool</strong> that estimates when carbs, sugar,
+        caffeine, gut sensitivity, and your nervous system might combine to create a
+        <strong>spike → crash → anxiety</strong> window.
+      </p>
+      <p>
+        This is not about willpower or personality. It is about timing, hormones, blood sugar,
+        gut nerves, and how a sensitive nervous system reacts when everything swings at once.
+        If you get a strange wave of anxiety one to three hours after eating, this tool helps
+        you map that pattern.
+      </p>
 
-  <p>
-    Not psychology. Not guessing.  
-    This is timing, hormones, gut-nerve patterns, and crash physics.  
-    If you’ve ever had the “1–3 hour after a meal anxiety wave,” this explains why.
-  </p>
+      <div class="button-area">
+        <a href="index3.html" class="main-btn">Start the FREE calculator</a>
+        <a href="https://darkstar747.github.io/index3.html" class="ghost-link">
+          Direct link to the tool
+        </a>
+      </div>
 
-  <div class="button-area">
-    <a href="index3.html" class="main-btn">Start the FREE Calculator →</a>
+      <div class="pill-row">
+        <span class="pill">Built for IBS and visceral hypersensitivity</span>
+        <span class="pill">Focus on timing, not blame</span>
+        <span class="pill">Gut and nervous system pattern explorer</span>
+      </div>
+    </header>
+
+    <section class="section-card">
+      <h2>How the timing calculator works</h2>
+      <p>
+        The goal is simple: show you when a biological wave is likely to hit, so it feels less
+        random and less like it came out of nowhere.
+      </p>
+
+      <ol class="step-list">
+        <li>
+          <strong>Pick the meal or sugar level.</strong>  
+          In simple mode you choose the plate that looks closest to what you ate. In advanced
+          mode you can type approximate grams for carbs, added sugar, and caffeine.
+        </li>
+        <li>
+          <strong>Tell it how sensitive your gut and nerves are.</strong>  
+          Three quick choices describe how carb heavy your day has been, how reactive your gut is,
+          and how jumpy your anxiety system feels.
+        </li>
+        <li>
+          <strong>See the spike → crash → anxiety timeline update in real time.</strong>  
+          The gauge and colored bar show a risk score and the likely spike, crash and recovery
+          windows for the next few hours.
+        </li>
+      </ol>
+
+      <div class="highlight-box">
+        You are not getting labeled. You are just seeing a timing model based on what your body
+        tends to do with carbs, sugar, caffeine, and sensitivity.
+      </div>
+    </section>
+        <section class="section-card two-col">
+      <div>
+        <h2>Who this free tool is for</h2>
+        <ul>
+          <li>People who get anxiety or dread one to three hours after eating</li>
+          <li>Anyone with IBS or visceral hypersensitivity who feels “wired and tired” after meals</li>
+          <li>People who feel a sugar crash but also feel mentally off or on edge</li>
+          <li>Folks who notice caffeine plus carbs creates a bigger wave</li>
+          <li>Anyone who wants more predictable days, not surprise crashes</li>
+        </ul>
+
+        <h3>Why timing matters more than “what you ate”</h3>
+        <p>
+          Doctors and diet culture focus on the food list. Many sensitive people have a
+          different problem: the timing. A higher carb or sugar load often produces a
+          spike in the first hour, a drop in the second or third hour, and a nervous
+          system flare right on top of that drop.
+        </p>
+        <p>
+          For some people that drop feels like a full anxiety episode. The calculator
+          helps you connect that feeling with the biology underneath it.
+        </p>
+      </div>
+
+      <div>
+        <h2>Why this tool exists</h2>
+        <p>
+          The creator of this tool spent years dealing with IBS, visceral
+          hypersensitivity, and strange anxiety spikes that never matched the story in
+          their head. Once the pattern was mapped out as
+          “carb load + sugar + caffeine + sensitivity + timing”, the days finally
+          made sense.
+        </p>
+        <p>
+          This project is a way to share that model for free. No signups, no tracking,
+          no supplements or courses behind it, just a timing explorer that might give
+          you the language to say: “Oh, this is my crash window, not my character.”
+        </p>
+
+        <div class="badge-row">
+          <span class="badge">Always free</span>
+          <span class="badge">No account required</span>
+          <span class="badge">No ads or upsells</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <h2>Why am I feeling this way after I eat?</h2>
+      <p>
+        A lot of people search for that exact sentence and never get a clear answer.
+        Here is the short version of what this tool assumes:
+      </p>
+      <ul>
+        <li>Your gut has its own nervous system that talks tightly with your brain.</li>
+        <li>Big carb or sugar loads can cause a sharp rise and then a drop in blood sugar.</li>
+        <li>That drop can trigger adrenaline and stress chemistry, which feels like anxiety.</li>
+        <li>IBS and visceral hypersensitivity amplify gut signals so they feel louder.</li>
+        <li>Caffeine stacks on top of this and can make the wave feel stronger or shakier.</li>
+      </ul>
+      <p>
+        None of that means your feelings are not real. It means part of the story is
+        timing and physiology, not just thoughts.
+      </p>
+
+      <h3>Example pattern</h3>
+      <p>
+        A big bowl of pasta plus dessert or soda might create:
+      </p>
+      <ul>
+        <li>Spike: 30 to 75 minutes after the meal</li>
+        <li>Crash window: 75 to 150 minutes after the meal</li>
+        <li>Recovery trend: 3 to 5 hours after the meal</li>
+      </ul>
+      <p>
+        If you are sensitive, that crash window is often the “why do I suddenly feel so off”
+        part of the day. The calculator turns that window into something you can see
+        instead of guess.
+      </p>
+    </section>
+
+    <section class="section-card">
+      <h2>Quick FAQ</h2>
+
+      <div class="faq-item">
+        <div class="faq-q">Is this medical advice or a diagnosis?</div>
+        <div class="faq-a">
+          No. This is a timing model that combines carbs, added sugar, caffeine and sensitivity
+          into a simple risk score and timeline. It does not diagnose any condition. If your
+          symptoms feel severe or unsafe, you still need real world medical care.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Does this work if I do not have IBS?</div>
+        <div class="faq-a">
+          Yes. Many people without IBS are still very sensitive to sugar swings or caffeine.
+          The visceral sensitivity part of the model just lets you tell the tool how loud your
+          body tends to be.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Why is it free, with no login?</div>
+        <div class="faq-a">
+          Because the goal is to give people language for a pattern that is almost never
+          explained. You keep your data on your side. There is nothing to sell and no account
+          to create.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">Will this replace my therapist or doctor?</div>
+        <div class="faq-a">
+          No. A timing model can sit beside therapy and medical care, not replace it. Many
+          people actually find it easier to talk with a clinician once they can say
+          “my waves usually hit about two hours after higher carb meals”.
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <h2>What this tool is not</h2>
+      <ul>
+        <li>It is not a diagnosis or a mental health test.</li>
+        <li>It is not a replacement for emergency care or professional treatment.</li>
+        <li>It is not tracking you or selling your data.</li>
+        <li>It is not a supplement funnel or diet program.</li>
+      </ul>
+      <p>
+        It is simply a way to map how carbs, sugar, caffeine and sensitivity might shape your
+        day so that waves of anxiety feel less mysterious and less personal.
+      </p>
+    </section>
+
+    <section class="section-card">
+      <h2>Share this free tool</h2>
+      <p>
+        If this helps you, it will probably help someone else who thinks they are “just anxious”
+        when part of the story is timing and physiology. You can share the calculator link in:
+      </p>
+      <ul class="share-list">
+        <li>IBS, gut health, or anxiety communities</li>
+        <li>Group chats with friends who get “food crashes”</li>
+        <li>Social stories where you talk honestly about your body</li>
+      </ul>
+      <p>
+        Share the main link:
+        <strong>https://darkstar747.github.io/index3.html</strong>
+      </p>
+      <div class="highlight-box">
+        You are not broken. Your body is running a pattern that most people are never taught to
+        see. This tool is just a flashlight on that pattern.
+      </div>
+    </section>
+
+    <footer>
+      © 2025 Carb / Sugar Anxiety Timing Explorer. Created by Darkstar747.  
+      Always free. No ads. No tracking. Not medical advice, just a timing model.
+    </footer>
+
   </div>
 
-  <h2>What this free tool helps with</h2>
-  <p>
-    • Post-meal anxiety  
-    • Sugar crash sensations  
-    • IBS or visceral hypersensitivity  
-    • Shaky/dread feelings after eating  
-    • Carb stacking throughout the day  
-    • Caffeine timing effects  
-    • Gut-brain axis hypersensitivity  
-  </p>
-
-  <h2>Why is it free?</h2>
-  <p>
-    Because this pattern is massively misunderstood, and most people who experience these
-    reactions blame themselves or get misdiagnosed.  
-    This tool is built to help you understand the timing, not to sell anything.
-  </p>
-
-  <h2>Why timing matters more than “what you ate”</h2>
-  <p>
-    Many anxiety waves aren’t mental health issues — they’re biological:
-    blood sugar falling, GI nerves firing, caffeine stacking, and hormonal dips.
-    Mapping the timing turns confusion into clarity.
-  </p>
-
-  <div class="small-links">
-    <a href="index3.html">→ Launch the FREE Anxiety Timing Calculator</a>
-    <a href="https://darkstar747.github.io/index3.html">→ Direct link to the tool</a>
-  </div>
-
-  <footer>
-    © 2025 Carb / Sugar Anxiety Timing Explorer.  
-    Always free. No ads. No tracking.  
-    Not medical advice — pattern exploration only.
-  </footer>
+  <!-- Schema markup for better SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Carb / Sugar Anxiety Timing Calculator",
+    "url": "https://darkstar747.github.io/index3.html",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Any",
+    "description": "Free biology-based tool that estimates spike → crash → anxiety windows after carbs, sugar, caffeine and gut sensitivity.",
+    "creator": {
+      "@type": "Person",
+      "name": "Darkstar747"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "about": [
+      "anxiety after eating",
+      "sugar crash anxiety",
+      "IBS visceral hypersensitivity",
+      "gut brain axis timing"
+    ]
+  }
+  </script>
 
 </body>
 </html>
