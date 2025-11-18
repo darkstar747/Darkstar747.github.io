@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Carb / Caffeine Anxiety Risk Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0b0b0b;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      margin-top: 0.2rem;
+      margin-bottom: 0.8rem;
+      color: #b0b0b0;
+    }
+    .card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #151515;
+      padding: 16px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 0 1px #222;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px 18px;
+      margin-top: 12px;
+    }
+    label {
+      font-size: 0.85rem;
+      color: #cccccc;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input, select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #101010;
+      color: #f0f0f0;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #4e9fff;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      background: #4e9fff;
+      color: #050505;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #7bb6ff;
+    }
+    .output {
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid #222;
+    }
+    .score {
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-left: 8px;
+    }
+    .tag-low {
+      background: #12391f;
+      color: #7ce395;
+    }
+    .tag-moderate {
+      background: #3d330f;
+      color: #ffd46b;
+    }
+    .tag-high {
+      background: #3d1414;
+      color: #ff8d8d;
+    }
+    .row {
+      margin-top: 8px;
+      font-size: 0.92rem;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Carb / Caffeine Anxiety Risk Calculator</h1>
+    <p>Rough biological model for spike → crash → anxiety timing. All values are estimates, not medical advice.</p>
+
+    <div class="grid">
+      <!-- Meal inputs -->
+      <div>
+        <label for="carbs">Carbs in this meal (g)</label>
+        <input id="carbs" type="number" inputmode="decimal" value="80" />
+        <div class="hint">Pasta, bread, rice, etc.</div>
+      </div>
+
+      <div>
+        <label for="sugar">Added sugar with this meal (g)</label>
+        <input id="sugar" type="number" inputmode="decimal" value="10" />
+        <div class="hint">Dessert, sweet drink, etc.</div>
+      </div>
+
+      <div>
+        <label for="fiber">Fiber in this meal (g)</label>
+        <input id="fiber" type="number" inputmode="decimal" value="3" />
+        <div class="hint">Veg, whole grains, etc.</div>
+      </div>
+
+      <div>
+        <label for="fatLevel">Fat level</label>
+        <select id="fatLevel">
+          <option value="0">Low (plain pasta, no sauce)</option>
+          <option value="1" selected>Medium (normal meal)</option>
+          <option value="2">High (creamy, oily, rich)</option>
+        </select>
+        <div class="hint">More fat slows the spike.</div>
+      </div>
+
+      <div>
+        <label for="sens">Carb / sugar sensitivity (1–5)</label>
+        <input id="sens" type="number" min="1" max="5" value="5" />
+        <div class="hint">You = 5. Average person = 2–3.</div>
+      </div>
+
+      <div>
+        <label for="priorCarbs">Total carbs earlier today (g)</label>
+        <input id="priorCarbs" type="number" inputmode="decimal" value="60" />
+        <div class="hint">Estimate. Higher = more stacking.</div>
+      </div>
+
+      <div>
+        <label for="timeOfDay">Time of this meal</label>
+        <select id="timeOfDay">
+          <option value="morning">Morning</option>
+          <option value="afternoon">Afternoon</option>
+          <option value="evening" selected>Evening / night</option>
+        </select>
+        <div class="hint">Evening meals hit harder.</div>
+      </div>
+
+      <!-- Caffeine inputs -->
+      <div>
+        <label for="caffMg">Caffeine around this time (mg)</label>
+        <input id="caffMg" type="number" inputmode="decimal" value="0" />
+        <div class="hint">0 if you had none.</div>
+      </div>
+
+      <div>
+        <label for="caffSens">Caffeine sensitivity (1–5)</label>
+        <input id="caffSens" type="number" min="1" max="5" value="3" />
+        <div class="hint">If caffeine wrecks you, use 4–5.</div>
+      </div>
+
+      <div>
+        <label for="caffTime">Caffeine timing</label>
+        <select id="caffTime">
+          <option value="none">No caffeine</option>
+          <option value="with">With this meal</option>
+          <option value="before">1–2 hours before this meal</option>
+          <option value="after">1–2 hours after this meal</option>
+        </select>
+        <div class="hint">For now we only adjust "late" or not.</div>
+      </div>
+    </div>
+
+    <button id="calcBtn">Calculate anxiety risk</button>
+
+    <div class="output" id="output"></div>
+  </div>
+
+  <script>
+    // Helper to clamp to a range
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    // Main engine: takes an input object and returns risk + windows
+    function computeAnxietyRisk(input) {
+      const {
+        carbs,
+        sugar,
+        fiber,
+        fatLevel,
+        sensitivity,
+        priorCarbs,
+        timeOfDay,
+        caffMg,
+        caffSens,
+        caffTiming
+      } = input;
+
+      // ------------------------------------------------------------
+      // 1) Effective glucose-equivalent load
+      // ------------------------------------------------------------
+      let L = carbs + 1.3 * sugar - 0.5 * fiber;
+      if (L < 0) L = 0;
+
+      // ------------------------------------------------------------
+      // 2) Spike timing (relative, minutes after meal)
+      // ------------------------------------------------------------
+      let spikeShift = 0;
+      if (fatLevel === 1) spikeShift = 5;
+      if (fatLevel === 2) spikeShift = 10;
+
+      const spikeMin = 20 + spikeShift;
+      let spikeMax = 40 + spikeShift;
+
+      // ------------------------------------------------------------
+      // 3) Crash (anxiety) window (relative, minutes after meal)
+      // ------------------------------------------------------------
+      let crashMin = spikeMax + 40; // about 80+ min
+      let crashMax = spikeMax + 80; // about 120+ min
+
+      if (L > 100) {
+        crashMax += 10; // big load = longer window
+      }
+
+      // ------------------------------------------------------------
+      // 4) Carb-based anxiety risk
+      // ------------------------------------------------------------
+      const Lcap = Math.min(L, 120);
+      const loadScore = 60 * (Lcap / 120); // 0–60
+
+      const sensScore = 25 * (clamp(sensitivity, 1, 5) / 5); // 0–25
+
+      const Pcap = Math.min(Math.max(priorCarbs, 0), 150);
+      const stackScore = 10 * (Pcap / 150); // 0–10
+
+      const evening = timeOfDay === "evening" ? 1 : 0;
+      const eveningScore = evening ? 5 : 0; // 0 or 5
+
+      let carbRiskRaw = loadScore + sensScore + stackScore + eveningScore;
+      let carbRisk = clamp(carbRiskRaw, 0, 100);
+
+      // ------------------------------------------------------------
+      // 5) Caffeine risk
+      // ------------------------------------------------------------
+      let doseScore = 0;
+      if (caffMg > 0 && caffMg <= 40) {
+        doseScore = 10 * (caffMg / 40);
+      } else if (caffMg > 40 && caffMg <= 120) {
+        doseScore = 10 + 20 * ((caffMg - 40) / 80);
+      } else if (caffMg > 120) {
+        doseScore = 35;
+      }
+
+      const caffSensScore = 25 * (clamp(caffSens, 1, 5) / 5);
+
+      // Simple "late caffeine" flag:
+      // afternoon/evening caffeine is more risky
+      let isLateCaffeine = 0;
+      if (caffMg > 0 && (timeOfDay === "afternoon" || timeOfDay === "evening")) {
+        isLateCaffeine = 1;
+      }
+      const timeOfDayScore = isLateCaffeine ? 5 : 0;
+
+      let caffRiskRaw = doseScore + caffSensScore + timeOfDayScore;
+      let caffRisk = Math.min(caffRiskRaw, 65); // cap
+
+      // If no caffeine at all, zero it
+      if (caffMg <= 0) {
+        caffRisk = 0;
+      }
+
+      // ------------------------------------------------------------
+      // 6) Caffeine anxiety window (relative, minutes)
+      // For now treat caffeine as taken near this meal if present.
+      // ------------------------------------------------------------
+      // We keep it simple:
+      const caffAnxMin = caffMg > 0 ? 30 : null;
+      const caffAnxMax = caffMg > 0 ? 180 : null;
+
+      // ------------------------------------------------------------
+      // 7) Overlap and synergy
+      // ------------------------------------------------------------
+      let overlap = false;
+      if (caffMg > 0) {
+        if (!(crashMax < caffAnxMin || caffAnxMax < crashMin)) {
+          overlap = true;
+        }
+      }
+
+      let synergyScore = 0;
+      if (overlap && carbRisk > 20 && caffRisk > 10) {
+        synergyScore = 0.15 * Math.min(carbRisk, caffRisk); // up to ~10
+      }
+
+      // ------------------------------------------------------------
+      // 8) Final combined anxiety risk
+      // ------------------------------------------------------------
+      let combinedRaw = carbRisk + caffRisk + synergyScore;
+      let anxietyRisk = clamp(combinedRaw, 0, 100);
+
+      let level = "Low";
+      if (anxietyRisk >= 60) {
+        level = "High";
+      } else if (anxietyRisk >= 30) {
+        level = "Moderate";
+      }
+
+      return {
+        anxietyRisk,
+        level,
+        spikeMin,
+        spikeMax,
+        crashMin,
+        crashMax,
+        carbRisk,
+        caffRisk,
+        synergyScore,
+        L
+      };
+    }
+
+    function formatMinutesRange(min, max) {
+      return `${Math.round(min)}–${Math.round(max)} minutes after this meal`;
+    }
+
+    document.getElementById("calcBtn").addEventListener("click", () => {
+      const carbs = parseFloat(document.getElementById("carbs").value) || 0;
+      const sugar = parseFloat(document.getElementById("sugar").value) || 0;
+      const fiber = parseFloat(document.getElementById("fiber").value) || 0;
+      const fatLevel = parseInt(document.getElementById("fatLevel").value, 10);
+      const sensitivity = parseFloat(document.getElementById("sens").value) || 1;
+      const priorCarbs = parseFloat(document.getElementById("priorCarbs").value) || 0;
+      const timeOfDay = document.getElementById("timeOfDay").value;
+      const caffMg = parseFloat(document.getElementById("caffMg").value) || 0;
+      const caffSens = parseFloat(document.getElementById("caffSens").value) || 1;
+      const caffTiming = document.getElementById("caffTime").value;
+
+      const result = computeAnxietyRisk({
+        carbs,
+        sugar,
+        fiber,
+        fatLevel,
+        sensitivity,
+        priorCarbs,
+        timeOfDay,
+        caffMg,
+        caffSens,
+        caffTiming
+      });
+
+      const out = document.getElementById("output");
+
+      let tagClass = "tag-low";
+      if (result.level === "Moderate") tagClass = "tag-moderate";
+      if (result.level === "High") tagClass = "tag-high";
+
+      out.innerHTML = `
+        <div class="score">
+          Anxiety risk: <strong>${Math.round(result.anxietyRisk)}</strong> / 100
+          <span class="tag ${tagClass}">${result.level}</span>
+        </div>
+        <div class="row">
+          Effective glucose load: <strong>${result.L.toFixed(1)} g</strong> (carb + sugar adjusted for fiber)
+        </div>
+        <div class="row">
+          Spike window: <strong>${formatMinutesRange(result.spikeMin, result.spikeMax)}</strong>
+        </div>
+        <div class="row">
+          Crash / anxiety window: <strong>${formatMinutesRange(result.crashMin, result.crashMax)}</strong>
+        </div>
+        <div class="row">
+          Carb-based anxiety risk: <strong>${Math.round(result.carbRisk)}</strong> / 100
+        </div>
+        <div class="row">
+          Caffeine-based anxiety risk: <strong>${Math.round(result.caffRisk)}</strong> / 100
+        </div>
+        <div class="row">
+          Synergy bonus (carb + caffeine overlap): <strong>${result.synergyScore.toFixed(1)}</strong> points
+        </div>
+        <div class="hint">
+          This is a rough biological model for educational use. It treats anxiety spikes as a result of
+          glucose curves, sensitivity, time of day, and caffeine, not as a psychological flaw.
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>
