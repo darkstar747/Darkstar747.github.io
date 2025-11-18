@@ -293,11 +293,16 @@
       font-size: 0.8rem;
       cursor: pointer;
       gap: 2px;
+      transition: background 0.15s ease, border-color 0.15s ease,
+        box-shadow 0.15s ease, transform 0.15s ease;
     }
 
     .food-card.selected {
       border-color: var(--accent);
-      background: rgba(79, 209, 197, 0.12);
+      background: rgba(79, 209, 197, 0.16);
+      box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.4),
+        0 6px 14px rgba(0, 0, 0, 0.6);
+      transform: translateY(-1px);
     }
 
     .food-title-row {
@@ -435,13 +440,13 @@
       gap: 8px;
       margin-top: 8px;
       flex-wrap: wrap;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
     }
 
     .risk-pill {
       padding: 3px 10px;
       border-radius: 999px;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 500;
     }
 
@@ -528,17 +533,23 @@
     .recalc-row {
       display: flex;
       justify-content: flex-end;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     .recalc-btn {
-      padding: 6px 12px;
+      padding: 10px 22px;
       border-radius: 999px;
       border: 1px solid var(--accent);
-      background: var(--accent-soft);
+      background: linear-gradient(135deg, #38b2ac, #4fd1c5);
       color: #eafffb;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .recalc-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
     @media (max-width: 640px) {
@@ -555,6 +566,13 @@
       .risk-current-row {
         flex-direction: column;
         align-items: flex-start;
+      }
+      .recalc-row {
+        justify-content: center;
+      }
+      .recalc-btn {
+        width: 100%;
+        text-align: center;
       }
     }
   </style>
@@ -578,7 +596,7 @@
       <div class="section-header">
         <h2>Meal and pattern</h2>
         <div class="section-subtitle">
-          Fill this in and the gauge + timeline will adjust automatically.
+          Change the meal and sliders, then watch the score and timing move.
         </div>
       </div>
 
@@ -835,6 +853,10 @@
                   Recovery
                 </div>
               </div>
+              <div class="hint">
+                Colors match the gauge above: spike, then crash window, then
+                recovery.
+              </div>
               <div class="timeline-times" id="timelineTimes">
                 <!-- filled by JS -->
               </div>
@@ -851,11 +873,12 @@
             </div>
             <div id="summaryDetail" class="summary-detail">
               You will see how carbs, sugar, caffeine, and sensitivity stack to
-              make an early-night or late-night worry window more likely.
+              make an early-night or late-night worry window more likely. It is
+              about timing and physiology, not personal weakness.
             </div>
             <div class="recalc-row">
               <button id="recalcBtn" class="recalc-btn" type="button">
-                Recalculate now
+                Recalculate now ↻
               </button>
             </div>
           </div>
@@ -863,11 +886,8 @@
       </div>
     </div>
         <script>
-      // -----------------------
-      // Meal presets (large list)
-      // -----------------------
+      // --------- Meal presets (large list) ----------
       const mealPresets = [
-        // Original core meals
         {
           id: "pasta",
           emoji: "🍝",
@@ -1144,7 +1164,7 @@
           tag: "Heavy"
         },
 
-        // Extra breakfast / morning
+        /* Extra breakfast / lunch / bowls / snacks / desserts / drinks... */
         {
           id: "oatmealFruit",
           emoji: "🥣",
@@ -1300,7 +1320,6 @@
           tag: "Medium carb"
         },
 
-        // Extra sandwiches / lunch
         {
           id: "turkeySandwich",
           emoji: "🥪",
@@ -1368,7 +1387,6 @@
           tag: "Medium carb and fat"
         },
 
-        // Extra bowls / Asian / rice etc
         {
           id: "brothSoupLight",
           emoji: "🍲",
@@ -1524,7 +1542,6 @@
           tag: "Medium carb"
         },
 
-        // Mexican extras
         {
           id: "tacos2",
           emoji: "🌮",
@@ -1570,7 +1587,6 @@
           tag: "Medium carb and fat"
         },
 
-        // Meat and potatoes
         {
           id: "steakPotato",
           emoji: "🥩",
@@ -1627,7 +1643,6 @@
           tag: "Medium carb and fat"
         },
 
-        // Snacks
         {
           id: "chipsBag",
           emoji: "🍟",
@@ -1739,7 +1754,6 @@
           tag: "Medium carb"
         },
 
-        // Desserts
         {
           id: "milkshake",
           emoji: "🥤",
@@ -1840,7 +1854,6 @@
           tag: "Medium sugar, lighter"
         },
 
-        // Sugary drinks
         {
           id: "sodaCan",
           emoji: "🥤",
@@ -1930,7 +1943,6 @@
           tag: "High sugar"
         },
 
-        // Coffee / caffeine
         {
           id: "blackCoffeeSmall",
           emoji: "☕️",
@@ -1998,7 +2010,6 @@
           tag: "Medium sugar"
         },
 
-        // Catch-all
         {
           id: "gyroFries",
           emoji: "🥙",
@@ -2078,26 +2089,16 @@
         }
       ];
 
-      // -----------------------
-      // State
-      // -----------------------
-
+      // --------- State ----------
       let currentMode = "simple";
       let selectedMealId = null;
       let dessertExtraSugar = 0;
-
-      // -----------------------
-      // DOM helpers
-      // -----------------------
 
       function $(id) {
         return document.getElementById(id);
       }
 
-      // -----------------------
-      // Gauge update
-      // -----------------------
-
+      // --------- Gauge ----------
       function updateRiskGauge(score) {
         if (isNaN(score)) score = 0;
         const clamped = Math.max(0, Math.min(100, score));
@@ -2106,20 +2107,16 @@
         const MOD_MAX = 74;
 
         let band = "low";
-        if (clamped > MOD_MAX) {
-          band = "high";
-        } else if (clamped > LOW_MAX) {
-          band = "moderate";
-        }
+        if (clamped > MOD_MAX) band = "high";
+        else if (clamped > LOW_MAX) band = "moderate";
 
-        const riskBar = $("riskBar");
         const marker = $("riskMarker");
         const chip = $("riskScoreChip");
         const scoreLabel = $("riskScoreLabel");
         const bandPill = $("riskBandPill");
         const oneLiner = $("riskOneLiner");
 
-        if (!riskBar || !marker || !chip) return;
+        if (!marker || !chip) return;
 
         const percent = 2 + (clamped / 100) * 96;
         marker.style.left = percent + "%";
@@ -2166,10 +2163,7 @@
         oneLiner.textContent = msg;
       }
 
-      // -----------------------
-      // Timeline
-      // -----------------------
-
+      // --------- Timeline ----------
       function formatTime(date) {
         const h = date.getHours();
         const m = date.getMinutes();
@@ -2216,10 +2210,7 @@
         `;
       }
 
-      // -----------------------
-      // Risk calculation
-      // -----------------------
-
+      // --------- Risk calculation ----------
       function getDayCarbLevel() {
         if (currentMode === "simple") {
           return parseInt($("dayCarbSlider").value, 10) || 0;
@@ -2274,20 +2265,15 @@
         const dayCarb = getDayCarbLevel();
         const { visceral, anxiety } = getSensitivityLevels();
 
-        // Base from carbs and sugar
         const baseCarb = Math.min(60, carbs * 0.7);
         const sugarBoost = Math.min(25, sugar * 0.8);
-
-        // Earlier stacking
         const earlierBoost = dayCarb * 5;
 
-        // Caffeine
         let caffeineBoost = 0;
         if (caffeineMg > 0) {
           caffeineBoost = Math.min(15, caffeineMg * 0.1);
         }
 
-        // Sensitivity
         const sensitivityBoost = (visceral + anxiety) * 5;
 
         let total =
@@ -2300,9 +2286,9 @@
 
         const sensitivityLabel = (() => {
           const sum = visceral + anxiety;
-          if (sum <= 1) return "more resilient system";
-          if (sum <= 3) return "medium sensitivity nervous system";
-          return "very sensitive gut / anxiety system";
+          if (sum <= 1) return "a more resilient system";
+          if (sum <= 3) return "a medium sensitivity nervous system";
+          return "a very sensitive gut / anxiety system";
         })();
 
         const mealLabel =
@@ -2319,15 +2305,11 @@
                 total
               )}/100 risk in the 1–4 hour window after this meal.`;
 
-        summaryDetail.textContent = `${mealLabel}, plus earlier carb load and ${sensitivityLabel}. This does not replace medical care; it is just a timing map to explain why a “wave” can show up even when the day felt mentally fine.`;
+        summaryDetail.textContent = `${mealLabel}, plus earlier carb load and ${sensitivityLabel}. This does not replace medical care; it just gives a body-timing map and does not mean you are weak or broken.`;
 
         return total;
       }
-
-      // -----------------------
-      // Simple mode: rendering
-      // -----------------------
-
+                // --------- Simple mode rendering ----------
       function renderFoodGrid(filterText = "") {
         const grid = $("foodGrid");
         if (!grid) return;
@@ -2400,10 +2382,7 @@
         el.textContent = `${preset.name} (~${preset.carbs} g carbs, ~${preset.sugarBase} g sugar) with ${dessertText}.`;
       }
 
-      // -----------------------
-      // Mode switching & labels
-      // -----------------------
-
+      // --------- Mode + sliders + dessert ----------
       function setMode(mode) {
         currentMode = mode;
         $("modeSimpleBtn").classList.toggle("active", mode === "simple");
@@ -2426,10 +2405,6 @@
         labelEl.textContent = label;
       }
 
-      // -----------------------
-      // Dessert buttons
-      // -----------------------
-
       function setDessert(level) {
         if (level === "none") dessertExtraSugar = 0;
         if (level === "small") dessertExtraSugar = 10;
@@ -2443,24 +2418,20 @@
         recalcAll();
       }
 
-      // -----------------------
-      // Main recalc
-      // -----------------------
-
+      // --------- Main recalc ----------
       function recalcAll() {
         const score = computeRiskScore();
         updateRiskGauge(score);
         updateTimeline();
       }
 
-      // -----------------------
-      // Init
-      // -----------------------
-
+      // --------- Init ----------
       document.addEventListener("DOMContentLoaded", () => {
         // Mode buttons
         $("modeSimpleBtn").addEventListener("click", () => setMode("simple"));
-        $("modeAdvancedBtn").addEventListener("click", () => setMode("advanced"));
+        $("modeAdvancedBtn").addEventListener("click", () =>
+          setMode("advanced")
+        );
 
         // Food search
         $("foodSearchInput").addEventListener("input", (e) => {
@@ -2481,7 +2452,9 @@
         $("dessertSmallBtn").addEventListener("click", () =>
           setDessert("small")
         );
-        $("dessertBigBtn").addEventListener("click", () => setDessert("big"));
+        $("dessertBigBtn").addEventListener("click", () =>
+          setDessert("big")
+        );
 
         // Sliders
         $("dayCarbSlider").addEventListener("input", () => {
@@ -2512,18 +2485,21 @@
         // Manual recalc button
         $("recalcBtn").addEventListener("click", recalcAll);
 
-        // Initial labels and render
+        // Initial slider labels
         updateSliderLabel("dayCarbSlider", "dayCarbLabel");
         updateSliderLabel("advDayCarbSlider", "advDayCarbLabel");
         updateSliderLabel("visceralSlider", "visceralLabel");
         updateSliderLabel("anxietySlider", "anxietyLabel");
 
+        // Default meal: plate of pasta so things are alive immediately
+        selectedMealId = "pasta";
         renderFoodGrid("");
         setDessert("none");
+
+        // Initial compute
         recalcAll();
       });
     </script>
   </div>
 </body>
 </html>
-    
