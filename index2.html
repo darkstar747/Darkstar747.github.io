@@ -16,7 +16,7 @@
       color: #e5e5e5;
     }
     .shell {
-      max-width: 960px;
+      max-width: 1040px;
       margin: 0 auto;
       background: #131313;
       border-radius: 12px;
@@ -51,12 +51,6 @@
     .mode-toggle button.active {
       background: #2c76ff;
       color: #050505;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px 20px;
-      margin-top: 10px;
     }
     label {
       display: block;
@@ -121,6 +115,111 @@
     }
     button.primary:hover {
       background: #5e97ff;
+    }
+    button.secondary {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #181818;
+      color: #f0f0f0;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    button.secondary:hover {
+      background: #222;
+    }
+    .mode-section {
+      margin-top: 6px;
+    }
+    .hidden {
+      display: none;
+    }
+    .grid-advanced {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px 20px;
+      margin-top: 10px;
+    }
+    /* Meal grid */
+    .meal-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+      margin-bottom: 6px;
+    }
+    .meal-search {
+      flex: 1;
+    }
+    .meal-search input {
+      width: 100%;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid #333;
+      background: #0d0d0d;
+      color: #eee;
+      font-size: 0.86rem;
+      box-sizing: border-box;
+    }
+    .meal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 4px;
+    }
+    .meal-card {
+      background: #101010;
+      border-radius: 9px;
+      padding: 8px 9px;
+      border: 1px solid #262626;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .meal-card.selected {
+      border-color: #2c76ff;
+      box-shadow: 0 0 0 1px #2c76ff55;
+    }
+    .meal-emoji {
+      font-size: 1.3rem;
+    }
+    .meal-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .meal-name {
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+    .meal-tag {
+      font-size: 0.68rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #1f1f1f;
+      color: #ccc;
+    }
+    .meal-macros {
+      font-size: 0.74rem;
+      color: #a0a0a0;
+    }
+    .meal-cat {
+      font-size: 0.72rem;
+      color: #808080;
+    }
+    .subgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px 20px;
+      margin-top: 12px;
     }
     .output {
       margin-top: 18px;
@@ -223,11 +322,28 @@
       padding: 8px 10px;
       border: 1px solid #262626;
     }
-    .mode-section {
-      margin-top: 6px;
+    .section-title {
+      font-size: 0.95rem;
+      margin-top: 14px;
+      margin-bottom: 4px;
+      font-weight: 600;
     }
-    .hidden {
-      display: none;
+    .reverse-block {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #262626;
+      font-size: 0.84rem;
+    }
+    .reverse-grid {
+      display: grid;
+      grid-template-columns: minmax(140px, 220px) 1fr;
+      gap: 10px 18px;
+      align-items: center;
+    }
+    @media (max-width: 720px) {
+      .reverse-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -236,7 +352,7 @@
     <h1>Anxiety Spike Predictor</h1>
     <p>
       Estimates when a meal and caffeine are likely to cause a spike, a crash and an anxiety window,
-      based on carbs, sugar, caffeine and sensitivity. Educational only, not medical advice.
+      based on carbs, sugar, caffeine and sensitivity. Educational only. Not medical advice.
     </p>
 
     <div class="mode-toggle">
@@ -246,20 +362,20 @@
 
     <!-- SIMPLE MODE -->
     <div id="simpleMode" class="mode-section">
-      <div class="grid">
+      <div class="meal-header-row">
         <div>
-          <label>What did this meal look like? (pick one main)</label>
-          <div class="pill-row" id="mealMainGroup">
-            <div class="pill" data-main="pasta">Plate of pasta</div>
-            <div class="pill" data-main="rice">Bowl of rice</div>
-            <div class="pill" data-main="pizza">2 slices of pizza</div>
-            <div class="pill" data-main="burger">Burger with bun</div>
-            <div class="pill" data-main="light">Light meal or salad</div>
-            <div class="pill" data-main="other">Other carb heavy meal</div>
-          </div>
-          <div class="hint">This sets approximate carbs and fat level.</div>
+          <label>Main meal type</label>
+          <div class="hint">Pick the meal that looks most like what you ate.</div>
         </div>
+        <div class="meal-search">
+          <input id="mealSearch" type="text" placeholder="Search meals (pasta, ramen, burrito, sushi...)" />
+        </div>
+      </div>
+      <div id="mealGrid" class="meal-grid">
+        <!-- Meal cards injected by JS -->
+      </div>
 
+      <div class="subgrid">
         <div>
           <label>Portion size</label>
           <div class="pill-row" id="portionGroup">
@@ -268,14 +384,14 @@
             <div class="pill" data-portion="large">Large</div>
             <div class="pill" data-portion="restaurant">Restaurant sized</div>
           </div>
-          <div class="hint">This multiplies the carb estimate.</div>
+          <div class="hint">Controls how big the carb hit is.</div>
         </div>
 
         <div>
           <label>Sweet stuff with this meal</label>
           <div class="pill-row" id="sweetGroup">
             <div class="pill selected" data-sweet="none">None</div>
-            <div class="pill" data-sweet="little">A little (few bites or small candy)</div>
+            <div class="pill" data-sweet="little">A little</div>
             <div class="pill" data-sweet="medium">Dessert portion</div>
             <div class="pill" data-sweet="lot">Big dessert or sugary drink</div>
           </div>
@@ -292,7 +408,7 @@
             <div class="pill" data-caff="largeCoffee">Large coffee</div>
             <div class="pill" data-caff="energy">Energy drink</div>
           </div>
-          <div class="hint">We will estimate mg of caffeine from this.</div>
+          <div class="hint">We estimate caffeine in mg from this.</div>
         </div>
 
         <div>
@@ -311,22 +427,22 @@
         </div>
 
         <div>
-          <label>Your body sensitivity to carbs and sugar</label>
+          <label>Your sensitivity to carbs and sugar</label>
           <input id="simpleSens" type="range" min="1" max="5" step="1" value="5" />
-          <div class="hint" id="simpleSensLabel">5 of 5. Very sensitive.</div>
+          <div class="hint" id="simpleSensLabel">5 of 5. Very high sensitivity.</div>
         </div>
 
         <div>
           <label>Your sensitivity to caffeine</label>
           <input id="simpleCaffSens" type="range" min="1" max="5" step="1" value="3" />
-          <div class="hint" id="simpleCaffSensLabel">3 of 5. Average.</div>
+          <div class="hint" id="simpleCaffSensLabel">3 of 5. Average sensitivity.</div>
         </div>
       </div>
     </div>
 
     <!-- ADVANCED MODE -->
     <div id="advancedMode" class="mode-section hidden">
-      <div class="grid">
+      <div class="grid-advanced">
         <div>
           <label for="advCarbs">Carbs in this meal (g)</label>
           <input id="advCarbs" type="number" value="80" />
@@ -386,8 +502,26 @@
     </div>
 
     <button class="primary" id="calcBtn">Calculate anxiety risk</button>
+    <button class="secondary" id="dontKnowBtn">I did not track, give a rough guess</button>
 
     <div class="output" id="output"></div>
+
+    <div class="reverse-block">
+      <div class="section-title">I feel anxious right now</div>
+      <div class="reverse-grid">
+        <div>
+          <label for="minutesSince">Minutes since this meal</label>
+          <input id="minutesSince" type="number" value="90" />
+          <div class="hint">
+            Works best if you just ran a prediction for the meal that might be causing this.
+          </div>
+          <button class="secondary" id="whyNowBtn">Why am I feeling this now?</button>
+        </div>
+        <div id="whyNowOutput" class="small">
+          This will try to map your current moment to spike, crash or recovery based on your last prediction.
+        </div>
+      </div>
+    </div>
 
     <div class="history" id="historyBlock">
       <h3>Last few runs</h3>
@@ -396,17 +530,329 @@
 
     <div class="explain">
       <strong>How this thinks:</strong>
-      It treats anxiety spikes as mostly biological. Carbs and sugar create a blood sugar spike.
-      Your body sends out insulin, then sugars drop, adrenaline and vagus signals rise and your
-      nervous system feels anxious. Caffeine, time of day, stacking and sensitivity all change how loud that feels.
+      Carbs and sugar create a blood sugar spike. Your body responds with insulin and later a drop.
+      That drop can trigger adrenaline and vagus nerve signals which feel like anxiety. Caffeine, timing,
+      stacking from earlier meals and your sensitivity change how loud that feels. This tool treats anxiety
+      as partly biological, not just psychological.
     </div>
   </div>
 
   <script>
-    // Utility
     function clamp(value, min, max) {
       return Math.max(min, Math.min(max, value));
     }
+
+    // Meal presets
+    const mealPresets = [
+      {
+        id: "pasta",
+        emoji: "🍝",
+        name: "Plate of pasta",
+        category: "Italian / comfort",
+        carbs: 80,
+        fiber: 3,
+        fatLevel: 1,
+        sugarBase: 3,
+        tag: "High carb"
+      },
+      {
+        id: "riceBowl",
+        emoji: "🍚",
+        name: "Rice bowl",
+        category: "Rice based meal",
+        carbs: 70,
+        fiber: 2,
+        fatLevel: 0,
+        sugarBase: 2,
+        tag: "High carb"
+      },
+      {
+        id: "pizza2",
+        emoji: "🍕",
+        name: "Pizza, 2 slices",
+        category: "Pizza",
+        carbs: 60,
+        fiber: 3,
+        fatLevel: 2,
+        sugarBase: 3,
+        tag: "High carb / fat"
+      },
+      {
+        id: "burgerFries",
+        emoji: "🍔",
+        name: "Burger with fries",
+        category: "Fast food",
+        carbs: 70,
+        fiber: 4,
+        fatLevel: 2,
+        sugarBase: 4,
+        tag: "Heavy"
+      },
+      {
+        id: "burgerOnly",
+        emoji: "🍔",
+        name: "Burger, no fries",
+        category: "Fast food",
+        carbs: 45,
+        fiber: 2,
+        fatLevel: 2,
+        sugarBase: 2,
+        tag: "Medium carb"
+      },
+      {
+        id: "burrito",
+        emoji: "🌯",
+        name: "Burrito",
+        category: "Mexican style",
+        carbs: 75,
+        fiber: 6,
+        fatLevel: 2,
+        sugarBase: 3,
+        tag: "High carb"
+      },
+      {
+        id: "tacos",
+        emoji: "🌮",
+        name: "Tacos (2-3)",
+        category: "Mexican style",
+        carbs: 45,
+        fiber: 4,
+        fatLevel: 1,
+        sugarBase: 2,
+        tag: "Medium carb"
+      },
+      {
+        id: "ramen",
+        emoji: "🍜",
+        name: "Ramen / noodle bowl",
+        category: "Asian noodles",
+        carbs: 65,
+        fiber: 3,
+        fatLevel: 1,
+        sugarBase: 3,
+        tag: "High carb"
+      },
+      {
+        id: "friedRice",
+        emoji: "🍛",
+        name: "Fried rice",
+        category: "Rice based meal",
+        carbs: 75,
+        fiber: 3,
+        fatLevel: 2,
+        sugarBase: 3,
+        tag: "High carb"
+      },
+      {
+        id: "sushi6",
+        emoji: "🍣",
+        name: "Sushi, 6 pieces",
+        category: "Sushi",
+        carbs: 40,
+        fiber: 2,
+        fatLevel: 0,
+        sugarBase: 2,
+        tag: "Medium carb"
+      },
+      {
+        id: "sushi12",
+        emoji: "🍣",
+        name: "Sushi, 12 pieces",
+        category: "Sushi",
+        carbs: 70,
+        fiber: 3,
+        fatLevel: 0,
+        sugarBase: 2,
+        tag: "High carb"
+      },
+      {
+        id: "cereal",
+        emoji: "🥣",
+        name: "Cereal bowl",
+        category: "Breakfast",
+        carbs: 55,
+        fiber: 3,
+        fatLevel: 0,
+        sugarBase: 8,
+        tag: "Sugary"
+      },
+      {
+        id: "friesSide",
+        emoji: "🍟",
+        name: "Side of fries",
+        category: "Side",
+        carbs: 40,
+        fiber: 3,
+        fatLevel: 2,
+        sugarBase: 1,
+        tag: "High fat"
+      },
+      {
+        id: "potato",
+        emoji: "🥔",
+        name: "Potato dish",
+        category: "Potato based",
+        carbs: 60,
+        fiber: 4,
+        fatLevel: 1,
+        sugarBase: 1,
+        tag: "High carb"
+      },
+      {
+        id: "saladLowCarb",
+        emoji: "🥗",
+        name: "Salad, low carb",
+        category: "Lighter meal",
+        carbs: 18,
+        fiber: 6,
+        fatLevel: 1,
+        sugarBase: 1,
+        tag: "Light"
+      },
+      {
+        id: "proteinMeal",
+        emoji: "🍗",
+        name: "Protein heavy, low carb",
+        category: "Protein focused",
+        carbs: 20,
+        fiber: 3,
+        fatLevel: 1,
+        sugarBase: 1,
+        tag: "Lower carb"
+      },
+      {
+        id: "sandwich",
+        emoji: "🥪",
+        name: "Sandwich",
+        category: "Bread based",
+        carbs: 45,
+        fiber: 4,
+        fatLevel: 1,
+        sugarBase: 2,
+        tag: "Medium carb"
+      },
+      {
+        id: "subFootlong",
+        emoji: "🥖",
+        name: "Footlong sub",
+        category: "Sandwich chain style",
+        carbs: 80,
+        fiber: 6,
+        fatLevel: 1,
+        sugarBase: 4,
+        tag: "High carb"
+      },
+      {
+        id: "chipotleBurrito",
+        emoji: "🌯",
+        name: "Chipotle style burrito",
+        category: "Mexican chain style",
+        carbs: 90,
+        fiber: 8,
+        fatLevel: 2,
+        sugarBase: 4,
+        tag: "Heavy"
+      },
+      {
+        id: "orangeChickenRice",
+        emoji: "🍛",
+        name: "Orange chicken + rice",
+        category: "Chinese chain style",
+        carbs: 85,
+        fiber: 3,
+        fatLevel: 2,
+        sugarBase: 10,
+        tag: "High carb / sugar"
+      },
+      {
+        id: "padThai",
+        emoji: "🍜",
+        name: "Pad Thai",
+        category: "Thai noodles",
+        carbs: 85,
+        fiber: 4,
+        fatLevel: 2,
+        sugarBase: 10,
+        tag: "High carb / sugar"
+      },
+      {
+        id: "dessertOnly",
+        emoji: "🍰",
+        name: "Dessert only",
+        category: "Sweet heavy",
+        carbs: 55,
+        fiber: 1,
+        fatLevel: 1,
+        sugarBase: 30,
+        tag: "Sugary"
+      },
+      {
+        id: "otherHeavy",
+        emoji: "🍽️",
+        name: "Other heavy carb meal",
+        category: "General",
+        carbs: 75,
+        fiber: 3,
+        fatLevel: 1,
+        sugarBase: 3,
+        tag: "Heavy"
+      }
+    ];
+
+    // Render meal grid
+    const mealGrid = document.getElementById("mealGrid");
+    const mealSearch = document.getElementById("mealSearch");
+    let selectedMealId = "pasta";
+
+    function renderMealGrid(filterText = "") {
+      const text = filterText.trim().toLowerCase();
+      mealGrid.innerHTML = "";
+
+      const list = mealPresets.filter((m) => {
+        if (!text) return true;
+        return (
+          m.name.toLowerCase().includes(text) ||
+          m.category.toLowerCase().includes(text) ||
+          (m.tag && m.tag.toLowerCase().includes(text))
+        );
+      });
+
+      list.forEach((meal) => {
+        const card = document.createElement("div");
+        card.className = "meal-card";
+        if (meal.id === selectedMealId) {
+          card.classList.add("selected");
+        }
+        card.dataset.mealId = meal.id;
+        card.innerHTML = `
+          <div class="meal-title-row">
+            <span class="meal-emoji">${meal.emoji}</span>
+            <span class="meal-name">${meal.name}</span>
+            <span class="meal-tag">${meal.tag}</span>
+          </div>
+          <div class="meal-macros">Carbs ~${meal.carbs}g, fiber ~${meal.fiber}g, fat: ${
+          meal.fatLevel === 2 ? "high"
+            : meal.fatLevel === 1 ? "medium"
+            : "low"
+        }</div>
+          <div class="meal-cat">${meal.category}</div>
+        `;
+        card.addEventListener("click", () => {
+          selectedMealId = meal.id;
+          [...mealGrid.querySelectorAll(".meal-card")].forEach((c) =>
+            c.classList.remove("selected")
+          );
+          card.classList.add("selected");
+        });
+        mealGrid.appendChild(card);
+      });
+    }
+
+    mealSearch.addEventListener("input", () => {
+      renderMealGrid(mealSearch.value);
+    });
+
+    renderMealGrid();
 
     // Attach pill group logic
     function makeSingleSelect(groupId) {
@@ -422,7 +868,6 @@
       });
     }
 
-    makeSingleSelect("mealMainGroup");
     makeSingleSelect("portionGroup");
     makeSingleSelect("sweetGroup");
     makeSingleSelect("caffTypeGroup");
@@ -502,8 +947,6 @@
     simpleModeBtn.addEventListener("click", () => setMode("simple"));
     advancedModeBtn.addEventListener("click", () => setMode("advanced"));
 
-    // Mapping helpers for simple mode
-
     function getSelectedDataAttr(groupId, attr, fallback) {
       const group = document.getElementById(groupId);
       const selected = group.querySelector(".pill.selected");
@@ -511,44 +954,18 @@
       return selected.getAttribute(attr) || fallback;
     }
 
-    // Estimate macros from simple selections
+    // Simple mode input build
     function buildInputFromSimple() {
-      const main = getSelectedDataAttr("mealMainGroup", "data-main", "pasta");
+      const meal = mealPresets.find((m) => m.id === selectedMealId) || mealPresets[0];
       const portion = getSelectedDataAttr("portionGroup", "data-portion", "medium");
       const sweet = getSelectedDataAttr("sweetGroup", "data-sweet", "none");
       const caffType = getSelectedDataAttr("caffTypeGroup", "data-caff", "none");
       const tod = getSelectedDataAttr("todGroup", "data-tod", "evening");
 
-      // Base estimates per main meal (medium portion)
-      let baseCarbs = 0;
-      let baseFiber = 2;
-      let baseFatLevel = 1;
-
-      if (main === "pasta") {
-        baseCarbs = 80;
-        baseFiber = 3;
-        baseFatLevel = 1;
-      } else if (main === "rice") {
-        baseCarbs = 70;
-        baseFiber = 2;
-        baseFatLevel = 0;
-      } else if (main === "pizza") {
-        baseCarbs = 60;
-        baseFiber = 3;
-        baseFatLevel = 2;
-      } else if (main === "burger") {
-        baseCarbs = 45;
-        baseFiber = 2;
-        baseFatLevel = 2;
-      } else if (main === "light") {
-        baseCarbs = 30;
-        baseFiber = 4;
-        baseFatLevel = 1;
-      } else if (main === "other") {
-        baseCarbs = 65;
-        baseFiber = 3;
-        baseFatLevel = 1;
-      }
+      // Base from meal
+      let baseCarbs = meal.carbs;
+      let baseFiber = meal.fiber;
+      let baseFatLevel = meal.fatLevel;
 
       // Portion multiplier
       let mult = 1;
@@ -559,13 +976,14 @@
       let carbs = baseCarbs * mult;
       let fiber = baseFiber * mult;
 
-      // Sweet mapping to extra sugar and carbs
+      // Sweet mapping
       let sugar = 0;
       if (sweet === "little") sugar = 8;
       if (sweet === "medium") sugar = 20;
       if (sweet === "lot") sugar = 35;
 
-      carbs += sugar * 0.3; // candy is partly sugar and partly other carbs
+      // some of that sugar is on top of meal carbs
+      carbs += sugar * 0.3;
 
       // Caffeine mapping
       let caffMg = 0;
@@ -583,7 +1001,6 @@
       if (stackVal === 1) priorCarbs = 60;
       if (stackVal === 2) priorCarbs = 130;
 
-      // Sensitivities
       const sensitivity = parseInt(sensInput.value, 10) || 3;
       const caffSens = parseInt(caffSensInput.value, 10) || 3;
 
@@ -597,24 +1014,21 @@
         timeOfDay: tod,
         caffMg,
         caffSens,
-        caffTiming: "with"
+        mealName: meal.name
       };
     }
 
-    // Advanced mode input collector
+    // Advanced mode input build
     function buildInputFromAdvanced() {
       const carbs = parseFloat(document.getElementById("advCarbs").value) || 0;
       const sugar = parseFloat(document.getElementById("advSugar").value) || 0;
       const fiber = parseFloat(document.getElementById("advFiber").value) || 0;
       const fatLevel = parseInt(document.getElementById("advFat").value, 10) || 0;
-      const sensitivity =
-        parseFloat(document.getElementById("advSens").value) || 3;
-      const priorCarbs =
-        parseFloat(document.getElementById("advPrior").value) || 0;
+      const sensitivity = parseFloat(document.getElementById("advSens").value) || 3;
+      const priorCarbs = parseFloat(document.getElementById("advPrior").value) || 0;
       const timeOfDay = document.getElementById("advTod").value;
       const caffMg = parseFloat(document.getElementById("advCaff").value) || 0;
-      const caffSens =
-        parseFloat(document.getElementById("advCaffSens").value) || 3;
+      const caffSens = parseFloat(document.getElementById("advCaffSens").value) || 3;
 
       return {
         carbs,
@@ -626,7 +1040,7 @@
         timeOfDay,
         caffMg,
         caffSens,
-        caffTiming: "with"
+        mealName: "Custom meal"
       };
     }
 
@@ -641,14 +1055,15 @@
         priorCarbs,
         timeOfDay,
         caffMg,
-        caffSens
+        caffSens,
+        mealName
       } = input;
 
-      // 1) Effective load
+      // Effective load
       let L = carbs + 1.3 * sugar - 0.5 * fiber;
       if (L < 0) L = 0;
 
-      // 2) Spike timing
+      // Spike timing
       let spikeShift = 0;
       if (fatLevel === 1) spikeShift = 5;
       if (fatLevel === 2) spikeShift = 10;
@@ -656,12 +1071,12 @@
       const spikeMin = 20 + spikeShift;
       let spikeMax = 40 + spikeShift;
 
-      // 3) Crash timing
+      // Crash timing
       let crashMin = spikeMax + 40;
       let crashMax = spikeMax + 80;
       if (L > 100) crashMax += 10;
 
-      // 4) Carb risk
+      // Carb risk
       const Lcap = Math.min(L, 120);
       const loadScore = 60 * (Lcap / 120);
       const sensScore = 25 * (clamp(sensitivity, 1, 5) / 5);
@@ -675,7 +1090,7 @@
       let carbRiskRaw = loadScore + sensScore + stackScore + eveningScore;
       let carbRisk = clamp(carbRiskRaw, 0, 100);
 
-      // 5) Caffeine risk
+      // Caffeine risk
       let doseScore = 0;
       if (caffMg > 0 && caffMg <= 40) {
         doseScore = 10 * (caffMg / 40);
@@ -697,7 +1112,7 @@
       let caffRisk = Math.min(caffRiskRaw, 65);
       if (caffMg <= 0) caffRisk = 0;
 
-      // 6) Windows
+      // Caffeine window
       const caffAnxMin = caffMg > 0 ? 30 : null;
       const caffAnxMax = caffMg > 0 ? 180 : null;
 
@@ -708,13 +1123,13 @@
         }
       }
 
-      // 7) Synergy
+      // Synergy
       let synergyScore = 0;
       if (overlap && carbRisk > 20 && caffRisk > 10) {
         synergyScore = 0.15 * Math.min(carbRisk, caffRisk);
       }
 
-      // 8) Final risk
+      // Final risk
       let combinedRaw = carbRisk + caffRisk + synergyScore;
       let anxietyRisk = clamp(combinedRaw, 0, 100);
 
@@ -722,10 +1137,13 @@
       if (anxietyRisk >= 60) level = "High";
       else if (anxietyRisk >= 30) level = "Moderate";
 
-      // Stacking indicator
+      // Stacking text
       let stackingText = "Low";
       if (Pcap >= 40 && Pcap < 100) stackingText = "Medium";
       if (Pcap >= 100) stackingText = "High";
+
+      // G impact
+      const gImpact = clamp((L / 140) * 100, 0, 100);
 
       return {
         anxietyRisk,
@@ -741,19 +1159,18 @@
         stackingText,
         timeOfDay,
         caffMg,
-        overlap
+        overlap,
+        gImpact,
+        mealName
       };
     }
 
     function formatRange(min, max) {
-      return `${Math.round(min)} to ${Math.round(
-        max
-      )} minutes after this meal`;
+      return `${Math.round(min)} to ${Math.round(max)} minutes after this meal`;
     }
 
-    // Timeline rendering
     function buildTimelineHTML(result) {
-      const total = Math.max(result.crashMax + 40, 200); // minutes span
+      const total = Math.max(result.crashMax + 40, 200);
       function pct(x) {
         return clamp((x / total) * 100, 0, 100);
       }
@@ -768,14 +1185,14 @@
         <div class="timeline">
           <div>Timeline</div>
           <div class="bar">
-            <div class="segment spike" style="left:${spikeStart}%; width:${
-        spikeEnd - spikeStart
+            <div class="segment spike" style="left:${spikeStart}%; width:${spikeEnd -
+        spikeStart
       }%;"></div>
-            <div class="segment crash" style="left:${crashStart}%; width:${
-        crashEnd - crashStart
+            <div class="segment crash" style="left:${crashStart}%; width:${crashEnd -
+        crashStart
       }%;"></div>
-            <div class="segment recover" style="left:${recoverStart}%; width:${
-        recoverEnd - recoverStart
+            <div class="segment recover" style="left:${recoverStart}%; width:${recoverEnd -
+        recoverStart
       }%;"></div>
           </div>
           <div class="small">
@@ -785,34 +1202,58 @@
       `;
     }
 
-    // Simple explanation text
     function buildExplanation(result) {
       const pieces = [];
       if (result.L >= 80) {
         pieces.push("Large carb and sugar load.");
       } else if (result.L >= 40) {
         pieces.push("Moderate carb load.");
+      } else {
+        pieces.push("Carb load was relatively small.");
       }
       if (result.timeOfDay === "evening") {
-        pieces.push("Evening timing increases risk.");
+        pieces.push("Evening timing increases risk for sensitive guts.");
       }
       if (result.stackingText === "High") {
-        pieces.push("High stacking from earlier meals.");
+        pieces.push("High stacking from earlier carb heavy meals.");
       } else if (result.stackingText === "Medium") {
-        pieces.push("Some stacking from earlier carbs.");
+        pieces.push("Some stacking from earlier carbs today.");
       }
       if (result.caffMg > 0) {
-        pieces.push("Caffeine overlaps with the crash window.");
-      }
-      if (pieces.length === 0) {
-        return "This looks like a relatively gentle pattern. Any anxiety you feel is likely mild and short lived.";
+        pieces.push("Caffeine overlaps with the crash window, which can amplify jittery anxiety.");
+      } else {
+        pieces.push("No caffeine, so this is a pure carb and timing effect.");
       }
       return pieces.join(" ");
+    }
+
+    function buildSafeSwap(result) {
+      const name = (result.mealName || "").toLowerCase();
+      if (name.includes("pasta") || name.includes("ramen") || name.includes("pad thai")) {
+        return "Next time, try a smaller portion of noodles, add more protein and vegetables, and move it earlier in the day. That can drop the crash risk quite a bit.";
+      }
+      if (name.includes("pizza")) {
+        return "For pizza, slower eating, fewer slices and adding a salad instead of fries usually makes the crash quieter.";
+      }
+      if (name.includes("burrito") || name.includes("chipotle")) {
+        return "For burrito style meals, consider a bowl with less rice and more beans and protein. That tends to flatten the spike.";
+      }
+      if (name.includes("orange chicken") || name.includes("fried rice")) {
+        return "Chinese chain style meals are often sugar heavy. Reducing sauce, adding plain rice and mixing in vegetables can ease the crash.";
+      }
+      if (name.includes("sushi")) {
+        return "Sushi is often gentler. Spacing rolls out and limiting sugary sauces keeps risk lower.";
+      }
+      if (name.includes("dessert")) {
+        return "If dessert alone triggers anxiety, pairing it with a small protein snack first and keeping the portion modest can help.";
+      }
+      return "In general, smaller portions, more fiber and protein, and earlier timing reduce the size of the spike and how loud the crash feels.";
     }
 
     // History
     const history = [];
     const historyList = document.getElementById("historyList");
+    let lastResult = null;
 
     function addToHistory(result) {
       const timeLabel =
@@ -823,7 +1264,8 @@
         score: Math.round(result.anxietyRisk),
         level: result.level,
         stack: result.stackingText,
-        tod: timeLabel
+        tod: timeLabel,
+        mealName: result.mealName || "Meal"
       });
       if (history.length > 5) history.pop();
 
@@ -832,6 +1274,7 @@
           (h, idx) =>
             `<div class="history-item">
                Run ${history.length - idx}:
+               <strong>${h.mealName}</strong> 
                Score ${h.score} of 100
                <span class="badge">${h.level}</span>
                <span class="badge">Stacking: ${h.stack}</span>
@@ -841,31 +1284,32 @@
         .join("");
     }
 
-    // Main calculate
     const output = document.getElementById("output");
-    document.getElementById("calcBtn").addEventListener("click", () => {
-      const mode =
-        simpleMode.classList.contains("hidden") ? "advanced" : "simple";
+    const calcBtn = document.getElementById("calcBtn");
+    const dontKnowBtn = document.getElementById("dontKnowBtn");
+    const minutesSinceInput = document.getElementById("minutesSince");
+    const whyNowBtn = document.getElementById("whyNowBtn");
+    const whyNowOutput = document.getElementById("whyNowOutput");
 
-      const input =
-        mode === "simple"
-          ? buildInputFromSimple()
-          : buildInputFromAdvanced();
-
-      const result = computeAnxietyRisk(input);
-
+    function renderResult(result) {
       let tagClass = "tag-low";
       if (result.level === "Moderate") tagClass = "tag-mod";
       if (result.level === "High") tagClass = "tag-high";
 
       const explanation = buildExplanation(result);
       const timeline = buildTimelineHTML(result);
+      const safeSwap = buildSafeSwap(result);
 
       output.innerHTML = `
         <div class="score-line">
           Anxiety risk:
           <strong>${Math.round(result.anxietyRisk)}</strong> / 100
           <span class="tag ${tagClass}">${result.level}</span>
+        </div>
+        <div class="row">
+          Glucose impact (G-Impact):
+          <strong>${Math.round(result.gImpact)}</strong> / 100
+          <span class="small">(rough strength of the spike)</span>
         </div>
         <div class="row">
           Effective glucose load:
@@ -898,14 +1342,114 @@
         </div>
         ${timeline}
         <div class="small" style="margin-top:6px;">
-          This is a rough biological model. It is meant to help you see patterns, not label you as broken.
+          This is a rough biological model. It is meant to help you see patterns, not to label you as broken.
         </div>
-        <div style="margin-top:8px;" class="small">
+        <div class="small" style="margin-top:6px;">
           ${explanation}
         </div>
+        <div class="small" style="margin-top:6px;">
+          Safe swap idea: ${safeSwap}
+        </div>
       `;
+    }
 
+    calcBtn.addEventListener("click", () => {
+      const mode = simpleMode.classList.contains("hidden") ? "advanced" : "simple";
+      const input =
+        mode === "simple" ? buildInputFromSimple() : buildInputFromAdvanced();
+      const result = computeAnxietyRisk(input);
+      lastResult = result;
+      renderResult(result);
       addToHistory(result);
+    });
+
+    dontKnowBtn.addEventListener("click", () => {
+      // Rough guess: big carb evening meal, dessert, no caffeine tracking
+      selectedMealId = "otherHeavy";
+      renderMealGrid(mealSearch.value);
+      stackInput.value = 2;
+      updateStackLabel();
+      sensInput.value = 4;
+      updateSensLabel();
+      caffSensInput.value = 3;
+      updateCaffSensLabel();
+      // Set sweet to medium, portion to restaurant, time to evening
+      ["sweetGroup", "portionGroup", "todGroup", "caffTypeGroup"].forEach(
+        (id) => {
+          const group = document.getElementById(id);
+          if (!group) return;
+          [...group.querySelectorAll(".pill")].forEach((p) =>
+            p.classList.remove("selected")
+          );
+        }
+      );
+      document
+        .querySelector('#sweetGroup .pill[data-sweet="medium"]')
+        .classList.add("selected");
+      document
+        .querySelector('#portionGroup .pill[data-portion="restaurant"]')
+        .classList.add("selected");
+      document
+        .querySelector('#todGroup .pill[data-tod="evening"]')
+        .classList.add("selected");
+      document
+        .querySelector('#caffTypeGroup .pill[data-caff="none"]')
+        .classList.add("selected");
+
+      const input = buildInputFromSimple();
+      const result = computeAnxietyRisk(input);
+      lastResult = result;
+      renderResult(result);
+      addToHistory(result);
+    });
+
+    whyNowBtn.addEventListener("click", () => {
+      if (!lastResult) {
+        whyNowOutput.textContent =
+          "Run a prediction for your last meal first, then this can tell you where you are on that curve.";
+        return;
+      }
+      const mins = parseFloat(minutesSinceInput.value);
+      if (isNaN(mins) || mins < 0) {
+        whyNowOutput.textContent =
+          "Enter how many minutes it has been since the meal that might be causing this.";
+        return;
+      }
+
+      const { spikeMin, spikeMax, crashMin, crashMax } = lastResult;
+      let zone = "";
+      let message = "";
+
+      if (mins < spikeMin) {
+        zone = "Pre spike";
+        message =
+          "You are before the main spike. If you feel anxious now, it may be more related to baseline tension or something earlier today.";
+      } else if (mins >= spikeMin && mins <= spikeMax) {
+        zone = "Spike zone";
+        message =
+          "You are in the spike zone. Some people feel wired, restless or a little buzzy here, especially with caffeine.";
+      } else if (mins > spikeMax && mins < crashMin) {
+        zone = "Between spike and crash";
+        message =
+          "You are between spike and crash. This is a transition period. Some people feel normal here, some start to feel a shift.";
+      } else if (mins >= crashMin && mins <= crashMax) {
+        zone = "Crash and anxiety window";
+        message =
+          "You are right in the predicted crash and anxiety window. This is the most likely time for carb and sugar biology to feel like anxiety. The wave usually eases on its own as you move past this window.";
+      } else if (mins > crashMax && mins <= crashMax + 60) {
+        zone = "Recovery zone";
+        message =
+          "You are past the main crash window. You may feel tired, a bit flat or simply relieved. Biology is settling down.";
+      } else {
+        zone = "Likely not from this meal";
+        message =
+          "You are far past the predicted crash window. Any anxiety now is probably not driven mainly by this particular meal.";
+      }
+
+      whyNowOutput.innerHTML = `
+        <div><strong>Zone:</strong> ${zone}</div>
+        <div class="small" style="margin-top:4px;">${message}</div>
+      `;
     });
   </script>
 </body>
