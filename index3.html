@@ -346,11 +346,16 @@
     <div id="simpleModePanel">
       <div class="field-group">
         <div class="field-label">Simple: what did the meal look like?</div>
-        <button id="clearSimpleBtn" class="inline-button" type="button">Clear</button>
+        <button id="clearSimpleBtn" class="inline-button" type="button">Clear desserts and drinks</button>
+        <p id="selectedMealText" class="helper-text">
+          Selected meal: Plate of pasta (default)
+        </p>
         <p class="helper-text">
           Tap the option that feels closest. You can still tweak sugar, caffeine, and sensitivity below.
         </p>
+
         <div class="meal-cards">
+          <!-- High carb dinner style -->
           <label class="meal-card selected">
             <input type="radio" name="mealPreset" value="pasta" data-carbs="80" checked>
             <div class="emoji">🍝</div>
@@ -377,7 +382,7 @@
             <div class="meal-main">
               <div class="meal-title">Ramen or noodle bowl</div>
               <div class="meal-meta">Dinner, noodles</div>
-              <div class="meal-tag">High carb</div>
+              <div class="meal-tag">High carb + salt</div>
             </div>
           </label>
 
@@ -387,7 +392,111 @@
             <div class="meal-main">
               <div class="meal-title">Fried rice</div>
               <div class="meal-meta">Takeout, Chinese</div>
-              <div class="meal-tag">High carb</div>
+              <div class="meal-tag">High carb + fat</div>
+            </div>
+          </label>
+
+          <!-- Fast food / mixed meals -->
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="burgerFries" data-carbs="65">
+            <div class="emoji">🍔</div>
+            <div class="meal-main">
+              <div class="meal-title">Burger and fries</div>
+              <div class="meal-meta">Fast food combo</div>
+              <div class="meal-tag">Carb + fat stack</div>
+            </div>
+          </label>
+
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="pizza" data-carbs="60">
+            <div class="emoji">🍕</div>
+            <div class="meal-main">
+              <div class="meal-title">Pizza (2–3 slices)</div>
+              <div class="meal-meta">Takeout, dinner</div>
+              <div class="meal-tag">Refined flour + fat</div>
+            </div>
+          </label>
+
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="tacos" data-carbs="50">
+            <div class="emoji">🌮</div>
+            <div class="meal-main">
+              <div class="meal-title">3 tacos</div>
+              <div class="meal-meta">Street or fast food</div>
+              <div class="meal-tag">Moderate carb</div>
+            </div>
+          </label>
+
+          <!-- Breakfast / lighter -->
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="cereal" data-carbs="55">
+            <div class="emoji">🥣</div>
+            <div class="meal-main">
+              <div class="meal-title">Cereal and milk</div>
+              <div class="meal-meta">Breakfast</div>
+              <div class="meal-tag">Refined carbs</div>
+            </div>
+          </label>
+
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="oatmeal" data-carbs="45">
+            <div class="emoji">🌾</div>
+            <div class="meal-main">
+              <div class="meal-title">Oatmeal bowl</div>
+              <div class="meal-meta">With a bit of fruit</div>
+              <div class="meal-tag">Slower carbs</div>
+            </div>
+          </label>
+
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="pastryCoffee" data-carbs="45">
+            <div class="emoji">🥐</div>
+            <div class="meal-main">
+              <div class="meal-title">Pastry and coffee</div>
+              <div class="meal-meta">Cafe breakfast</div>
+              <div class="meal-tag">Refined carbs + caffeine</div>
+            </div>
+          </label>
+
+          <!-- Protein + carb -->
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="steakPotato" data-carbs="45">
+            <div class="emoji">🥩</div>
+            <div class="meal-main">
+              <div class="meal-title">Steak and potato</div>
+              <div class="meal-meta">Dinner plate</div>
+              <div class="meal-tag">Moderate carb + fat</div>
+            </div>
+          </label>
+
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="chickenRice" data-carbs="50">
+            <div class="emoji">🍗</div>
+            <div class="meal-main">
+              <div class="meal-title">Chicken and rice</div>
+              <div class="meal-meta">Grain bowl, home or takeout</div>
+              <div class="meal-tag">Moderate carb</div>
+            </div>
+          </label>
+
+          <!-- Lighter carb -->
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="saladBread" data-carbs="35">
+            <div class="emoji">🥗</div>
+            <div class="meal-main">
+              <div class="meal-title">Big salad with bread</div>
+              <div class="meal-meta">Greens plus 1–2 slices bread</div>
+              <div class="meal-tag">Lighter carb</div>
+            </div>
+          </label>
+
+          <label class="meal-card">
+            <input type="radio" name="mealPreset" value="sushi" data-carbs="55">
+            <div class="emoji">🍣</div>
+            <div class="meal-main">
+              <div class="meal-title">Sushi rolls</div>
+              <div class="meal-meta">Typical roll set</div>
+              <div class="meal-tag">Rice carbs</div>
             </div>
           </label>
         </div>
@@ -395,7 +504,7 @@
 
       <div class="field-group">
         <div class="field-label">Did you add dessert?</div>
-        <p class="helper-text">Big dessert might be a bowl of ice cream, a big slice of cake, or 2-3 cookies.</p>
+        <p class="helper-text">Big dessert might be a bowl of ice cream, a big slice of cake, or 2–3 cookies.</p>
         <div class="chip-row">
           <label class="chip chip-soft active">
             <input type="radio" name="dessert" value="none" checked>
@@ -472,7 +581,7 @@
         <div class="field-group">
           <div class="field-label">Caffeine (mg)</div>
           <input id="advancedCaffeine" type="number" min="0" step="10" placeholder="e.g. 80">
-          <p class="helper-text">Coffee 80-120 mg, strong coffee or energy drink 140-200 mg.</p>
+          <p class="helper-text">Coffee 80–120 mg, strong coffee or energy drink 140–200 mg.</p>
         </div>
       </div>
     </div>
@@ -788,6 +897,8 @@
       const useNowBtn = document.getElementById("useNowBtn");
       const mealTimeInput = document.getElementById("mealTimeInput");
 
+      const selectedMealText = document.getElementById("selectedMealText");
+
       const riskBarFill = document.getElementById("riskBarFill");
       const riskScoreText = document.getElementById("riskScoreText");
       const riskBucketText = document.getElementById("riskBucketText");
@@ -856,14 +967,22 @@
 
       function refreshMealCards() {
         const cards = document.querySelectorAll(".meal-card");
+        let selectedLabel = "None";
         cards.forEach(function (card) {
           const input = card.querySelector("input[type=radio]");
           if (input && input.checked) {
             card.classList.add("selected");
-          } else {
+            const titleEl = card.querySelector(".meal-title");
+            if (titleEl) {
+              selectedLabel = titleEl.textContent.trim();
+            }
+          } else if (card) {
             card.classList.remove("selected");
           }
         });
+        if (selectedMealText) {
+          selectedMealText.textContent = "Selected meal: " + selectedLabel;
+        }
       }
 
       function refreshChips() {
@@ -951,7 +1070,10 @@
         const timeStr = mealTimeInput.value;
         if (!timeStr) return now;
 
-        const [hh, mm] = timeStr.split(":").map(function (x) { return Number(x); });
+        const parts = timeStr.split(":");
+        if (parts.length < 2) return now;
+        const hh = Number(parts[0]);
+        const mm = Number(parts[1]);
         if (Number.isNaN(hh) || Number.isNaN(mm)) return now;
 
         const anchor = new Date();
@@ -1079,3 +1201,4 @@
 </main>
 </body>
 </html>
+            
