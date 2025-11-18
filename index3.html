@@ -360,7 +360,12 @@
       color: var(--text-subtle);
     }
 
-    .right-column-card { margin-bottom: 10px; }
+    .right-column-card {
+  margin-bottom: 10px;
+  position: sticky;
+  top: 8px;           /* distance from top of screen */
+  z-index: 3;         /* keep it above other panels */
+}
 
     .risk-title-row {
       display: flex;
