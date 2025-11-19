@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prototype 1 - Crash Clock & Nervous System Load Index</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Prototype timing tool that combines crash clock, nervous system load, emotional lag and IBS pre-flare risk."
+  />
+
+  <style>
+    :root {
+      --bg: #05070a;
+      --card: #10131a;
+      --card-soft: #151925;
+      --border-subtle: #252a38;
+      --text-main: #e0e3ec;
+      --text-muted: #a0a6b5;
+      --accent: #4cc9f0;
+      --accent-soft: rgba(76, 201, 240, 0.1);
+      --accent-strong: #f72585;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, system-ui, -webkit-system-font,
+        "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top, #131729 0, #05070a 55%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px 32px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 940px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #10131a, #151925);
+      border-radius: 20px;
+      padding: 20px 14px 22px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 16px;
+    }
+
+    @media (min-width: 720px) {
+      .card {
+        padding: 24px 24px 26px;
+      }
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin: 0 0 6px;
+      letter-spacing: 0.01em;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 0 0 10px;
+    }
+
+    h3 {
+      font-size: 1rem;
+      margin: 14px 0 6px;
+    }
+
+    p {
+      margin: 6px 0 8px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+
+    select,
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: #080a11;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      height: 28px;
+    }
+
+    .range-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: -4px;
+      margin-bottom: 8px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 760px) {
+      .row.two {
+        grid-template-columns: 1.15fr 1fr;
+      }
+      .row.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(8, 10, 18, 0.9);
+      color: var(--text-muted);
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+
+    .pill.accent {
+      background: var(--accent-soft);
+      border-color: rgba(76, 201, 240, 0.6);
+      color: var(--accent);
+    }
+
+    .primary-btn {
+      margin-top: 8px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), #4895ef);
+      color: #05070a;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.1s ease;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 760px) {
+      .metrics-grid {
+        grid-template-columns: 1.15fr 1fr;
+      }
+    }
+
+    .metric-card {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top left, rgba(76, 201, 240, 0.12), #10131a 60%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 14px 12px 12px;
+    }
+
+    .metric-title {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    .metric-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .metric-value.low {
+      color: #4cc9f0;
+    }
+    .metric-value.medium {
+      color: #f9c74f;
+    }
+    .metric-value.high {
+      color: #f72585;
+    }
+
+    .timeline-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .timeline-chip {
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #080a11;
+      color: var(--text-muted);
+    }
+
+    .timeline-chip.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .why-box {
+      margin-top: 10px;
+      padding: 10px 10px 9px;
+      border-radius: var(--radius-md);
+      background: rgba(8, 10, 18, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .footer-note {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- Header card -->
+    <section class="card">
+      <h1>Prototype 1 - Crash Clock & Nervous System Load</h1>
+      <p>
+        Early prototype that puts several ideas in one place:
+        Crash Clock, Nervous System Load Index, Emotional Lag and IBS pre-flare risk.
+        This is not a diagnosis. It is a timing model and pattern explorer.
+      </p>
+      <div class="pill accent">Timing based modeling</div>
+      <div class="pill">Gut - brain - sugar - sleep - stress</div>
+    </section>
+
+    <!-- Input card -->
+    <section class="card">
+      <h2>Inputs for the last few hours</h2>
+      <p>Be roughly honest. The goal is pattern, not perfection.</p>
+
+      <div class="row two">
+        <div>
+          <h3>Meal and timing</h3>
+
+          <label for="timeSinceMeal">Time since main meal or snack (hours)</label>
+          <input id="timeSinceMeal" type="range" min="0" max="6" step="0.25" value="2" />
+          <div class="range-label">
+            <span>Just ate</span>
+            <span><span id="timeSinceMealLabel">2.0</span> h</span>
+            <span>6+ h</span>
+          </div>
+
+          <label for="mealSize">Carb heaviness of that meal</label>
+          <select id="mealSize">
+            <option value="20">Light - protein / veg heavy</option>
+            <option value="45" selected>Medium - balanced plate</option>
+            <option value="70">Heavy - big bowl, bread, or rice</option>
+            <option value="90">Very heavy - pasta, takeout, buffet feel</option>
+          </select>
+
+          <label for="sugarLoad">Added sugar around that time</label>
+          <select id="sugarLoad">
+            <option value="5">Almost none</option>
+            <option value="25" selected>Some - dessert bite or small sweet</option>
+            <option value="55">Moderate - dessert, candy, sweet snack</option>
+            <option value="80">High - dessert plus extra sugary things</option>
+          </select>
+
+          <label for="caffeineLevel">Caffeine around or after that meal</label>
+          <select id="caffeineLevel">
+            <option value="0">None</option>
+            <option value="20" selected>Mild - small tea or decaf</option>
+            <option value="45">Moderate - 1 coffee / energy drink</option>
+            <option value="70">High - 2 or more strong drinks</option>
+          </select>
+        </div>
+
+        <div>
+          <h3>Body state today</h3>
+
+          <label for="sleepQuality">Sleep last night</label>
+          <select id="sleepQuality">
+            <option value="15">Poor - short or restless</option>
+            <option value="5" selected>OK - not great, not awful</option>
+            <option value="0">Good - felt rested</option>
+          </select>
+
+          <label for="stressLevel">Stress level today</label>
+          <select id="stressLevel">
+            <option value="5">Low</option>
+            <option value="20" selected>Moderate</option>
+            <option value="40">High</option>
+          </select>
+
+          <label for="hydrationLevel">Hydration so far today</label>
+          <select id="hydrationLevel">
+            <option value="25">Low - probably not enough fluids</option>
+            <option value="10" selected>OK - some water, not ideal</option>
+            <option value="0">Good - steady water intake</option>
+          </select>
+
+          <label for="gutSensitivity">Gut and nerve sensitivity baseline</label>
+          <select id="gutSensitivity">
+            <option value="10">Mild - body is usually quiet</option>
+            <option value="25" selected>Medium - sensitive some days</option>
+            <option value="45">High - IBS, visceral sensitivity, or jumpy nerves</option>
+          </select>
+
+          <label for="ibsPattern">IBS or gut pattern this week</label>
+          <select id="ibsPattern">
+            <option value="5">Stable - mostly normal</option>
+            <option value="20" selected>Wobbly - some rougher days</option>
+            <option value="40">Acting up - frequent symptoms</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="calculateBtn" class="primary-btn">
+        ⚡ Update model
+      </button>
+      <p class="footer-note">
+        All numbers are rough. This is a sandbox to see how timing and load could interact.
+      </p>
+    </section>
+
+    <!-- Output card: metrics -->
+    <section class="card">
+      <h2>Current state snapshot</h2>
+      <p>
+        This section estimates where you are in your post-meal cycle and how much total load your
+        nervous system is carrying right now.
+      </p>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Nervous System Load Index</div>
+          <div id="nsliValue" class="metric-value medium">56</div>
+          <div id="nsliBand" class="metric-sub">
+            Medium load - system is doing work in the background.
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">Emotional Lag</div>
+          <div id="lagValue" class="metric-value low">28</div>
+          <div id="lagBand" class="metric-sub">
+            Some carryover from earlier stress or poor sleep.
+          </div>
+        </div>
+      </div>
+
+      <div class="metrics-grid" style="margin-top: 10px;">
+        <div class="metric-card">
+          <div class="metric-title">IBS Pre-flare Risk</div>
+          <div id="flareValue" class="metric-value low">22</div>
+          <div id="flareBand" class="metric-sub">
+            Low to moderate risk based on gut sensitivity, hydration and recent load.
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-title">Crash Clock - where you are</div>
+          <div id="crashStage" class="metric-value medium">Crash window</div>
+          <div id="crashBand" class="metric-sub">
+            You are likely in a dip after a prior spike in energy or blood sugar.
+          </div>
+
+          <div class="timeline-chip-row">
+            <span id="chipPre" class="timeline-chip">Pre spike</span>
+            <span id="chipSpike" class="timeline-chip">Spike phase</span>
+            <span id="chipCrash" class="timeline-chip active">Crash window</span>
+            <span id="chipRecover" class="timeline-chip">Recovery</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="why-box" id="whyBox">
+        Based on your inputs, your body looks like it is combining a moderate meal load,
+        some sugar, and a medium sensitivity baseline with OK sleep and hydration. This can produce
+        a noticeable but manageable wave that feels stronger if you focus on it.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>How to read this prototype</h2>
+      <p>
+        The goal is not perfect math. It is a usable language for what your body might be doing:
+        what is spiking, what is dropping and how much leftover stress is still in the system.
+      </p>
+      <ul>
+        <li>
+          <strong>Nervous System Load Index</strong> is like a CPU meter for your body
+          on a 0 to 100 scale.
+        </li>
+        <li>
+          <strong>Emotional Lag</strong> is how much of yesterday or this morning your
+          system is still carrying.
+        </li>
+        <li>
+          <strong>IBS Pre-flare risk</strong> looks at sensitivity, hydration and load
+          to estimate the chance of a rough patch soon.
+        </li>
+        <li>
+          <strong>Crash Clock</strong> guesses where you are in the spike - crash - recovery arc
+          after carbs, sugar and caffeine.
+        </li>
+      </ul>
+      <p class="footer-note">
+        Not medical advice. Prototype only. The numbers are intentionally soft so you can tune them
+        over time based on real days.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    // Simple helper to clamp a value to a range
+    function clamp(val, min, max) {
+      return Math.min(max, Math.max(min, val));
+    }
+
+    function bandForScore(score) {
+      if (score < 33) return "low";
+      if (score < 66) return "medium";
+      return "high";
+    }
+
+    function bandText(label, score) {
+      const band = bandForScore(score);
+      if (label === "nsli") {
+        if (band === "low") return "Low load - nervous system has room to flex.";
+        if (band === "medium") return "Medium load - system is active but not overwhelmed.";
+        return "High load - your system is juggling several stressors at once.";
+      }
+      if (label === "lag") {
+        if (band === "low") return "Low emotional residue - today is not carrying too much from before.";
+        if (band === "medium") return "Some carryover from earlier stress or poor sleep.";
+        return "High carryover - your body still thinks it is in yesterday's storm.";
+      }
+      if (label === "flare") {
+        if (band === "low") return "Low to moderate pre-flare risk based on current pattern.";
+        if (band === "medium") return "Moderate pre-flare risk - this might be a day to be gentle.";
+        return "High pre-flare risk - stacking sensitivity, load and lower hydration.";
+      }
+      return "";
+    }
+
+    function crashStageFor(timeH, metabolicLoad) {
+      // Metabolic load 0-100, time 0-6 h
+      // Very rough phases, adjusted by load
+      let stage = "pre";
+      if (timeH < 0.5) {
+        stage = "pre";
+      } else if (timeH < 1.5) {
+        stage = "spike";
+      } else if (timeH < 3) {
+        stage = "crash";
+      } else {
+        stage = "recover";
+      }
+
+      // Higher load makes spike and crash feel more intense and longer
+      const intensity = metabolicLoad;
+
+      return { stage, intensity };
+    }
+
+    function updateCrashChips(stage) {
+      const chipPre = document.getElementById("chipPre");
+      const chipSpike = document.getElementById("chipSpike");
+      const chipCrash = document.getElementById("chipCrash");
+      const chipRecover = document.getElementById("chipRecover");
+      [chipPre, chipSpike, chipCrash, chipRecover].forEach((el) =>
+        el.classList.remove("active")
+      );
+      if (stage === "pre") chipPre.classList.add("active");
+      if (stage === "spike") chipSpike.classList.add("active");
+      if (stage === "crash") chipCrash.classList.add("active");
+      if (stage === "recover") chipRecover.classList.add("active");
+    }
+
+    function updateModel() {
+      const timeSinceMeal = parseFloat(
+        document.getElementById("timeSinceMeal").value
+      );
+      const mealSize = parseFloat(
+        document.getElementById("mealSize").value
+      );
+      const sugarLoad = parseFloat(
+        document.getElementById("sugarLoad").value
+      );
+      const caffeineLevel = parseFloat(
+        document.getElementById("caffeineLevel").value
+      );
+      const sleepQuality = parseFloat(
+        document.getElementById("sleepQuality").value
+      );
+      const stressLevel = parseFloat(
+        document.getElementById("stressLevel").value
+      );
+      const hydrationLevel = parseFloat(
+        document.getElementById("hydrationLevel").value
+      );
+      const gutSensitivity = parseFloat(
+        document.getElementById("gutSensitivity").value
+      );
+      const ibsPattern = parseFloat(
+        document.getElementById("ibsPattern").value
+      );
+
+      // Metabolic load: how strong this meal + sugar + caffeine wave is
+      const metabolicLoadRaw =
+        mealSize * 0.45 + sugarLoad * 0.35 + caffeineLevel * 0.2;
+      const metabolicLoad = clamp(metabolicLoadRaw, 0, 100);
+
+      // Nervous System Load Index: metabolic + stress + sensitivity + sleep + hydration
+      const stressComponent = stressLevel * 1.0;
+      const sensitivityComponent = gutSensitivity * 1.1;
+      const sleepComponent = sleepQuality * 1.1; // poor sleep pushes this up
+      const hydrationComponent = hydrationLevel * 0.8; // low hydration pushes up
+
+      const nsliRaw =
+        metabolicLoad * 0.45 +
+        stressComponent * 0.2 +
+        sensitivityComponent * 0.2 +
+        sleepComponent * 0.1 +
+        hydrationComponent * 0.05;
+
+      const nsli = Math.round(clamp(nsliRaw, 0, 100));
+
+      // Emotional lag: mostly sleep, stress, sensitivity and IBS trend
+      const lagRaw =
+        sleepQuality * 1.4 +
+        stressLevel * 1.3 +
+        gutSensitivity * 0.9 +
+        ibsPattern * 0.6;
+      const lag = Math.round(clamp(lagRaw, 0, 100));
+
+      // IBS pre-flare: hydration, gut sensitivity, ibs pattern and metabolic load
+      const flareRaw =
+        gutSensitivity * 1.1 +
+        ibsPattern * 1.0 +
+        hydrationLevel * 0.9 +
+        metabolicLoad * 0.25;
+      const flare = Math.round(clamp(flareRaw, 0, 100));
+
+      // Crash clock stage
+      const crash = crashStageFor(timeSinceMeal, metabolicLoad);
+      let stageText = "";
+      let stageSub = "";
+      if (crash.stage === "pre") {
+        stageText = "Pre spike";
+        stageSub =
+          "Your system is still absorbing. This is a build up phase before the full wave.";
+      } else if (crash.stage === "spike") {
+        stageText = "Spike phase";
+        stageSub =
+          "Energy and chemistry are rising. This can feel buzzy, fast, or sharpened.";
+      } else if (crash.stage === "crash") {
+        stageText = "Crash window";
+        stageSub =
+          "You are likely in a dip after the rise. This is the classic crash and false anxiety zone.";
+      } else {
+        stageText = "Recovery";
+        stageSub =
+          "Your system is clearing the wave. Things may feel flat, tired, or slowly steadying.";
+      }
+
+      // Update DOM for main metrics
+      const nsliEl = document.getElementById("nsliValue");
+      const lagEl = document.getElementById("lagValue");
+      const flareEl = document.getElementById("flareValue");
+      const crashStageEl = document.getElementById("crashStage");
+
+      nsliEl.textContent = nsli;
+      lagEl.textContent = lag;
+      flareEl.textContent = flare;
+      crashStageEl.textContent = stageText;
+
+      // Apply color classes
+      [nsliEl, lagEl, flareEl].forEach((el) => {
+        el.classList.remove("low", "medium", "high");
+      });
+      nsliEl.classList.add(bandForScore(nsli));
+      lagEl.classList.add(bandForScore(lag));
+      flareEl.classList.add(bandForScore(flare));
+
+      // Band text
+      document.getElementById("nsliBand").textContent = bandText("nsli", nsli);
+      document.getElementById("lagBand").textContent = bandText("lag", lag);
+      document.getElementById("flareBand").textContent = bandText("flare", flare);
+      document.getElementById("crashBand").textContent = stageSub;
+
+      // Crash chips
+      updateCrashChips(crash.stage);
+
+      // Build "why you feel this way" summary
+      const whyBox = document.getElementById("whyBox");
+
+      const pieces = [];
+
+      if (nsli >= 70) {
+        pieces.push(
+          "Your nervous system is carrying a high combined load from this meal, today’s stress and your sensitivity baseline."
+        );
+      } else if (nsli >= 40) {
+        pieces.push(
+          "Your system is working at a medium level. It is not overloaded, but it is not idle either."
+        );
+      } else {
+        pieces.push(
+          "Overall load is on the lower side. If you feel off, it might be more about focus or interpretation than raw biology."
+        );
+      }
+
+      if (lag >= 60) {
+        pieces.push(
+          "There is strong emotional lag from earlier stress, poor sleep or recent rough days, so today may feel heavier than the inputs alone suggest."
+        );
+      } else if (lag >= 30) {
+        pieces.push(
+          "There is some leftover tension in the system that can color how this current wave feels."
+        );
+      } else {
+        pieces.push(
+          "Emotional lag is relatively low, so most of what you feel now is tied to the current timing wave."
+        );
+      }
+
+      if (crash.stage === "crash") {
+        pieces.push(
+          "You appear to be in a crash window after a prior spike. For many sensitive people this is the time that feels like sudden anxiety or dread."
+        );
+      } else if (crash.stage === "spike") {
+        pieces.push(
+          "You are in a spike phase where chemistry is rising. This can feel sharp or jittery if your nervous system is sensitive."
+        );
+      }
+
+      if (flare >= 60) {
+        pieces.push(
+          "Gut and IBS factors look stacked, so being gentle with meals, liquids and posture for the next few hours could reduce a flare."
+        );
+      } else if (flare >= 30) {
+        pieces.push(
+          "IBS pre-flare risk is moderate. Paying attention to hydration and meal spacing might keep things in a stable range."
+        );
+      }
+
+      whyBox.textContent = pieces.join(" ");
+
+    }
+
+    // Hook up controls
+    const timeRange = document.getElementById("timeSinceMeal");
+    const timeLabel = document.getElementById("timeSinceMealLabel");
+    timeRange.addEventListener("input", () => {
+      timeLabel.textContent = parseFloat(timeRange.value).toFixed(2);
+    });
+
+    document.getElementById("calculateBtn").addEventListener("click", updateModel);
+
+    // Initial run
+    timeLabel.textContent = parseFloat(timeRange.value).toFixed(2);
+    updateModel();
+  </script>
+</body>
+</html>
