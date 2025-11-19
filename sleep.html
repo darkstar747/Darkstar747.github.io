@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta
     name="description"
-    content="Prototype timing tool that combines crash clock, nervous system load, emotional lag and IBS pre-flare risk."
+    content="Prototype timing tool that combines crash clock, nervous system load and emotional lag."
   />
 
   <style>
@@ -271,7 +271,7 @@
       <h1>Prototype 1 - Crash Clock & Nervous System Load</h1>
       <p>
         Early prototype that puts several ideas in one place:
-        Crash Clock, Nervous System Load Index, Emotional Lag and IBS pre-flare risk.
+        Crash Clock, Nervous System Load Index and Emotional Lag.
         This is not a diagnosis. It is a timing model and pattern explorer.
       </p>
       <div class="pill accent">Timing based modeling</div>
@@ -351,11 +351,11 @@
             <option value="45">High - IBS, visceral sensitivity, or jumpy nerves</option>
           </select>
 
-          <label for="ibsPattern">IBS or gut pattern this week</label>
+          <label for="ibsPattern">Overall body week</label>
           <select id="ibsPattern">
             <option value="5">Stable - mostly normal</option>
             <option value="20" selected>Wobbly - some rougher days</option>
-            <option value="40">Acting up - frequent symptoms</option>
+            <option value="40">Rough - frequent symptoms or fatigue</option>
           </select>
         </div>
       </div>
@@ -394,28 +394,18 @@
         </div>
       </div>
 
-      <div class="metrics-grid" style="margin-top: 10px;">
-        <div class="metric-card">
-          <div class="metric-title">IBS Pre-flare Risk</div>
-          <div id="flareValue" class="metric-value low">22</div>
-          <div id="flareBand" class="metric-sub">
-            Low to moderate risk based on gut sensitivity, hydration and recent load.
-          </div>
+      <div class="metric-card" style="margin-top: 10px;">
+        <div class="metric-title">Crash Clock - where you are</div>
+        <div id="crashStage" class="metric-value medium">Crash window</div>
+        <div id="crashBand" class="metric-sub">
+          You are likely in a dip after a prior spike in energy or blood sugar.
         </div>
 
-        <div class="metric-card">
-          <div class="metric-title">Crash Clock - where you are</div>
-          <div id="crashStage" class="metric-value medium">Crash window</div>
-          <div id="crashBand" class="metric-sub">
-            You are likely in a dip after a prior spike in energy or blood sugar.
-          </div>
-
-          <div class="timeline-chip-row">
-            <span id="chipPre" class="timeline-chip">Pre spike</span>
-            <span id="chipSpike" class="timeline-chip">Spike phase</span>
-            <span id="chipCrash" class="timeline-chip active">Crash window</span>
-            <span id="chipRecover" class="timeline-chip">Recovery</span>
-          </div>
+        <div class="timeline-chip-row">
+          <span id="chipPre" class="timeline-chip">Pre spike</span>
+          <span id="chipSpike" class="timeline-chip">Spike phase</span>
+          <span id="chipCrash" class="timeline-chip active">Crash window</span>
+          <span id="chipRecover" class="timeline-chip">Recovery</span>
         </div>
       </div>
 
@@ -442,10 +432,6 @@
           system is still carrying.
         </li>
         <li>
-          <strong>IBS Pre-flare risk</strong> looks at sensitivity, hydration and load
-          to estimate the chance of a rough patch soon.
-        </li>
-        <li>
           <strong>Crash Clock</strong> guesses where you are in the spike - crash - recovery arc
           after carbs, sugar and caffeine.
         </li>
@@ -458,7 +444,6 @@
   </main>
 
   <script>
-    // Simple helper to clamp a value to a range
     function clamp(val, min, max) {
       return Math.min(max, Math.max(min, val));
     }
@@ -481,17 +466,11 @@
         if (band === "medium") return "Some carryover from earlier stress or poor sleep.";
         return "High carryover - your body still thinks it is in yesterday's storm.";
       }
-      if (label === "flare") {
-        if (band === "low") return "Low to moderate pre-flare risk based on current pattern.";
-        if (band === "medium") return "Moderate pre-flare risk - this might be a day to be gentle.";
-        return "High pre-flare risk - stacking sensitivity, load and lower hydration.";
-      }
       return "";
     }
 
     function crashStageFor(timeH, metabolicLoad) {
-      // Metabolic load 0-100, time 0-6 h
-      // Very rough phases, adjusted by load
+      // Rough phases, adjusted by time only for now
       let stage = "pre";
       if (timeH < 0.5) {
         stage = "pre";
@@ -503,9 +482,7 @@
         stage = "recover";
       }
 
-      // Higher load makes spike and crash feel more intense and longer
       const intensity = metabolicLoad;
-
       return { stage, intensity };
     }
 
@@ -557,11 +534,11 @@
         mealSize * 0.45 + sugarLoad * 0.35 + caffeineLevel * 0.2;
       const metabolicLoad = clamp(metabolicLoadRaw, 0, 100);
 
-      // Nervous System Load Index: metabolic + stress + sensitivity + sleep + hydration
+      // Nervous System Load Index
       const stressComponent = stressLevel * 1.0;
       const sensitivityComponent = gutSensitivity * 1.1;
-      const sleepComponent = sleepQuality * 1.1; // poor sleep pushes this up
-      const hydrationComponent = hydrationLevel * 0.8; // low hydration pushes up
+      const sleepComponent = sleepQuality * 1.1;
+      const hydrationComponent = hydrationLevel * 0.8;
 
       const nsliRaw =
         metabolicLoad * 0.45 +
@@ -572,21 +549,13 @@
 
       const nsli = Math.round(clamp(nsliRaw, 0, 100));
 
-      // Emotional lag: mostly sleep, stress, sensitivity and IBS trend
+      // Emotional lag
       const lagRaw =
         sleepQuality * 1.4 +
         stressLevel * 1.3 +
         gutSensitivity * 0.9 +
         ibsPattern * 0.6;
       const lag = Math.round(clamp(lagRaw, 0, 100));
-
-      // IBS pre-flare: hydration, gut sensitivity, ibs pattern and metabolic load
-      const flareRaw =
-        gutSensitivity * 1.1 +
-        ibsPattern * 1.0 +
-        hydrationLevel * 0.9 +
-        metabolicLoad * 0.25;
-      const flare = Math.round(clamp(flareRaw, 0, 100));
 
       // Crash clock stage
       const crash = crashStageFor(timeSinceMeal, metabolicLoad);
@@ -610,37 +579,29 @@
           "Your system is clearing the wave. Things may feel flat, tired, or slowly steadying.";
       }
 
-      // Update DOM for main metrics
+      // Update DOM
       const nsliEl = document.getElementById("nsliValue");
       const lagEl = document.getElementById("lagValue");
-      const flareEl = document.getElementById("flareValue");
       const crashStageEl = document.getElementById("crashStage");
 
       nsliEl.textContent = nsli;
       lagEl.textContent = lag;
-      flareEl.textContent = flare;
       crashStageEl.textContent = stageText;
 
-      // Apply color classes
-      [nsliEl, lagEl, flareEl].forEach((el) => {
+      [nsliEl, lagEl].forEach((el) => {
         el.classList.remove("low", "medium", "high");
       });
       nsliEl.classList.add(bandForScore(nsli));
       lagEl.classList.add(bandForScore(lag));
-      flareEl.classList.add(bandForScore(flare));
 
-      // Band text
       document.getElementById("nsliBand").textContent = bandText("nsli", nsli);
       document.getElementById("lagBand").textContent = bandText("lag", lag);
-      document.getElementById("flareBand").textContent = bandText("flare", flare);
       document.getElementById("crashBand").textContent = stageSub;
 
-      // Crash chips
       updateCrashChips(crash.stage);
 
-      // Build "why you feel this way" summary
+      // Why-box narrative
       const whyBox = document.getElementById("whyBox");
-
       const pieces = [];
 
       if (nsli >= 70) {
@@ -681,21 +642,9 @@
         );
       }
 
-      if (flare >= 60) {
-        pieces.push(
-          "Gut and IBS factors look stacked, so being gentle with meals, liquids and posture for the next few hours could reduce a flare."
-        );
-      } else if (flare >= 30) {
-        pieces.push(
-          "IBS pre-flare risk is moderate. Paying attention to hydration and meal spacing might keep things in a stable range."
-        );
-      }
-
       whyBox.textContent = pieces.join(" ");
-
     }
 
-    // Hook up controls
     const timeRange = document.getElementById("timeSinceMeal");
     const timeLabel = document.getElementById("timeSinceMealLabel");
     timeRange.addEventListener("input", () => {
@@ -704,7 +653,6 @@
 
     document.getElementById("calculateBtn").addEventListener("click", updateModel);
 
-    // Initial run
     timeLabel.textContent = parseFloat(timeRange.value).toFixed(2);
     updateModel();
   </script>
