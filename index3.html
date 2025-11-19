@@ -30,10 +30,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    body.large-text {
-      font-size: 20px;  /* larger mode */
-    }
-
     * {
       box-sizing: border-box;
     }
@@ -91,41 +87,6 @@
 
     .badge span.emoji {
       font-size: 1rem;
-    }
-
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      font-size: 0.9rem;
-      color: var(--text-soft);
-    }
-
-    .toggle-pill {
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      padding: 4px 8px;
-      background: rgba(15,23,42,0.7);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .toggle-pill button {
-      border: none;
-      background: transparent;
-      color: var(--text-soft);
-      cursor: pointer;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-    }
-
-    .toggle-pill button.active {
-      background: var(--accent);
-      color: #020617;
-      font-weight: 600;
     }
 
     /* Always-visible score strip */
@@ -269,8 +230,44 @@
       font-size: 0.9rem;
     }
 
+    /* Thicker time slider */
     input[type="range"] {
       width: 100%;
+      -webkit-appearance: none;
+      height: 28px;
+      background: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      background: #1f2937;
+      border-radius: 999px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #0f172a;
+      margin-top: -7px; /* centers thumb on track */
+      box-shadow: 0 0 6px rgba(34,197,255,0.8);
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 8px;
+      background: #1f2937;
+      border-radius: 999px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #0f172a;
+      box-shadow: 0 0 6px rgba(34,197,255,0.8);
     }
 
     .pill-group {
@@ -322,6 +319,11 @@
 
     .info-text.visible {
       display: block;
+    }
+
+    .helper-text {
+      font-size: 0.8rem;
+      color: var(--text-soft);
     }
 
     /* Food list */
@@ -495,7 +497,7 @@
       background: rgba(15,23,42,0.9);
     }
 
-    /* Crash window map (simpler, with minutes) */
+    /* Crash window map – solid colors */
     .timeline-bar {
       margin-top: 6px;
       margin-bottom: 4px;
@@ -511,15 +513,15 @@
     }
 
     .timeline-spike {
-      background: rgba(34,197,94,0.18);
+      background: #4ade80; /* green solid */
     }
 
     .timeline-crash {
-      background: rgba(250,204,21,0.25);
+      background: #fbbf24; /* yellow solid */
     }
 
     .timeline-recover {
-      background: rgba(59,130,246,0.25);
+      background: #60a5fa; /* blue solid */
     }
 
     .timeline-marker {
@@ -573,11 +575,6 @@
 
     .symptom-btn:hover {
       filter: brightness(1.08);
-    }
-
-    .helper-text {
-      font-size: 0.8rem;
-      color: var(--text-soft);
     }
 
     .share-row {
@@ -639,13 +636,6 @@
         <span>Free forever • No login • No tracking</span>
       </div>
     </div>
-    <div class="controls-row">
-      <div class="toggle-pill">
-        <span>Text size</span>
-        <button id="textNormalBtn" class="active" type="button">Normal</button>
-        <button id="textLargeBtn" type="button">Larger</button>
-      </div>
-    </div>
   </header>
 
   <!-- Score strip (always visible at top) -->
@@ -661,7 +651,6 @@
       <div class="score-strip-chip" id="stripWindowLabel">
         ⏱️ Waiting for inputs…
       </div>
-      <button class="small-btn" type="button" id="whyStripBtn">Why am I feeling this way?</button>
       <button class="small-btn primary" type="button" id="shareStripBtn">Share result</button>
     </div>
   </div>
@@ -689,6 +678,15 @@
           </div>
           <div id="infoTime" class="info-text">
             Most people with sensitive guts and nerves feel a “wave” between about 45 and 150 minutes after a carb / sugar / caffeine hit. This slider helps place you on that curve.
+          </div>
+        </div>
+        <div class="field">
+          <label for="mealClockTime">
+            What time did you start this meal? <span style="font-size:0.8rem; color:var(--text-soft);">(optional)</span>
+          </label>
+          <input id="mealClockTime" type="time">
+          <div class="helper-text" id="mealClockHelper">
+            If you add a clock time, the crash window will show real clock times (for example 7:15–9:00 PM).
           </div>
         </div>
         <div class="field">
@@ -890,6 +888,9 @@
             <span>180</span>
             <span>240 min</span>
           </div>
+          <div class="helper-text" id="clockWindowLabel">
+            Add a meal time on the left to see your crash window in clock time.
+          </div>
           <div id="infoTimeline" class="info-text">
             Heavy carbs + sugar + caffeine rarely cause “random” feelings. They create a spike, then a crash, then a slump. This bar shows roughly where you are in that 0–240 minute cycle.
           </div>
@@ -937,566 +938,113 @@
   </div> <!-- end layout -->
 
 </div> <!-- end page -->
-  <script>
-  // ---------------------------
-  // Food presets (grouped)
-  // ---------------------------
-  const mealCategories = [
-    {
-      name: "Pasta / rice / bowls",
-      id: "pastaRice",
-      items: [
-        { id: "pasta", emoji: "🍝", name: "Plate of pasta", carbs: 80, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "High carb" },
-        { id: "riceBowl", emoji: "🍚", name: "Rice bowl", carbs: 70, fiber: 2, fatLevel: 0, sugarBase: 2, tag: "High carb" },
-        { id: "ramen", emoji: "🍜", name: "Ramen or noodle bowl", carbs: 65, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "High carb" },
-        { id: "chipotleBowl", emoji: "🥗", name: "Burrito bowl", carbs: 65, fiber: 7, fatLevel: 2, sugarBase: 3, tag: "High carb, higher fiber" }
-      ]
-    },
-    {
-      name: "Pizza / fast food",
-      id: "pizzaFast",
-      items: [
-        { id: "pizza2", emoji: "🍕", name: "Pizza, 2 slices", carbs: 60, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb and fat" },
-        { id: "pizza3", emoji: "🍕", name: "Pizza, 3 slices", carbs: 90, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "Very high carb" },
-        { id: "burgerFries", emoji: "🍔", name: "Burger with fries", carbs: 70, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "Heavy" },
-        { id: "burgerOnly", emoji: "🍔", name: "Burger, no fries", carbs: 45, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb" }
-      ]
-    },
-    {
-      name: "Lighter plates",
-      id: "lightPlates",
-      items: [
-        { id: "saladLowCarb", emoji: "🥗", name: "Green salad, low carb", carbs: 18, fiber: 6, fatLevel: 1, sugarBase: 1, tag: "Light" },
-        { id: "chickenVeg", emoji: "🍗", name: "Grilled chicken with vegetables", carbs: 20, fiber: 4, fatLevel: 1, sugarBase: 1, tag: "Lower carb" },
-        { id: "salmonVeg", emoji: "🐟", name: "Salmon with vegetables", carbs: 15, fiber: 4, fatLevel: 2, sugarBase: 1, tag: "Lower carb" }
-      ]
-    },
-    {
-      name: "Desserts",
-      id: "desserts",
-      items: [
-        { id: "iceCream", emoji: "🍨", name: "Ice cream bowl", carbs: 45, fiber: 1, fatLevel: 2, sugarBase: 28, tag: "High sugar" },
-        { id: "cakeSlice", emoji: "🍰", name: "Slice of cake", carbs: 45, fiber: 1, fatLevel: 2, sugarBase: 28, tag: "High sugar" },
-        { id: "cookie2", emoji: "🍪", name: "Cookies, a couple", carbs: 30, fiber: 1, fatLevel: 2, sugarBase: 18, tag: "High sugar" }
-      ]
-    }
-  ];
-
-  let selectedMealId = null;
-  let simpleSugarExtra = 0;
-  let simpleCaffeine = 0;
-  let simpleSodaSugar = 0;
-  let simpleSodaCaf = 0;
-
-  const elements = {
-    simpleModeBtn: document.getElementById("simpleModeBtn"),
-    advancedModeBtn: document.getElementById("advancedModeBtn"),
-    simplePanel: document.getElementById("simplePanel"),
-    advancedPanel: document.getElementById("advancedPanel"),
-    timeRange: document.getElementById("timeSinceMealRange"),
-    timeLabel: document.getElementById("timeSinceMealLabel"),
-    sensitivitySelect: document.getElementById("sensitivitySelect"),
-    foodList: document.getElementById("foodList"),
-    foodSearch: document.getElementById("foodSearch"),
-    clearFoodBtn: document.getElementById("clearFoodBtn"),
-    simpleSugarExact: document.getElementById("simpleSugarExact"),
-    simpleCafExact: document.getElementById("simpleCafExact"),
-    scoreMainNumber: document.getElementById("scoreMainNumber"),
-    scoreMainLabel: document.getElementById("scoreMainLabel"),
-    riskChip: document.getElementById("riskChip"),
-    gaugeMarker: document.getElementById("gaugeMarker"),
-    breakdownRow: document.getElementById("breakdownRow"),
-    timelineMarkerLine: document.getElementById("timelineMarkerLine"),
-    symptomText: document.getElementById("symptomText"),
-    stripScoreNumber: document.getElementById("stripScoreNumber"),
-    stripScoreLabel: document.getElementById("stripScoreLabel"),
-    stripWindowLabel: document.getElementById("stripWindowLabel"),
-    shareBtn: document.getElementById("shareBtn"),
-    shareStripBtn: document.getElementById("shareStripBtn"),
-    shareStatus: document.getElementById("shareStatus"),
-    whyBtn: document.getElementById("whyBtn"),
-    whyText: document.getElementById("whyText"),
-    whyStripBtn: document.getElementById("whyStripBtn"),
-    textNormalBtn: document.getElementById("textNormalBtn"),
-    textLargeBtn: document.getElementById("textLargeBtn")
-  };
-
-  // ---------------------------
-  // UI helpers
-  // ---------------------------
-  function minutesLabel(val) {
-    const v = Number(val);
-    if (v === 0) return "Just now";
-    if (v <= 30) return "~" + v + " minutes ago";
-    const hours = Math.round(v / 60 * 10) / 10;
-    if (hours < 1) return "~" + v + " minutes ago";
-    return "~" + hours + " hours ago";
-  }
-
-  function renderFoods(filterText = "") {
-    const root = elements.foodList;
-    root.innerHTML = "";
-    const term = filterText.trim().toLowerCase();
-
-    mealCategories.forEach(cat => {
-      const filteredItems = cat.items.filter(item => {
-        if (!term) return true;
-        const hay = (item.name + " " + (item.tag || "")).toLowerCase();
-        return hay.includes(term);
-      });
-
-      if (filteredItems.length === 0) return;
-
-      const catDiv = document.createElement("div");
-      catDiv.className = "food-category";
-
-      const title = document.createElement("div");
-      title.className = "food-category-title";
-      title.textContent = cat.name;
-      catDiv.appendChild(title);
-
-      filteredItems.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "food-row";
-        row.dataset.mealId = item.id;
-
-        const emojiSpan = document.createElement("div");
-        emojiSpan.className = "food-emoji";
-        emojiSpan.textContent = item.emoji;
-        row.appendChild(emojiSpan);
-
-        const mainDiv = document.createElement("div");
-        mainDiv.className = "food-main";
-
-        const nameDiv = document.createElement("div");
-        nameDiv.className = "food-name";
-        nameDiv.textContent = item.name;
-        mainDiv.appendChild(nameDiv);
-
-        const metaDiv = document.createElement("div");
-        metaDiv.className = "food-meta";
-        metaDiv.textContent = `${item.carbs} g carbs • ${item.tag}`;
-        mainDiv.appendChild(metaDiv);
-
-        row.appendChild(mainDiv);
-
-        const tagSpan = document.createElement("span");
-        tagSpan.className = "food-tag";
-        tagSpan.textContent = item.tag;
-        row.appendChild(tagSpan);
-
-        row.addEventListener("click", () => {
-          selectedMealId = item.id;
-          document.querySelectorAll(".food-row").forEach(r => r.classList.remove("active"));
-          row.classList.add("active");
-          updateScore();
-        });
-
-        catDiv.appendChild(row);
-      });
-
-      root.appendChild(catDiv);
-    });
-  }
-
-  function getSelectedMeal() {
-    for (const cat of mealCategories) {
-      for (const item of cat.items) {
-        if (item.id === selectedMealId) return item;
-      }
-    }
-    return null;
-  }
-
-  // ---------------------------
-  // Core math model
-  // ---------------------------
-  function computeRisk() {
-    const timeMin = Number(elements.timeRange.value);
-    const sensitivity = Number(elements.sensitivitySelect.value);
-
-    const useAdvanced = elements.advancedPanel.style.display !== "none";
-
-    let carbs = 0;
-    let sugar = 0;
-    let caffeine = 0;
-    let fiber = 0;
-    let fatLevel = 0;
-
-    if (useAdvanced) {
-      carbs = Number(document.getElementById("advCarbs").value || 0);
-      sugar = Number(document.getElementById("advSugar").value || 0);
-      caffeine = Number(document.getElementById("advCaffeine").value || 0);
-      fiber = Number(document.getElementById("advFiber").value || 0);
-      fatLevel = Number(document.getElementById("advFat").value || 0);
-    } else {
-      const meal = getSelectedMeal();
-      if (meal) {
-        carbs = meal.carbs;
-        fiber = meal.fiber || 0;
-        fatLevel = meal.fatLevel || 0;
-        sugar = (meal.sugarBase || 0);
-      }
-      // Dessert extra sugar
-      const dessertExtra = elements.simpleSugarExact.value !== "" ?
-        Number(elements.simpleSugarExact.value) :
-        simpleSugarExtra;
-      if (!isNaN(dessertExtra)) sugar += dessertExtra;
-
-      // Soda sugar + caffeine
-      sugar += simpleSodaSugar;
-      // Base caffeine: other caffeine (coffee/tea/energy)
-      const extraCaf = elements.simpleCafExact.value !== "" ?
-        Number(elements.simpleCafExact.value) :
-        simpleCaffeine;
-      caffeine = (isNaN(extraCaf) ? 0 : extraCaf) + simpleSodaCaf;
-    }
-
-    // Clamp basics
-    carbs = Math.max(0, Math.min(carbs, 200));
-    sugar = Math.max(0, Math.min(sugar, 200));
-    caffeine = Math.max(0, Math.min(caffeine, 500));
-
-    // Base points (before timing and sensitivity)
-    const carbPoints = Math.min(40, carbs * 0.5);          // 80 g ~ 40
-    const sugarPoints = Math.min(40, sugar * 0.7);         // ~57 g caps at 40
-    const caffeinePoints = Math.min(20, caffeine * 0.07);  // 285 mg ~ 20
-
-    // Timing curve: peak around 90 minutes, fades after ~3 hours
-    const t = Math.max(0, Math.min(timeMin, 240));
-    const center = 90;
-    const spread = 70;
-    const timingFactor = Math.exp(-Math.pow(t - center, 2) / (2 * spread * spread));
-    const timingMultiplier = 0.2 + timingFactor * 0.9;
-
-    // Fiber softens sugar/carbs impact slightly
-    const fiberEffect = 1 - Math.min(0.25, fiber * 0.02); // up to 25% reduction
-    // Fat delays: shift effective time
-    const fatDelayMinutes = fatLevel * 20;
-    const effectiveTime = Math.max(0, Math.min(timeMin + fatDelayMinutes, 240));
-    const t2 = effectiveTime;
-    const timingFactor2 = Math.exp(-Math.pow(t2 - center, 2) / (2 * spread * spread));
-    const timingMultiplierDelayed = 0.2 + timingFactor2 * 0.9;
-
-    const baseSum = carbPoints + sugarPoints + caffeinePoints;
-    let rawScore = baseSum * timingMultiplierDelayed * sensitivity * fiberEffect;
-
-    rawScore = Math.max(0, Math.min(100, rawScore));
-
-    const contributions = { carbs: 0, sugar: 0, caffeine: 0, timing: 0 };
-    const baseTotal = carbPoints + sugarPoints + caffeinePoints;
-    if (baseTotal > 0) {
-      contributions.carbs = (carbPoints / baseTotal) * 100;
-      contributions.sugar = (sugarPoints / baseTotal) * 100;
-      contributions.caffeine = (caffeinePoints / baseTotal) * 100;
-    }
-    contributions.timing = 100 - (contributions.carbs + contributions.sugar + contributions.caffeine);
-
-    return {
-      score: rawScore,
-      carbs,
-      sugar,
-      caffeine,
-      timeMin,
-      effectiveTime,
-      contributions
-    };
-  }
-
-  function riskLabel(score) {
-    if (score < 20) return "Very low";
-    if (score < 40) return "Low";
-    if (score < 60) return "Moderate";
-    if (score < 80) return "High";
-    return "Very high";
-  }
-
-  function riskChipClass(score) {
-    if (score < 40) return "risk-chip risk-low";
-    if (score < 75) return "risk-chip risk-moderate";
-    return "risk-chip risk-high";
-  }
-
-  function windowLabel(timeMin, effectiveTime) {
-    if (timeMin === 0) return "⏱️ Just ate this meal";
-    const t = effectiveTime;
-    if (t < 40) return "⏱️ Early digestion, spike building";
-    if (t <= 140) return "⚡ Crash / anxiety window is active";
-    if (t <= 200) return "🌫️ Late crash / slump window";
-    return "🌙 Probably in recovery phase now";
-  }
-
-  function updateScore() {
-    const result = computeRisk();
-    const s = Math.round(result.score);
-
-    // Main + strip
-    elements.scoreMainNumber.textContent = s;
-    const label = riskLabel(s);
-    elements.scoreMainLabel.textContent = label;
-    elements.stripScoreNumber.textContent = s;
-    elements.stripScoreLabel.textContent = label;
-
-    const markerPos = Math.max(0, Math.min(100, s));
-    elements.gaugeMarker.style.left = markerPos + "%";
-
-    elements.riskChip.className = riskChipClass(s);
-    if (s === 0) {
-      elements.riskChip.textContent = "Waiting for meal + sugar / caffeine";
-    } else {
-      elements.riskChip.textContent = label + " spike right now";
-    }
-
-    elements.stripWindowLabel.textContent = windowLabel(result.timeMin, result.effectiveTime);
-
-    const c = result.contributions;
-    elements.breakdownRow.innerHTML = "";
-    const chips = [
-      { label: "Carbs", val: c.carbs },
-      { label: "Sugar", val: c.sugar },
-      { label: "Caffeine", val: c.caffeine },
-      { label: "Timing / sensitivity", val: c.timing }
-    ];
-    chips.forEach(ch => {
-      const span = document.createElement("span");
-      span.className = "breakdown-chip";
-      span.textContent = `${ch.label}: ${Math.round(ch.val)}%`;
-      elements.breakdownRow.appendChild(span);
-    });
-
-    elements.timeLabel.textContent = minutesLabel(result.timeMin);
-
-    const tPercent = (Math.max(0, Math.min(result.effectiveTime, 240)) / 240) * 100;
-    elements.timelineMarkerLine.style.left = tPercent + "%";
-
-    elements.symptomText.textContent = "Tap one that fits and we’ll tell you whether it matches the predicted crash window.";
-  }
-
-  function analyzeSymptom(symptom) {
-    const result = computeRisk();
-    const s = Math.round(result.score);
-    const t = result.effectiveTime;
-    let text = "";
-
-    const inCrashWindow = t >= 40 && t <= 150;
-    const lateCrash = t > 150 && t <= 210;
-
-    if (symptom === "jittery" || symptom === "warmChest" || symptom === "randomAdrenaline") {
-      if (inCrashWindow && s >= 40) {
-        text = "That wired, buzzy feeling lines up with your predicted crash window. Your biology is loud right now; it does not mean anything is wrong with your character.";
-      } else if (lateCrash) {
-        text = "This could be a late wave from the same meal, but you are slightly past the main crash window. Still very likely biology, especially with carbs + sugar + caffeine in the mix.";
-      } else {
-        text = "This does not perfectly line up with the strongest crash window, but your nervous system may still be echoing earlier spikes, especially if today was a heavy carb / sugar day.";
-      }
-    } else if (symptom === "flat") {
-      if (lateCrash || (inCrashWindow && s >= 30)) {
-        text = "Feeling flat, blank or tired fits a post-spike slump. Your system may be in the ‘coming down’ part of the wave after the earlier peak.";
-      } else {
-        text = "This might be more of a general fatigue rather than a sharp post-meal crash, but today’s load can still be keeping you lower than your baseline.";
-      }
-    } else if (symptom === "gutBuzz") {
-      if (inCrashWindow) {
-        text = "Gut buzzing during the crash window is classic visceral sensitivity. Your gut nerves are amplifying normal digestion into loud body noise.";
-      } else {
-        text = "You are outside the main crash window, but with visceral sensitivity, gut noise can linger. It still points more to biology than to ‘random’ anxiety.";
-      }
-    } else if (symptom === "headache") {
-      if (lateCrash || inCrashWindow) {
-        text = "Headaches can trade places with gut symptoms. This timing fits with blood sugar swings + tension. It is likely part of the same body-driven pattern.";
-      } else {
-        text = "This may be more of a general tension or dehydration headache. Today’s carbs and sugar can still make it easier to tip into discomfort.";
-      }
-    }
-
-    if (!text) {
-      text = "This tool cannot perfectly label every sensation, but based on your timing and score, biology is playing a big role here.";
-    }
-
-    elements.symptomText.textContent = text;
-  }
-
-  function buildShareText() {
-    const r = computeRisk();
-    const s = Math.round(r.score);
-    const label = riskLabel(s);
-    const sensitivityLabel = {
-      "0.8": "low",
-      "1": "medium",
-      "1.3": "high"
-    }[elements.sensitivitySelect.value] || "medium";
-
-    const meal = getSelectedMeal();
-    const mealName = meal ? meal.name : "Meal not specified";
-    const parts = [];
-    parts.push(`Post-meal anxiety spike estimate: ${s}/100 (${label}).`);
-    parts.push(`Meal: ${mealName}. Approx carbs: ~${Math.round(r.carbs)} g, sugar: ~${Math.round(r.sugar)} g, caffeine: ~${Math.round(r.caffeine)} mg.`);
-    parts.push(`Time since meal: ${minutesLabel(r.timeMin)}. Sensitivity level: ${sensitivityLabel}.`);
-    parts.push(`Tool: darkstar747.github.io (free, no login, biology-based timing calculator).`);
-    return parts.join(" ");
-  }
-
-  async function copyShareText() {
-    const text = buildShareText();
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-        elements.shareStatus.textContent = "Copied! You can paste this into Reddit, a note, or a chat.";
-      } else {
-        elements.shareStatus.textContent = "Copy failed: clipboard unavailable in this browser.";
-        alert(text);
-      }
-    } catch (err) {
-      elements.shareStatus.textContent = "Copy failed. Your browser may be blocking clipboard access.";
-    }
-  }
-
-  // ---------------------------
-  // Event wiring
-  // ---------------------------
-  function initEvents() {
-    // Simple vs advanced mode
-    elements.simpleModeBtn.addEventListener("click", () => {
-      elements.simpleModeBtn.classList.add("active");
-      elements.advancedModeBtn.classList.remove("active");
-      elements.simplePanel.style.display = "";
-      elements.advancedPanel.style.display = "none";
-      updateScore();
-    });
-
-    elements.advancedModeBtn.addEventListener("click", () => {
-      elements.advancedModeBtn.classList.add("active");
-      elements.simpleModeBtn.classList.remove("active");
-      elements.simplePanel.style.display = "none";
-      elements.advancedPanel.style.display = "";
-      updateScore();
-    });
-
-    // Time since meal
-    elements.timeRange.addEventListener("input", () => {
-      elements.timeLabel.textContent = minutesLabel(elements.timeRange.value);
-      updateScore();
-    });
-
-    // Sensitivity
-    elements.sensitivitySelect.addEventListener("change", updateScore);
-
-    // Food search
-    elements.foodSearch.addEventListener("input", (e) => {
-      renderFoods(e.target.value);
-    });
-
-    elements.clearFoodBtn.addEventListener("click", () => {
-      elements.foodSearch.value = "";
-      selectedMealId = null;
-      renderFoods("");
-      updateScore();
-    });
-
-    // Dessert sugar quick buttons
-    document.querySelectorAll('[data-sugar]').forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll('[data-sugar]').forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        simpleSugarExtra = Number(btn.dataset.sugar || 0);
-        elements.simpleSugarExact.value = "";
-        updateScore();
-      });
-    });
-
-    // Dessert sugar exact input
-    elements.simpleSugarExact.addEventListener("input", () => {
-      document.querySelectorAll('[data-sugar]').forEach(b => b.classList.remove("active"));
-      updateScore();
-    });
-
-    // Soda buttons
-    document.querySelectorAll('[data-soda-sugar]').forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll('[data-soda-sugar]').forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        simpleSodaSugar = Number(btn.dataset.sodaSugar || 0);
-        simpleSodaCaf = Number(btn.dataset.sodaCaf || 0);
-        updateScore();
-      });
-    });
-
-    // Caffeine quick buttons (other caffeine)
-    document.querySelectorAll('[data-caf]').forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll('[data-caf]').forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        simpleCaffeine = Number(btn.dataset.caf || 0);
-        elements.simpleCafExact.value = "";
-        updateScore();
-      });
-    });
-
-    // Caffeine exact input
-    elements.simpleCafExact.addEventListener("input", () => {
-      document.querySelectorAll('[data-caf]').forEach(b => b.classList.remove("active"));
-      updateScore();
-    });
-
-    // Advanced inputs
-    ["advCarbs", "advSugar", "advCaffeine", "advFiber", "advFat"].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (el.tagName === "SELECT") {
-        el.addEventListener("change", updateScore);
-      } else {
-        el.addEventListener("input", updateScore);
-      }
-    });
-
-    // Info icons
-    document.querySelectorAll(".info-icon-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const targetId = btn.getAttribute("data-info-target");
-        if (!targetId) return;
-        const info = document.getElementById(targetId);
-        if (!info) return;
-        info.classList.toggle("visible");
-      });
-    });
-
-    // Symptom buttons
-    document.querySelectorAll(".symptom-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const s = btn.getAttribute("data-symptom");
-        analyzeSymptom(s);
-      });
-    });
-
-    // Share
-    elements.shareBtn.addEventListener("click", copyShareText);
-    elements.shareStripBtn.addEventListener("click", copyShareText);
-
-    // Why blocks
-    function toggleWhy() {
-      const visible = elements.whyText.style.display === "block";
-      elements.whyText.style.display = visible ? "none" : "block";
-    }
-    elements.whyBtn.addEventListener("click", toggleWhy);
-    elements.whyStripBtn.addEventListener("click", toggleWhy);
-
-    // Text size
-    elements.textNormalBtn.addEventListener("click", () => {
-      document.body.classList.remove("large-text");
-      elements.textNormalBtn.classList.add("active");
-      elements.textLargeBtn.classList.remove("active");
-    });
-    elements.textLargeBtn.addEventListener("click", () => {
-      document.body.classList.add("large-text");
-      elements.textLargeBtn.classList.add("active");
-      elements.textNormalBtn.classList.remove("active");
-    });
-  }
-
-  renderFoods("");
-  initEvents();
-  updateScore();
-</script>
-</body>
-</html>
-      
+      <!-- RIGHT SIDE: Score, timeline, explanations -->
+    <div>
+      <div class="card">
+        <div class="card-title">Your current spike estimate</div>
+        <div class="card-subtitle">
+          This is a biology-based guess at how much today’s carbs, sugar and caffeine are pushing your nervous system right now.
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:8px;">
+          <div>
+            <div class="score-main-number" id="scoreMainNumber">0</div>
+            <div class="score-label-line">
+              <span id="scoreMainLabel">Very low</span>
+            </div>
+          </div>
+          <div class="risk-chip" id="riskChip">Waiting for inputs…</div>
+        </div>
+
+        <div class="gauge-bar">
+          <div class="gauge-marker" id="gaugeMarker" style="left:0%;"></div>
+        </div>
+        <div class="gauge-scale">
+          <span>0</span>
+          <span>25</span>
+          <span>50</span>
+          <span>75</span>
+          <span>100</span>
+        </div>
+
+        <div class="breakdown-row" id="breakdownRow">
+          <span class="breakdown-chip">Carbs: 0%</span>
+          <span class="breakdown-chip">Sugar: 0%</span>
+          <span class="breakdown-chip">Caffeine: 0%</span>
+          <span class="breakdown-chip">Timing / sensitivity: 0%</span>
+        </div>
+
+        <div class="section-row" style="margin-top:10px;">
+          <label>
+            Crash window map
+            <button type="button" class="info-icon-btn" data-info-target="infoTimeline">i</button>
+          </label>
+          <div class="timeline-bar">
+            <div class="timeline-seg timeline-spike"></div>
+            <div class="timeline-seg timeline-crash"></div>
+            <div class="timeline-seg timeline-recover"></div>
+          </div>
+          <div class="timeline-marker">
+            <div class="timeline-marker-line" id="timelineMarkerLine" style="left:0%;"></div>
+          </div>
+          <div class="timeline-labels">
+            <span>0–45 min: spike building</span>
+            <span>45–150 min: crash / anxiety</span>
+            <span>150–240 min: recovery / slump</span>
+          </div>
+          <div class="timeline-scale">
+            <span>0</span>
+            <span>60</span>
+            <span>120</span>
+            <span>180</span>
+            <span>240 min</span>
+          </div>
+          <div class="helper-text" id="clockWindowLabel">
+            Add a meal time on the left to see your crash window in clock time.
+          </div>
+          <div id="infoTimeline" class="info-text">
+            Heavy carbs + sugar + caffeine rarely cause “random” feelings. They create a spike, then a crash, then a slump. This bar shows roughly where you are in that 0–240 minute cycle.
+          </div>
+        </div>
+
+        <div class="section-row">
+          <label>Right now I feel…</label>
+          <div class="symptom-buttons">
+            <button type="button" class="symptom-btn" data-symptom="jittery">Jittery / buzzy</button>
+            <button type="button" class="symptom-btn" data-symptom="warmChest">Warm chest / wired</button>
+            <button type="button" class="symptom-btn" data-symptom="flat">Flat / wiped out</button>
+            <button type="button" class="symptom-btn" data-symptom="gutBuzz">Gut buzzing</button>
+            <button type="button" class="symptom-btn" data-symptom="headache">Headache-ish</button>
+            <button type="button" class="symptom-btn" data-symptom="randomAdrenaline">Random adrenaline hits</button>
+          </div>
+          <div id="symptomText" class="helper-text">
+            Tap one that fits and we’ll tell you whether it matches the predicted crash window.
+          </div>
+        </div>
+
+        <div class="share-row">
+          <button type="button" class="small-btn primary" id="shareBtn">Copy a short summary</button>
+          <span id="shareStatus">No text copied yet.</span>
+        </div>
+      </div>
+
+      <div class="card-soft" style="margin-top:10px;">
+        <div class="card-title">
+          Why does this feel like “anxiety”?
+        </div>
+        <button type="button" class="why-btn" id="whyBtn">
+          Why am I feeling this way?
+        </button>
+        <div id="whyText" class="why-text" style="display:none;">
+          Your brain often labels biology as “anxiety”. A heavy carb + sugar + caffeine load can:
+          <ul style="padding-left:18px; margin:4px 0;">
+            <li>Stretch your gut and trigger visceral nerves</li>
+            <li>Spike blood sugar and then over-correct into a crash</li>
+            <li>Layer caffeine-driven adrenaline on top of that crash</li>
+          </ul>
+          If you are highly sensitive, that internal noise can feel identical to “I am freaking out”, even when nothing external is wrong. This tool is here to show that a lot of it is timing and chemistry, not personal failure.
+        </div>
+      </div>
+    </div>
+  </div> <!-- end layout -->
+
+</div> <!-- end page -->
