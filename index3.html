@@ -704,38 +704,150 @@
     <script>
     // ---------- DATA ----------
 
-    const mealPresets = [
-      { id: "pastaPlate", emoji: "🍝", name: "Plate of pasta", category: "Dinner, Italian", carbs: 80, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "High carb" },
-      { id: "pastaTomato", emoji: "🍝", name: "Pasta with tomato sauce", category: "Italian, dinner", carbs: 80, fiber: 4, fatLevel: 1, sugarBase: 4, tag: "High carb" },
-      { id: "pastaAlfredo", emoji: "🍝", name: "Pasta with Alfredo sauce", category: "Italian, creamy", carbs: 80, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb and fat" },
+    const presetMeals = [
+  // BREAKFAST (about 18)
 
-      { id: "pizza2", emoji: "🍕", name: "Pizza, 2 slices", category: "Dinner, pizza", carbs: 60, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb and fat" },
-      { id: "pizza3", emoji: "🍕", name: "Pizza, 3 slices", category: "Dinner, pizza", carbs: 90, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "Very high carb and fat" },
+  { id: 'eggs_toast', label: '🥚 Eggs + toast', carbs: 20, sugar: 2, category: 'breakfast' },
+  { id: 'omelette', label: '🍳 Omelette (veggies/cheese)', carbs: 10, sugar: 2, category: 'breakfast' },
+  { id: 'pancakes_syrup', label: '🥞 Pancakes + syrup', carbs: 65, sugar: 20, category: 'breakfast' },
+  { id: 'waffles_syrup', label: '🧇 Waffles + syrup', carbs: 65, sugar: 20, category: 'breakfast' },
+  { id: 'bagel_cream_cheese', label: '🥯 Bagel + cream cheese', carbs: 60, sugar: 4, category: 'breakfast' },
+  { id: 'cereal_milk', label: '🥣 Cereal + milk', carbs: 55, sugar: 15, category: 'breakfast' },
+  { id: 'french_toast', label: '🍞 French toast', carbs: 50, sugar: 12, category: 'breakfast' },
+  { id: 'bacon_eggs', label: '🥓 Bacon + eggs', carbs: 2, sugar: 0, category: 'breakfast' },
+  { id: 'egg_cheese_biscuit', label: '🧀 Egg & cheese biscuit', carbs: 40, sugar: 3, category: 'breakfast' },
+  { id: 'breakfast_burrito', label: '🌯 Breakfast burrito', carbs: 45, sugar: 3, category: 'breakfast' },
+  { id: 'croissant_butter', label: '🥐 Croissant w/ butter', carbs: 30, sugar: 4, category: 'breakfast' },
+  { id: 'banana_pb', label: '🍌 Banana + peanut butter', carbs: 30, sugar: 14, category: 'breakfast' },
+  { id: 'yogurt_fruit', label: '🍨 Yogurt + fruit', carbs: 30, sugar: 18, category: 'breakfast' },
+  { id: 'yogurt_granola', label: '🥣 Yogurt + granola', carbs: 40, sugar: 20, category: 'breakfast' },
+  { id: 'instant_oatmeal', label: '🥣 Instant oatmeal', carbs: 35, sugar: 10, category: 'breakfast' },
+  { id: 'avocado_toast', label: '🥑 Avocado toast', carbs: 25, sugar: 2, category: 'breakfast' },
+  { id: 'hash_browns', label: '🥔 Hash browns', carbs: 25, sugar: 1, category: 'breakfast' },
+  { id: 'ham_breakfast_sandwich', label: '🥪 Ham breakfast sandwich', carbs: 35, sugar: 4, category: 'breakfast' },
 
-      { id: "burgerFries", emoji: "🍔", name: "Burger with fries", category: "Fast food", carbs: 70, fiber: 4, fatLevel: 2, sugarBase: 4, tag: "Heavy" },
-      { id: "burgerOnly", emoji: "🍔", name: "Burger, no fries", category: "Fast food", carbs: 45, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb" },
+  // LUNCH – LIGHT / COMMON (about 16)
 
-      { id: "riceBowl", emoji: "🍚", name: "Rice bowl", category: "Lunch or dinner", carbs: 70, fiber: 2, fatLevel: 0, sugarBase: 2, tag: "High carb" },
-      { id: "friedRice", emoji: "🍛", name: "Fried rice", category: "Takeout, Chinese", carbs: 75, fiber: 3, fatLevel: 2, sugarBase: 3, tag: "High carb" },
-      { id: "ramen", emoji: "🍜", name: "Ramen or noodle bowl", category: "Noodles, soup", carbs: 65, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "High carb" },
+  { id: 'turkey_sandwich', label: '🥪 Turkey sandwich', carbs: 35, sugar: 4, category: 'lunch_light' },
+  { id: 'ham_cheese_sandwich', label: '🥪 Ham & cheese sandwich', carbs: 35, sugar: 4, category: 'lunch_light' },
+  { id: 'blt_sandwich', label: '🥪 BLT sandwich', carbs: 30, sugar: 3, category: 'lunch_light' },
+  { id: 'tuna_sandwich', label: '🥪 Tuna salad sandwich', carbs: 30, sugar: 3, category: 'lunch_light' },
+  { id: 'chicken_caesar_salad', label: '🥗 Chicken Caesar salad', carbs: 15, sugar: 3, category: 'lunch_light' },
+  { id: 'garden_salad_chicken', label: '🥗 Garden salad w/ chicken', carbs: 18, sugar: 4, category: 'lunch_light' },
+  { id: 'grilled_cheese', label: '🥪 Grilled cheese', carbs: 28, sugar: 3, category: 'lunch_light' },
+  { id: 'soup_bread', label: '🍲 Soup + bread', carbs: 30, sugar: 3, category: 'lunch_light' },
+  { id: 'sushi_light', label: '🍱 Sushi (6–8 pcs, light sauce)', carbs: 45, sugar: 4, category: 'lunch_light' },
+  { id: 'rice_veggies', label: '🍙 Rice + veggies', carbs: 50, sugar: 3, category: 'lunch_light' },
+  { id: 'rotisserie_rice', label: '🍗 Rotisserie chicken + rice', carbs: 45, sugar: 2, category: 'lunch_light' },
+  { id: 'lentils_rice', label: '🍛 Lentils + rice', carbs: 55, sugar: 3, category: 'lunch_light' },
+  { id: 'baked_potato_loaded', label: '🥔 Baked potato (loaded)', carbs: 50, sugar: 3, category: 'lunch_light' },
+  { id: 'chicken_salad', label: '🥗 Chicken salad (light croutons)', carbs: 20, sugar: 3, category: 'lunch_light' },
+  { id: 'small_mac_cheese', label: '🍝 Mac & cheese (small bowl)', carbs: 40, sugar: 3, category: 'lunch_light' },
+  { id: 'sushi_california_roll', label: '🍣 California roll', carbs: 35, sugar: 3, category: 'lunch_light' },
 
-      { id: "burrito", emoji: "🌯", name: "Burrito", category: "Mexican style", carbs: 75, fiber: 6, fatLevel: 2, sugarBase: 3, tag: "High carb" },
-      { id: "tacos3", emoji: "🌮", name: "Tacos, 3", category: "Mexican style", carbs: 50, fiber: 4, fatLevel: 1, sugarBase: 2, tag: "Medium carb" },
-      { id: "chipotleBowl", emoji: "🥗", name: "Burrito bowl", category: "Mexican bowl", carbs: 65, fiber: 7, fatLevel: 2, sugarBase: 3, tag: "High carb, higher fiber" },
+  // LUNCH – HEAVIER / FAST FOOD (about 18)
 
-      { id: "saladLowCarb", emoji: "🥗", name: "Green salad, low carb", category: "Lighter meal", carbs: 18, fiber: 6, fatLevel: 1, sugarBase: 1, tag: "Light" },
-      { id: "proteinPlate", emoji: "🍗", name: "Chicken / fish with vegetables", category: "Dinner plate", carbs: 20, fiber: 4, fatLevel: 1, sugarBase: 1, tag: "Lower carb" },
-      { id: "steakPotato", emoji: "🥩", name: "Steak with baked potato", category: "Dinner plate", carbs: 50, fiber: 4, fatLevel: 2, sugarBase: 1, tag: "Medium carb, high fat" },
+  { id: 'cheeseburger', label: '🍔 Cheeseburger', carbs: 40, sugar: 8, category: 'lunch_heavy' },
+  { id: 'double_cheeseburger', label: '🍔 Double cheeseburger', carbs: 45, sugar: 8, category: 'lunch_heavy' },
+  { id: 'bacon_burger', label: '🍔 Bacon burger', carbs: 45, sugar: 8, category: 'lunch_heavy' },
+  { id: 'burger_fries_combo', label: '🍔 Burger + fries combo', carbs: 75, sugar: 10, category: 'lunch_heavy' },
+  { id: 'taco_combo_3', label: '🌮 Taco combo (3)', carbs: 60, sugar: 5, category: 'lunch_heavy' },
+  { id: 'burrito_rice_beans', label: '🌯 Burrito (rice + beans)', carbs: 85, sugar: 5, category: 'lunch_heavy' },
+  { id: 'big_burrito_chipotle', label: '🌯 Big burrito (chipotle-style)', carbs: 95, sugar: 6, category: 'lunch_heavy' },
+  { id: 'pizza_2_slices', label: '🍕 Pizza (2 slices)', carbs: 60, sugar: 5, category: 'lunch_heavy' },
+  { id: 'pizza_3_slices', label: '🍕 Pizza (3 slices)', carbs: 90, sugar: 8, category: 'lunch_heavy' },
+  { id: 'fried_chicken_2pc', label: '🍗 Fried chicken (2 pieces)', carbs: 20, sugar: 1, category: 'lunch_heavy' },
+  { id: 'chicken_tenders_5', label: '🍗 Chicken tenders (5)', carbs: 30, sugar: 2, category: 'lunch_heavy' },
+  { id: 'ramen_bowl', label: '🍜 Ramen bowl', carbs: 65, sugar: 4, category: 'lunch_heavy' },
+  { id: 'teriyaki_chicken_rice', label: '🍱 Teriyaki chicken + rice', carbs: 75, sugar: 18, category: 'lunch_heavy' },
+  { id: 'hibachi_chicken_rice', label: '🍱 Hibachi chicken + rice', carbs: 70, sugar: 8, category: 'lunch_heavy' },
+  { id: 'sub_12in', label: '🥖 Sub sandwich (12")', carbs: 70, sugar: 7, category: 'lunch_heavy' },
+  { id: 'quesadilla_rice', label: '🌯 Quesadilla + rice', carbs: 70, sugar: 4, category: 'lunch_heavy' },
+  { id: 'wings_6', label: '🍗 Wings (6)', carbs: 12, sugar: 4, category: 'lunch_heavy' },
+  { id: 'lo_mein_combo', label: '🍜 Lo mein combo', carbs: 85, sugar: 10, category: 'lunch_heavy' },
 
-      { id: "eggsToast", emoji: "🍳", name: "Eggs with toast", category: "Breakfast plate", carbs: 25, fiber: 2, fatLevel: 2, sugarBase: 2, tag: "Medium carb" },
-      { id: "pancakesSyrup", emoji: "🥞", name: "Pancakes with syrup", category: "Breakfast, sweet", carbs: 65, fiber: 2, fatLevel: 1, sugarBase: 20, tag: "High carb and sugar" },
-      { id: "cerealMilk", emoji: "🥣", name: "Cereal with milk", category: "Breakfast", carbs: 55, fiber: 3, fatLevel: 0, sugarBase: 12, tag: "Sugary" },
+  // DINNER – HOME CLASSICS (about 18)
 
-      { id: "iceCream", emoji: "🍨", name: "Ice cream bowl", category: "Dessert", carbs: 45, fiber: 1, fatLevel: 2, sugarBase: 28, tag: "High sugar" },
-      { id: "dessertOnly", emoji: "🍰", name: "Dessert only", category: "Cake, pastry, etc", carbs: 55, fiber: 1, fatLevel: 1, sugarBase: 30, tag: "High sugar" },
+  { id: 'chicken_rice_veg', label: '🍗 Chicken + rice + veg', carbs: 55, sugar: 4, category: 'dinner' },
+  { id: 'baked_chicken_potatoes', label: '🍗 Baked chicken + potatoes', carbs: 45, sugar: 3, category: 'dinner' },
+  { id: 'steak_potatoes', label: '🥩 Steak + potatoes', carbs: 40, sugar: 2, category: 'dinner' },
+  { id: 'salmon_rice', label: '🐟 Salmon + rice', carbs: 45, sugar: 2, category: 'dinner' },
+  { id: 'fish_veggies', label: '🐟 Baked fish + veggies', carbs: 20, sugar: 2, category: 'dinner' },
+  { id: 'beef_stew', label: '🍲 Beef stew', carbs: 35, sugar: 4, category: 'dinner' },
+  { id: 'pork_chops_sides', label: '🍖 Pork chops + sides', carbs: 35, sugar: 4, category: 'dinner' },
+  { id: 'chili_cornbread', label: '🍛 Chili + cornbread', carbs: 55, sugar: 6, category: 'dinner' },
+  { id: 'stir_fry_rice', label: '🍚 Stir fry + rice', carbs: 65, sugar: 8, category: 'dinner' },
+  { id: 'noodles_veggies', label: '🍜 Noodles + veggies', carbs: 60, sugar: 4, category: 'dinner' },
+  { id: 'lasagna', label: '🍝 Lasagna', carbs: 60, sugar: 6, category: 'dinner' },
+  { id: 'pasta_marinara', label: '🍝 Pasta + marinara', carbs: 70, sugar: 8, category: 'dinner' },
+  { id: 'pasta_meatballs', label: '🍝 Pasta + meatballs', carbs: 75, sugar: 8, category: 'dinner' },
+  { id: 'taco_night_3', label: '🌮 Taco night (3)', carbs: 60, sugar: 5, category: 'dinner' },
+  { id: 'fajitas', label: '🌯 Fajitas (tortillas + fillings)', carbs: 55, sugar: 4, category: 'dinner' },
+  { id: 'bbq_ribs_sides', label: '🍖 BBQ ribs + sides', carbs: 55, sugar: 18, category: 'dinner' },
+  { id: 'meatloaf_potatoes', label: '🍗 Meatloaf + potatoes', carbs: 45, sugar: 6, category: 'dinner' },
+  { id: 'shepherd_pie', label: '🥘 Shepherd’s pie', carbs: 55, sugar: 4, category: 'dinner' },
 
-      { id: "otherHeavyDinner", emoji: "🍽️", name: "Other heavy carb dinner", category: "General heavy meal", carbs: 75, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "Heavy" }
-    ];
+  // ASIAN / INTERNATIONAL FAVORITES (about 15)
+
+  { id: 'pho', label: '🍜 Pho noodles', carbs: 60, sugar: 4, category: 'asian' },
+  { id: 'udon', label: '🍜 Udon bowl', carbs: 55, sugar: 4, category: 'asian' },
+  { id: 'pad_thai', label: '🍜 Pad Thai', carbs: 75, sugar: 18, category: 'asian' },
+  { id: 'tom_yum', label: '🍲 Tom yum soup', carbs: 20, sugar: 3, category: 'asian' },
+  { id: 'thai_curry_rice', label: '🍛 Thai curry + rice', carbs: 70, sugar: 6, category: 'asian' },
+  { id: 'indian_curry_naan', label: '🍛 Indian curry + naan', carbs: 80, sugar: 6, category: 'asian' },
+  { id: 'dumplings_8', label: '🥟 Dumplings (8)', carbs: 45, sugar: 3, category: 'asian' },
+  { id: 'gyoza_6', label: '🥟 Gyoza (6)', carbs: 30, sugar: 2, category: 'asian' },
+  { id: 'fried_rice', label: '🍚 Fried rice (one plate)', carbs: 70, sugar: 4, category: 'asian' },
+  { id: 'chicken_katsu_rice', label: '🍚 Chicken katsu + rice', carbs: 75, sugar: 6, category: 'asian' },
+  { id: 'butter_chicken_rice', label: '🍛 Butter chicken + rice', carbs: 70, sugar: 8, category: 'asian' },
+  { id: 'butter_paneer_rice', label: '🍛 Butter paneer + rice', carbs: 70, sugar: 8, category: 'asian' },
+  { id: 'korean_bbq_plate', label: '🥘 Korean BBQ plate (rice + sides)', carbs: 60, sugar: 10, category: 'asian' },
+  { id: 'yakitori_skewers_rice', label: '🍢 Yakitori chicken + rice', carbs: 50, sugar: 5, category: 'asian' },
+  { id: 'tempura_shrimp_6', label: '🍤 Tempura shrimp (6)', carbs: 35, sugar: 2, category: 'asian' },
+
+  // AMERICAN HEAVY / SAUCY (about 10)
+
+  { id: 'large_pizza_slice', label: '🍕 Large pizza slice', carbs: 45, sugar: 4, category: 'american_heavy' },
+  { id: 'meat_lovers_pizza_2', label: '🍕 Meat lovers (2 slices)', carbs: 70, sugar: 6, category: 'american_heavy' },
+  { id: 'alfredo_garlic_bread', label: '🍝 Alfredo + garlic bread', carbs: 90, sugar: 6, category: 'american_heavy' },
+  { id: 'spaghetti_garlic_knots', label: '🍝 Spaghetti + garlic knots', carbs: 95, sugar: 8, category: 'american_heavy' },
+  { id: 'hot_dog_chips', label: '🌭 Hot dog + chips', carbs: 45, sugar: 4, category: 'american_heavy' },
+  { id: 'philly_cheesesteak', label: '🥪 Philly cheesesteak', carbs: 55, sugar: 6, category: 'american_heavy' },
+  { id: 'buffalo_wings_8', label: '🍗 Buffalo wings (8)', carbs: 15, sugar: 4, category: 'american_heavy' },
+  { id: 'loaded_fries', label: '🍟 Loaded fries', carbs: 60, sugar: 3, category: 'american_heavy' },
+  { id: 'chicken_fried_steak', label: '🥚 Chicken fried steak + gravy', carbs: 55, sugar: 3, category: 'american_heavy' },
+  { id: 'jambalaya', label: '🥘 Jambalaya', carbs: 50, sugar: 4, category: 'american_heavy' },
+
+  // SNACKS / SMALL EATS (about 12)
+
+  { id: 'large_cookie', label: '🍪 Large cookie', carbs: 30, sugar: 20, category: 'snack' },
+  { id: 'candy_bar', label: '🍫 Candy bar', carbs: 35, sugar: 25, category: 'snack' },
+  { id: 'donut', label: '🍩 Donut', carbs: 30, sugar: 18, category: 'snack' },
+  { id: 'chips_bag', label: '🥨 Chips (snack bag)', carbs: 18, sugar: 1, category: 'snack' },
+  { id: 'popcorn_butter', label: '🍿 Popcorn (butter)', carbs: 25, sugar: 0, category: 'snack' },
+  { id: 'soft_pretzel', label: '🥨 Soft pretzel', carbs: 40, sugar: 4, category: 'snack' },
+  { id: 'small_fries', label: '🍟 Small fries', carbs: 30, sugar: 0, category: 'snack' },
+  { id: 'trail_mix', label: '🥜 Peanut trail mix', carbs: 20, sugar: 8, category: 'snack' },
+  { id: 'banana_snack', label: '🍌 Banana (snack)', carbs: 27, sugar: 14, category: 'snack' },
+  { id: 'apple_slices', label: '🍎 Apple slices', carbs: 20, sugar: 15, category: 'snack' },
+  { id: 'taquito', label: '🌯 Taquito', carbs: 20, sugar: 1, category: 'snack' },
+  { id: 'rice_crispy', label: '🍰 Rice crispy treat', carbs: 28, sugar: 16, category: 'snack' },
+
+  // DESSERTS (about 12)
+
+  { id: 'cheesecake_slice', label: '🍰 Cheesecake slice', carbs: 40, sugar: 28, category: 'dessert' },
+  { id: 'chocolate_cake', label: '🍰 Chocolate cake', carbs: 45, sugar: 30, category: 'dessert' },
+  { id: 'vanilla_cupcake', label: '🧁 Vanilla cupcake', carbs: 30, sugar: 24, category: 'dessert' },
+  { id: 'apple_pie', label: '🥧 Apple pie slice', carbs: 40, sugar: 24, category: 'dessert' },
+  { id: 'pumpkin_pie', label: '🥧 Pumpkin pie slice', carbs: 38, sugar: 22, category: 'dessert' },
+  { id: 'ice_cream_bowl', label: '🍦 Ice cream bowl', carbs: 30, sugar: 26, category: 'dessert' },
+  { id: 'ice_cream_sundae', label: '🍨 Ice cream sundae', carbs: 40, sugar: 32, category: 'dessert' },
+  { id: 'brownie', label: '🍫 Brownie', carbs: 35, sugar: 28, category: 'dessert' },
+  { id: 'mochi_ice_cream', label: '🍡 Mochi ice cream (2)', carbs: 30, sugar: 18, category: 'dessert' },
+  { id: 'tiramisu', label: '🍰 Tiramisu', carbs: 40, sugar: 26, category: 'dessert' },
+  { id: 'cupcake_chocolate', label: '🧁 Chocolate cupcake', carbs: 32, sugar: 26, category: 'dessert' },
+  { id: 'rice_pudding', label: '🥛 Rice pudding', carbs: 35, sugar: 20, category: 'dessert' }
+];
 
     const state = {
       selectedMealId: null,
