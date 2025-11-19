@@ -1,873 +1,963 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Post-Meal Anxiety Timing Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Free, no-login calculator that estimates anxiety spikes after carbs, sugar and caffeine, based on timing and sensitivity.">
+  <meta charset="UTF-8" />
+  <title>Biology-Based Anxiety Timing Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Free biology-based crash window calculator for people who feel 'anxious' after carbs, sugar and caffeine. No login, no woo, just timing."
+  />
   <style>
     :root {
-      --base-font-size: 18px;  /* global scaling */
-      --bg: #050709;
-      --card: #11141a;
-      --card-soft: #151923;
-      --accent: #22c5ff;
-      --accent-soft: rgba(34, 197, 255, 0.12);
-      --danger: #ff4d6a;
-      --warn: #fbbf24;
-      --ok: #22c55e;
+      --bg: #050608;
+      --bg-soft: #101319;
+      --bg-softer: #151924;
+      --card: #141824;
+      --accent: #ffcc80;
+      --accent-soft: #ffc46a33;
+      --accent-strong: #ff9800;
       --text-main: #f5f5f5;
-      --text-soft: #c0c6d4;
-      --border-subtle: #374151;  /* brighter border */
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #101827 0, #020308 55%, #000 100%);
-      color: var(--text-main);
-      font-size: var(--base-font-size);
-      -webkit-font-smoothing: antialiased;
+      --text-soft: #b3bccb;
+      --border-soft: #252a38;
+      --border-strong: #3a4256;
+      --danger: #ff5252;
+      --warn: #ffb74d;
+      --success: #66bb6a;
+      --chip-low: #2e7d32;
+      --chip-mid: #ffa000;
+      --chip-high: #d32f2f;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .page {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 14px 14px 32px;
-    }
-
-    header {
-      margin-bottom: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    h1 {
-      font-size: 1.4rem;
+    body {
       margin: 0;
-      letter-spacing: 0.01em;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      font-size: 0.9rem;
-      color: var(--text-soft);
-    }
-
-    .badge {
-      border-radius: 999px;
-      padding: 4px 10px;
-      border: 1px solid var(--border-subtle);
-      background: linear-gradient(120deg, rgba(34,197,255,0.18), rgba(15,23,42,0.5));
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .badge span.emoji {
-      font-size: 1rem;
-    }
-
-    /* Always-visible score strip */
-    .score-strip {
-      margin: 8px 0 14px;
-      border-radius: 10px;
-      padding: 8px 12px;
-      border: 1px solid var(--border-subtle);
-      background: linear-gradient(120deg, rgba(34,197,255,0.16), rgba(15,23,42,0.9));
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .score-strip-main {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .score-strip-label {
-      font-size: 0.9rem;
-      color: var(--text-soft);
-    }
-
-    .score-strip-value {
-      font-size: 1.05rem;
-      font-weight: 600;
-    }
-
-    .score-strip-value span.number {
-      font-size: 1.2rem;
-    }
-
-    .score-strip-chip {
-      font-size: 0.85rem;
-      padding: 3px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      color: var(--text-soft);
-      background: rgba(15,23,42,0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .score-strip-cta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .small-btn {
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(15,23,42,0.9);
-      color: var(--text-soft);
-      cursor: pointer;
-      padding: 4px 10px;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .small-btn.primary {
-      border-color: var(--accent);
-      background: var(--accent-soft);
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: radial-gradient(circle at top, #181b2a 0, #050608 55%);
       color: var(--text-main);
     }
 
-    .small-btn:hover {
-      filter: brightness(1.1);
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 10px 40px;
+    }
+
+    .title-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .title-row h1 {
+      font-size: 1.2rem;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .title-sub {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      max-width: 540px;
+    }
+
+    .title-sub strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .strip {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 8px 6px 10px;
+      background: linear-gradient(to bottom, rgba(5, 6, 8, 0.97), rgba(5, 6, 8, 0.88));
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(37, 42, 56, 0.9);
+      margin: 0 -10px 8px;
+    }
+
+    .strip-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .strip-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .strip-score {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .strip-score-number {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .strip-score-label {
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .strip-window {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .strip-share {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: var(--text-soft);
+    }
+
+    .strip-btn {
+      border-radius: 999px;
+      padding: 4px 8px;
+      border: 1px solid var(--border-soft);
+      background: #161d29;
+      color: var(--text-main);
+      font-size: 0.72rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .strip-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .strip-share span {
+      max-width: 180px;
     }
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
-      gap: 16px;
-      align-items: flex-start;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .card {
-      border-radius: 14px;
-      background: radial-gradient(circle at top left, rgba(15,118,255,0.18), rgba(15,23,42,0.96));
-      border: 1px solid var(--border-subtle);
-      padding: 12px 12px 14px;
+      background: rgba(13, 17, 27, 0.98);
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      padding: 10px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
     }
 
     .card-soft {
-      border-radius: 14px;
-      background: var(--card-soft);
-      border: 1px solid var(--border-subtle);
-      padding: 12px 12px 14px;
+      margin-top: 10px;
+      background: rgba(15, 19, 30, 0.96);
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      padding: 8px;
     }
 
     .card-title {
-      font-size: 0.98rem;
-      font-weight: 600;
+      font-size: 0.9rem;
+      font-weight: 500;
       margin-bottom: 6px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 6px;
     }
 
-    .card-subtitle {
-      font-size: 0.86rem;
+    .card-title span {
+      font-size: 0.72rem;
       color: var(--text-soft);
-      margin-bottom: 10px;
+      font-weight: 400;
     }
 
     .section-row {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
-    label {
-      font-size: 0.9rem;
-      color: var(--text-soft);
+    .section-row label {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      margin-bottom: 4px;
+      font-size: 0.8rem;
+      margin-bottom: 3px;
+      color: var(--text-main);
     }
 
-    .field {
-      margin-bottom: 8px;
+    .helper-text {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      margin-top: 3px;
+    }
+
+    .warning-text {
+      font-size: 0.74rem;
+      color: var(--warn);
+      margin-top: 3px;
+    }
+
+    .danger-text {
+      font-size: 0.74rem;
+      color: var(--danger);
+      margin-top: 3px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
     input[type="number"],
     input[type="time"],
+    input[type="text"],
     select {
-      width: 100%;
-      padding: 6px 8px;
+      background: #0f1420;
       border-radius: 8px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(15,23,42,0.96);
+      border: 1px solid var(--border-soft);
       color: var(--text-main);
-      font-size: 0.9rem;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      outline: none;
+      min-width: 0;
     }
 
-    /* Thicker time slider */
+    input[type="number"]:focus,
+    input[type="time"]:focus,
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--accent-strong);
+    }
+
     input[type="range"] {
       width: 100%;
-      -webkit-appearance: none;
-      height: 28px;
-      background: transparent;
     }
 
-    input[type="range"]::-webkit-slider-runnable-track {
-      height: 8px;
-      background: #1f2937;
-      border-radius: 999px;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 2px solid #0f172a;
-      margin-top: -7px; /* centers thumb on track */
-      box-shadow: 0 0 6px rgba(34,197,255,0.8);
-    }
-
-    input[type="range"]::-moz-range-track {
-      height: 8px;
-      background: #1f2937;
-      border-radius: 999px;
-    }
-
-    input[type="range"]::-moz-range-thumb {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 2px solid #0f172a;
-      box-shadow: 0 0 6px rgba(34,197,255,0.8);
-    }
-
-    .pill-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .pill-btn {
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(15,23,42,0.96);
-      color: var(--text-soft);
-      font-size: 0.86rem;
-      padding: 4px 10px;
-      cursor: pointer;
+    .mode-toggle {
       display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      overflow: hidden;
+      margin-bottom: 6px;
     }
 
-    .pill-btn.active {
-      background: var(--accent);
-      color: #020617;
-      border-color: var(--accent);
-      font-weight: 600;
+    .mode-btn {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .mode-btn.active {
+      background: #202637;
+      color: var(--text-main);
     }
 
     .info-icon-btn {
-      border-radius: 50%;
-      border: 1px solid var(--border-subtle);
-      width: 18px;
-      height: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      background: rgba(15,23,42,0.9);
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: #141a28;
       color: var(--text-soft);
+      font-size: 0.68rem;
+      padding: 0 6px;
       cursor: pointer;
     }
 
     .info-text {
-      font-size: 0.8rem;
+      display: none;
+      font-size: 0.74rem;
       color: var(--text-soft);
       margin-top: 4px;
-      display: none;
+      border-radius: 8px;
+      border: 1px dashed var(--border-soft);
+      padding: 6px;
+      background: rgba(13, 18, 26, 0.9);
     }
 
     .info-text.visible {
       display: block;
     }
 
-    .helper-text {
-      font-size: 0.8rem;
+    .score-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .score-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .score-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-number {
+      font-size: 2.1rem;
+      font-weight: 600;
+    }
+
+    .score-label-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .score-label-main {
+      font-size: 0.78rem;
       color: var(--text-soft);
     }
 
-    /* Food list */
-    .food-search-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 6px;
+    .score-meaning {
+      font-size: 0.74rem;
+      color: var(--text-soft);
+      max-width: 260px;
     }
 
-    .food-search-row input {
-      flex: 1;
-    }
-
-    .food-search-row button {
+    .risk-chip {
+      font-size: 0.72rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: #151c27;
+      color: var(--text-main);
       white-space: nowrap;
+    }
+
+    .risk-low {
+      border-color: var(--chip-low);
+      color: var(--success);
+    }
+
+    .risk-moderate {
+      border-color: var(--chip-mid);
+      color: var(--warn);
+    }
+
+    .risk-high {
+      border-color: var(--chip-high);
+      color: var(--danger);
+    }
+
+    .biology-line {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .confidence-line {
+      font-size: 0.74rem;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .gauge-row {
+      margin-top: 6px;
+    }
+
+    .gauge {
+      position: relative;
+      height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: linear-gradient(
+        90deg,
+        rgba(102, 187, 106, 0.22),
+        rgba(255, 202, 40, 0.22),
+        rgba(229, 57, 53, 0.26)
+      );
+      border: 1px solid var(--border-soft);
+    }
+
+    .gauge-marker {
+      position: absolute;
+      top: -3px;
+      width: 2px;
+      height: 22px;
+      background: var(--accent-strong);
+      box-shadow: 0 0 6px rgba(255, 152, 0, 0.9);
+      transform: translateX(-50%);
+    }
+
+    .gauge-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-soft);
+      margin-top: 3px;
+    }
+
+    .breakdown-row {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .breakdown-chip {
+      font-size: 0.7rem;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: #171e2a;
+      border: 1px solid var(--border-soft);
+      color: var(--text-soft);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 800px) {
+      .two-col {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .food-list {
       border-radius: 10px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(15,23,42,0.75);
-      max-height: 220px;
+      border: 1px solid var(--border-soft);
+      background: #0d111a;
+      max-height: 210px;
       overflow-y: auto;
-      padding: 6px;
-      font-size: 0.86rem;
+      padding: 4px;
     }
 
     .food-category {
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .food-category-title {
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       color: var(--text-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin: 4px 2px;
+      padding: 2px 4px;
+      border-bottom: 1px solid var(--border-soft);
     }
 
     .food-row {
       display: flex;
-      gap: 6px;
       align-items: center;
-      padding: 4px 6px;
+      gap: 6px;
+      padding: 4px 4px;
       border-radius: 8px;
       cursor: pointer;
     }
 
     .food-row:hover {
-      background: rgba(15,118,255,0.18);
+      background: rgba(255, 255, 255, 0.03);
     }
 
     .food-row.active {
-      background: var(--accent-soft);
-      border: 1px solid var(--accent);
+      background: rgba(255, 152, 0, 0.14);
+      border: 1px solid rgba(255, 152, 0, 0.5);
     }
 
     .food-emoji {
+      font-size: 1rem;
       width: 22px;
     }
 
     .food-main {
       flex: 1;
+      min-width: 0;
     }
 
     .food-name {
-      font-size: 0.86rem;
+      font-size: 0.78rem;
     }
 
     .food-meta {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       color: var(--text-soft);
     }
 
     .food-tag {
-      font-size: 0.78rem;
-      padding: 1px 6px;
+      font-size: 0.68rem;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-    }
-
-    /* Right panel – score and timeline */
-    .score-main-number {
-      font-size: 2.3rem;
-      font-weight: 700;
-    }
-
-    .score-label-line {
-      font-size: 0.9rem;
+      border: 1px solid var(--border-soft);
+      padding: 2px 6px;
       color: var(--text-soft);
     }
 
-    .risk-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 9px;
+    .small-btn {
+      font-size: 0.72rem;
+      padding: 4px 8px;
       border-radius: 999px;
-      font-size: 0.85rem;
-      border: 1px solid rgba(148,163,184,0.9);
+      border: 1px solid var(--border-soft);
+      background: #151b27;
+      color: var(--text-main);
+      cursor: pointer;
+      white-space: nowrap;
     }
 
-    .risk-low {
-      background: rgba(34,197,94,0.2);
-      border-color: rgba(34,197,94,0.9);
-      color: #bbf7d0;
+    .small-btn.primary {
+      border-color: var(--accent-strong);
+      background: #1e262f;
     }
 
-    .risk-moderate {
-      background: rgba(250,204,21,0.2);
-      border-color: rgba(250,204,21,0.95);
-      color: #fef9c3;
+    .small-btn:hover {
+      border-color: var(--accent-strong);
     }
 
-    .risk-high {
-      background: rgba(248,113,113,0.2);
-      border-color: rgba(248,113,113,0.95);
-      color: #fee2e2;
-    }
-
-    .gauge-bar {
-      margin-top: 8px;
-      margin-bottom: 4px;
-      height: 16px;
-      border-radius: 999px;
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(90deg, #16a34a, #eab308, #f97316, #ef4444);
-    }
-
-    .gauge-marker {
-      position: absolute;
-      top: -4px;
-      width: 2px;
-      height: 24px;
-      background: #fff;
-      box-shadow: 0 0 6px rgba(255,255,255,0.9);
-    }
-
-    .gauge-marker::after {
-      content: "";
-      position: absolute;
-      top: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 4px 4px 0 4px;
-      border-style: solid;
-      border-color: #fff transparent transparent transparent;
-    }
-
-    .gauge-scale {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin-bottom: 4px;
-    }
-
-    .breakdown-row {
+    .pill-buttons {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: var(--text-soft);
+      gap: 4px;
     }
 
-    .breakdown-chip {
+    .pill-btn {
+      font-size: 0.72rem;
+      padding: 3px 7px;
       border-radius: 999px;
-      padding: 3px 8px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(15,23,42,0.9);
+      border: 1px solid var(--border-soft);
+      background: #131825;
+      color: var(--text-main);
+      cursor: pointer;
+      white-space: nowrap;
     }
 
-    /* Crash window map – solid colors */
-    .timeline-bar {
-      margin-top: 6px;
-      margin-bottom: 4px;
-      border-radius: 999px;
-      overflow: hidden;
-      height: 14px;
-      display: flex;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .timeline-seg {
-      flex: 1;
-    }
-
-    .timeline-spike {
-      background: #4ade80; /* green solid */
-    }
-
-    .timeline-crash {
-      background: #fbbf24; /* yellow solid */
-    }
-
-    .timeline-recover {
-      background: #60a5fa; /* blue solid */
-    }
-
-    .timeline-marker {
-      position: relative;
-      margin-top: 4px;
-      height: 18px;
-    }
-
-    .timeline-marker-line {
-      position: absolute;
-      top: 0;
-      width: 2px;
-      height: 18px;
-      background: #e5e7eb;
-      box-shadow: 0 0 4px rgba(248,250,252,0.9);
-    }
-
-    .timeline-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      margin-top: 2px;
-    }
-
-    .timeline-scale {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      color: var(--text-soft);
-      margin-top: 2px;
+    .pill-btn.active {
+      background: rgba(255, 152, 0, 0.14);
+      border-color: var(--accent-strong);
+      color: var(--accent);
     }
 
     .symptom-buttons {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-      margin-bottom: 6px;
+      gap: 4px;
     }
 
     .symptom-btn {
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(15,23,42,0.96);
-      color: var(--text-soft);
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: #141926;
+      color: var(--text-main);
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .symptom-btn:hover {
-      filter: brightness(1.08);
+      border-color: var(--accent-strong);
+    }
+
+    .timeline-bar {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1.5fr;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 16px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .timeline-seg {
+      height: 100%;
+    }
+
+    .timeline-spike {
+      background: linear-gradient(90deg, #ffb300, #ff9800);
+    }
+
+    .timeline-crash {
+      background: linear-gradient(90deg, #ff7043, #e53935);
+    }
+
+    .timeline-recover {
+      background: linear-gradient(90deg, #6d4c41, #424242);
+    }
+
+    .timeline-marker {
+      position: relative;
+      height: 24px;
+      margin-top: 4px;
+    }
+
+    .timeline-marker-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--accent-strong);
+      box-shadow: 0 0 6px rgba(255, 152, 0, 0.9);
+      transform: translateX(-50%);
+    }
+
+    .timeline-marker-label {
+      position: absolute;
+      top: 18px;
+      transform: translateX(-50%);
+      font-size: 0.72rem;
+      color: var(--accent);
+      white-space: nowrap;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+    }
+
+    .timeline-labels,
+    .timeline-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-soft);
+      margin-top: 2px;
     }
 
     .share-row {
+      margin-top: 8px;
       display: flex;
-      flex-wrap: wrap;
       gap: 6px;
-      margin-top: 6px;
       align-items: center;
-      font-size: 0.8rem;
+      flex-wrap: wrap;
+      font-size: 0.72rem;
       color: var(--text-soft);
     }
 
     .why-btn {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      padding: 4px 8px;
       border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(15,23,42,0.96);
+      border: 1px solid var(--border-soft);
+      background: #151b28;
       color: var(--text-main);
-      font-size: 0.86rem;
-      padding: 5px 10px;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .why-text {
       margin-top: 6px;
-      font-size: 0.82rem;
+      font-size: 0.75rem;
       color: var(--text-soft);
-    }
-
-    /* Responsive */
-    @media (max-width: 840px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      .page {
-        padding: 10px 10px 26px;
-      }
-      .score-main-number {
-        font-size: 2.1rem;
-      }
-      .food-list {
-        max-height: 260px;
-      }
+      line-height: 1.45;
     }
   </style>
 </head>
 <body>
 <div class="page">
-  <header>
-    <div class="title-block">
-      <h1>Post-Meal Anxiety Timing Calculator</h1>
-      <div class="badge-row">
-        <div class="badge">
-          <span class="emoji">🧠</span>
-          <span>Biology-based estimate; not mental weakness</span>
-        </div>
-        <span>Free forever • No login • No tracking</span>
-      </div>
-    </div>
-  </header>
 
-  <!-- Score strip (always visible at top) -->
-  <div class="score-strip" id="scoreStrip">
-    <div class="score-strip-main">
-      <div class="score-strip-label">Current spike risk (0–100)</div>
-      <div class="score-strip-value">
-        <span class="number" id="stripScoreNumber">0</span>
-        <span id="stripScoreLabel">Very low</span>
+  <div class="strip">
+    <div class="strip-inner">
+      <div class="strip-main">
+        <div class="strip-score">
+          <span class="strip-score-number" id="stripScoreNumber">0</span>
+          <span class="strip-score-label" id="stripScoreLabel">Waiting for data</span>
+        </div>
+        <div class="strip-window" id="stripWindowLabel">
+          Add a meal and timing to see your crash window.
+        </div>
+      </div>
+      <div class="strip-share">
+        <button class="strip-btn" id="shareStripBtn">Copy summary</button>
+        <span id="shareStatus">Free, no login; you own your data.</span>
       </div>
     </div>
-    <div class="score-strip-cta">
-      <div class="score-strip-chip" id="stripWindowLabel">
-        ⏱️ Waiting for inputs…
-      </div>
-      <button class="small-btn primary" type="button" id="shareStripBtn">Share result</button>
+  </div>
+
+  <div class="title-row">
+    <h1>Biology-Based Crash Window Calculator (beta)</h1>
+    <div class="title-sub">
+      For people who feel “anxious” after carbs, sugar and caffeine. This is about
+      <strong>visceral sensitivity, blood sugar swings and timing</strong>, not moral weakness.
     </div>
   </div>
 
   <div class="layout">
-    <!-- LEFT SIDE: Inputs -->
-    <div>
-      <div class="card">
-        <div class="card-title">Simple vs advanced</div>
-        <div class="card-subtitle">Start simple with “what did this meal look like” and rough sugar / caffeine, or switch to advanced to enter grams and mg.</div>
-        <div class="pill-group" style="margin-bottom:8px;">
-          <button class="pill-btn active" type="button" id="simpleModeBtn">Simple mode</button>
-          <button class="pill-btn" type="button" id="advancedModeBtn">Advanced numbers</button>
-        </div>
-        <div class="field">
-          <label for="timeSinceMealRange">
-            Time since this meal (minutes)
-            <button type="button" class="info-icon-btn" data-info-target="infoTime">
-              i
-            </button>
-          </label>
-          <input id="timeSinceMealRange" type="range" min="0" max="240" step="5" value="90">
-          <div class="helper-text">
-            <span id="timeSinceMealLabel">~90 minutes ago</span>
-          </div>
-          <div id="infoTime" class="info-text">
-            Most people with sensitive guts and nerves feel a “wave” between about 45 and 150 minutes after a carb / sugar / caffeine hit. This slider helps place you on that curve.
-          </div>
-        </div>
-        <div class="field">
-          <label for="mealClockTime">
-            What time did you start this meal? <span style="font-size:0.8rem; color:var(--text-soft);">(optional)</span>
-          </label>
-          <input id="mealClockTime" type="time">
-          <div class="helper-text" id="mealClockHelper">
-            If you add a clock time, the crash window will show real clock times (for example 7:15–9:00 PM).
-          </div>
-        </div>
-        <div class="field">
-          <label for="sensitivitySelect">
-            My sensitivity level
-            <button type="button" class="info-icon-btn" data-info-target="infoSensitivity">i</button>
-          </label>
-          <select id="sensitivitySelect">
-            <option value="0.8">Low sensitivity</option>
-            <option value="1.0" selected>Medium</option>
-            <option value="1.3">High (IBS / visceral hypersensitivity)</option>
-          </select>
-          <div id="infoSensitivity" class="info-text">
-            Higher sensitivity amplifies the same carbs, sugar and caffeine into a bigger nerve reaction and crash. “High” matches people with IBS and visceral hypersensitivity more closely.
-          </div>
-        </div>
-      </div>
-            <!-- Simple mode panel -->
-      <div id="simplePanel" class="card-soft" style="margin-top:10px;">
-        <div class="card-title">Simple meal description</div>
-        <div class="card-subtitle">
-          Pick the closest match to what you just ate. You can fine-tune dessert, soda, and caffeine below.
-        </div>
-
-        <div class="section-row">
-          <label>
-            What did this meal look like?
-          </label>
-          <div class="food-search-row">
-            <input id="foodSearch" type="text" placeholder="Search: pasta, pizza, sushi, salad…">
-            <button type="button" class="small-btn" id="clearFoodBtn">Clear</button>
-          </div>
-          <div class="food-list" id="foodList">
-            <!-- Food categories and items are inserted by JS -->
-          </div>
-        </div>
-
-        <div class="section-row">
-          <label>
-            Dessert / extra sugar
-            <button type="button" class="info-icon-btn" data-info-target="infoSugar">i</button>
-          </label>
-          <div class="pill-group" style="margin-bottom:4px;">
-            <button type="button" class="pill-btn" data-sugar="0">No dessert</button>
-            <button type="button" class="pill-btn" data-sugar="10">Small sweet (~10 g)</button>
-            <button type="button" class="pill-btn" data-sugar="25">Big dessert (~25 g)</button>
-          </div>
-          <div class="field" style="margin-top:4px;">
-            <label for="simpleSugarExact">Or enter rough sugar (grams)</label>
-            <input id="simpleSugarExact" type="number" min="0" max="120" step="1" placeholder="e.g. 18">
-          </div>
-          <div id="infoSugar" class="info-text">
-            Sugar spikes blood glucose quickly, then your system over-corrects. The “crash” can feel like sudden anxiety, internal buzzing, or fatigue.
-          </div>
-        </div>
-
-        <!-- Soda buttons: caffeinated vs not, small/med/large -->
-        <div class="section-row">
-          <label>
-            Soda with this meal
-            <button type="button" class="info-icon-btn" data-info-target="infoSoda">i</button>
-          </label>
-          <div class="pill-group">
-            <button type="button" class="pill-btn" data-soda-sugar="0" data-soda-caf="0">No soda</button>
-            <button type="button" class="pill-btn" data-soda-sugar="35" data-soda-caf="0">Small, no caffeine</button>
-            <button type="button" class="pill-btn" data-soda-sugar="50" data-soda-caf="0">Medium, no caffeine</button>
-            <button type="button" class="pill-btn" data-soda-sugar="65" data-soda-caf="0">Large, no caffeine</button>
-            <button type="button" class="pill-btn" data-soda-sugar="35" data-soda-caf="30">Small, caffeinated</button>
-            <button type="button" class="pill-btn" data-soda-sugar="50" data-soda-caf="45">Medium, caffeinated</button>
-            <button type="button" class="pill-btn" data-soda-sugar="65" data-soda-caf="60">Large, caffeinated</button>
-          </div>
-          <div id="infoSoda" class="info-text">
-            Soda is basically liquid sugar; caffeinated soda layers a smaller caffeine spike on top. Picking this helps the calculator set both sugar and caffeine realistically.
-          </div>
-        </div>
-
-        <div class="section-row">
-          <label>
-            Other caffeine with or around this meal
-            <button type="button" class="info-icon-btn" data-info-target="infoCaffeine">i</button>
-          </label>
-          <div class="pill-group" style="margin-bottom:4px;">
-            <button type="button" class="pill-btn" data-caf="0">No other caffeine</button>
-            <button type="button" class="pill-btn" data-caf="80">Small coffee / strong tea</button>
-            <button type="button" class="pill-btn" data-caf="140">Big coffee</button>
-            <button type="button" class="pill-btn" data-caf="200">Energy drink</button>
-          </div>
-          <div class="field" style="margin-top:4px;">
-            <label for="simpleCafExact">Or enter caffeine (mg)</label>
-            <input id="simpleCafExact" type="number" min="0" max="400" step="10" placeholder="e.g. 120">
-          </div>
-          <div id="infoCaffeine" class="info-text">
-            Caffeine spikes adrenaline. Combined with carbs and sugar, it can turn a normal crash into a jittery, chest-warm, “wired and tired” wave.
-          </div>
-        </div>
+    <div class="card">
+      <div class="card-title">
+        <span>Main spike estimate</span>
+        <span>Free, anonymous; no data leaves your browser.</span>
       </div>
 
-      <!-- Advanced mode panel -->
-      <div id="advancedPanel" class="card-soft" style="margin-top:10px; display:none;">
-        <div class="card-title">Advanced meal details</div>
-        <div class="card-subtitle">
-          If you like numbers, enter your own estimates. These override simple mode values.
-        </div>
-        <div class="section-row">
-          <div class="field">
-            <label for="advCarbs">
-              Carbs in this meal (g)
-            </label>
-            <input id="advCarbs" type="number" min="0" max="200" step="5" placeholder="e.g. 80 for a plate of pasta">
+      <div class="score-strip">
+        <div class="score-main">
+          <div class="score-left">
+            <div class="score-number" id="scoreMainNumber">0</div>
+            <div class="score-label-block">
+              <div class="score-label-main" id="scoreMainLabel">Waiting for enough data</div>
+              <div class="score-meaning" id="scoreMeaning">
+                Add a rough meal type, some sugar or caffeine, and timing to see a biology-based spike score.
+              </div>
+            </div>
           </div>
-          <div class="field">
-            <label for="advSugar">Added / free sugar (g)</label>
-            <input id="advSugar" type="number" min="0" max="150" step="1" placeholder="e.g. 25 for dessert">
-          </div>
-          <div class="field">
-            <label for="advCaffeine">Caffeine (mg)</label>
-            <input id="advCaffeine" type="number" min="0" max="400" step="10" placeholder="e.g. 140 for a big coffee">
-          </div>
-        </div>
-        <div class="section-row">
-          <div class="field">
-            <label for="advFiber">Fiber in this meal (g)</label>
-            <input id="advFiber" type="number" min="0" max="40" step="1" placeholder="e.g. 6">
-          </div>
-          <div class="field">
-            <label for="advFat">
-              Fat level
-              <button type="button" class="info-icon-btn" data-info-target="infoFat">i</button>
-            </label>
-            <select id="advFat">
-              <option value="0">Low (grilled, minimal oil)</option>
-              <option value="1">Medium (some oil / cheese / dressing)</option>
-              <option value="2">High (heavy cream, deep fried, fast food)</option>
-            </select>
-            <div id="infoFat" class="info-text">
-              Fat slows stomach emptying. That can delay the crash, sometimes turning it into a late-evening or next-morning wave instead of an immediate one.
+          <div class="score-right">
+            <div class="risk-chip" id="riskChip">
+              Waiting for meal + timing
+            </div>
+            <div class="biology-line" id="biologyLine">
+              Biology vs “just anxiety” will show here once we have a real spike.
+            </div>
+            <div class="confidence-line" id="confidenceLine">
+              Confidence: very low (not enough info yet).
             </div>
           </div>
         </div>
-      </div>
-    </div>
-        <!-- RIGHT SIDE: Score, timeline, explanations -->
-    <div>
-      <div class="card">
-        <div class="card-title">Your current spike estimate</div>
-        <div class="card-subtitle">
-          This is a biology-based guess at how much today’s carbs, sugar and caffeine are pushing your nervous system right now.
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:8px;">
-          <div>
-            <div class="score-main-number" id="scoreMainNumber">0</div>
-            <div class="score-label-line">
-              <span id="scoreMainLabel">Very low</span>
-            </div>
-          </div>
-          <div class="risk-chip" id="riskChip">Waiting for inputs…</div>
-        </div>
 
-        <div class="gauge-bar">
-          <div class="gauge-marker" id="gaugeMarker" style="left:0%;"></div>
-        </div>
-        <div class="gauge-scale">
-          <span>0</span>
-          <span>25</span>
-          <span>50</span>
-          <span>75</span>
-          <span>100</span>
+        <div class="gauge-row">
+          <div class="gauge">
+            <div class="gauge-marker" id="gaugeMarker" style="left:0%;"></div>
+          </div>
+          <div class="gauge-labels">
+            <span>Very low</span>
+            <span>Moderate</span>
+            <span>Very high</span>
+          </div>
         </div>
 
         <div class="breakdown-row" id="breakdownRow">
-          <span class="breakdown-chip">Carbs: 0%</span>
-          <span class="breakdown-chip">Sugar: 0%</span>
-          <span class="breakdown-chip">Caffeine: 0%</span>
-          <span class="breakdown-chip">Timing / sensitivity: 0%</span>
+          <span class="helper-text">Waiting for enough data to show what is driving this.</span>
+        </div>
+      </div>
+
+      <div class="card-soft" style="margin-top:10px;">
+        <div class="card-title">
+          <span>Basic timing and sensitivity</span>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="section-row">
+              <label for="timeSinceMealRange">Time since you started eating</label>
+              <input id="timeSinceMealRange" type="range" min="0" max="240" value="0" />
+              <div class="helper-text" id="timeSinceMealLabel">Just now</div>
+            </div>
+
+            <div class="section-row">
+              <label for="mealClockTime">
+                What time did you start this meal?
+                <button type="button" class="info-icon-btn" data-info-target="infoClock">i</button>
+              </label>
+              <div class="input-row">
+                <input id="mealClockTime" type="time" />
+              </div>
+              <div class="helper-text" id="clockWindowLabel">
+                Add a rough meal time to see your crash window in clock time.
+              </div>
+              <div id="infoClock" class="info-text">
+                You do not need an exact minute, just enough to convert “90 minutes after eating” into real-world clock time.
+              </div>
+            </div>
+
+            <div class="section-row">
+              <label for="sensitivitySelect">
+                How sensitive is your system today?
+                <button type="button" class="info-icon-btn" data-info-target="infoSensitivity">i</button>
+              </label>
+              <select id="sensitivitySelect">
+                <option value="0.8">Lower than usual</option>
+                <option value="1" selected>Typical</option>
+                <option value="1.3">Very sensitive</option>
+              </select>
+              <div id="infoSensitivity" class="info-text">
+                “Very sensitive” fits IBS, visceral hypersensitivity, poor sleep, hangover days, hormone swings, or when you already feel on edge.
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-row">
+              <label>Mode</label>
+              <div class="mode-toggle">
+                <button type="button" class="mode-btn active" id="simpleModeBtn">Simple (tap foods)</button>
+                <button type="button" class="mode-btn" id="advancedModeBtn">Advanced (enter numbers)</button>
+              </div>
+              <div class="helper-text">
+                Simple mode is fine for most people. Advanced mode is for nutrition label nerds.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+            <div class="card-soft" id="simplePanel" style="margin-top:10px;">
+        <div class="card-title">
+          <span>Simple: what did this meal look like?</span>
+          <span>Tap something close; it does not have to be perfect.</span>
         </div>
 
-        <div class="section-row" style="margin-top:10px;">
+        <div class="section-row">
+          <div class="input-row">
+            <input
+              type="text"
+              id="foodSearch"
+              placeholder="Search: pasta, pizza, salad, burger, dessert…"
+            />
+            <button type="button" class="small-btn" id="clearFoodBtn">Clear</button>
+          </div>
+          <div class="helper-text">
+            These are rough presets. Pick the closest match to what you actually ate.
+          </div>
+        </div>
+
+        <div class="section-row">
+          <div class="food-list" id="foodList"></div>
+          <div class="warning-text" id="dataWarning"></div>
+        </div>
+
+        <div class="section-row">
           <label>
-            Crash window map
-            <button type="button" class="info-icon-btn" data-info-target="infoTimeline">i</button>
+            Extra dessert / sweets
+            <button type="button" class="info-icon-btn" data-info-target="infoSugar">i</button>
           </label>
+          <div class="pill-buttons">
+            <button type="button" class="pill-btn" data-sugar="0">None</button>
+            <button type="button" class="pill-btn" data-sugar="10">Small treat (~10 g)</button>
+            <button type="button" class="pill-btn" data-sugar="20">Medium dessert (~20 g)</button>
+            <button type="button" class="pill-btn" data-sugar="35">Big dessert (~35 g)</button>
+          </div>
+          <div class="input-row" style="margin-top:4px;">
+            <input
+              type="number"
+              id="simpleSugarExact"
+              placeholder="Or enter sugar directly in grams"
+              min="0"
+            />
+          </div>
+          <div class="helper-text">
+            Examples: 2 cookies ≈ 18 g, typical candy bar ≈ 25 g, big dessert plate ≈ 30–40 g, pint of ice cream can be 60+ g.
+          </div>
+          <div id="infoSugar" class="info-text">
+            This is sugar on top of the meal, not counting the carbs from pasta, bread or rice.
+          </div>
+        </div>
+
+        <div class="section-row">
+          <label>
+            Soda / sugary drink with this meal
+            <button type="button" class="info-icon-btn" data-info-target="infoSoda">i</button>
+          </label>
+          <div class="pill-buttons">
+            <button type="button" class="pill-btn" data-soda-sugar="0" data-soda-caf="0">None</button>
+            <button type="button" class="pill-btn" data-soda-sugar="39" data-soda-caf="0">
+              Soda can (no caffeine)
+            </button>
+            <button type="button" class="pill-btn" data-soda-sugar="39" data-soda-caf="35">
+              Soda can (caffeinated)
+            </button>
+            <button type="button" class="pill-btn" data-soda-sugar="60" data-soda-caf="0">
+              Large soda (no caffeine)
+            </button>
+            <button type="button" class="pill-btn" data-soda-sugar="60" data-soda-caf="60">
+              Large soda (caffeinated)
+            </button>
+          </div>
+          <div class="helper-text">
+            These are rough estimates. If you want to be exact, use the label sugar in the advanced section.
+          </div>
+          <div id="infoSoda" class="info-text">
+            Sugary drinks hit fast because they skip chewing and fiber. For sensitive people this can be a huge part of the spike.
+          </div>
+        </div>
+
+        <div class="section-row">
+          <label>
+            Coffee / tea / energy drink (caffeine)
+            <button type="button" class="info-icon-btn" data-info-target="infoCaf">i</button>
+          </label>
+          <div class="pill-buttons">
+            <button type="button" class="pill-btn" data-caf="0">None</button>
+            <button type="button" class="pill-btn" data-caf="90">Small coffee (~90 mg)</button>
+            <button type="button" class="pill-btn" data-caf="150">Large coffee (~150–200 mg)</button>
+            <button type="button" class="pill-btn" data-caf="160">Energy drink (~160 mg)</button>
+            <button type="button" class="pill-btn" data-caf="240">Strong energy drink (~240 mg)</button>
+          </div>
+          <div class="input-row" style="margin-top:4px;">
+            <input
+              type="number"
+              id="simpleCafExact"
+              placeholder="Or enter caffeine in mg (optional)"
+              min="0"
+            />
+          </div>
+          <div class="helper-text">
+            Examples: small coffee ≈ 90 mg, large ≈ 150–200 mg, energy drink can ≈ 160–240 mg, strong tea ≈ 40–60 mg.
+          </div>
+          <div id="infoCaf" class="info-text">
+            If you are caffeine sensitive, this can stack on top of gut + sugar effects and feel like “pure anxiety”.
+          </div>
+        </div>
+      </div>
+
+      <div class="card-soft" id="advancedPanel" style="margin-top:10px; display:none;">
+        <div class="card-title">
+          <span>Advanced: use nutrition label numbers</span>
+          <span>Optional; simple mode is enough for pattern spotting.</span>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <div class="section-row">
+              <label>Carbs from this meal (g)</label>
+              <input type="number" id="advCarbs" min="0" max="200" placeholder="Example: 70" />
+            </div>
+            <div class="section-row">
+              <label>Sugar from this meal (g)</label>
+              <input type="number" id="advSugar" min="0" max="200" placeholder="Example: 30" />
+            </div>
+          </div>
+          <div>
+            <div class="section-row">
+              <label>Caffeine (mg)</label>
+              <input type="number" id="advCaffeine" min="0" max="500" placeholder="Example: 160" />
+            </div>
+            <div class="section-row">
+              <label>Fiber and fat feel</label>
+              <div class="input-row">
+                <input
+                  type="number"
+                  id="advFiber"
+                  min="0"
+                  max="25"
+                  placeholder="Fiber g (optional)"
+                  style="flex:1;"
+                />
+                <select id="advFat" style="flex:1;">
+                  <option value="0">Not heavy / low fat</option>
+                  <option value="1">Medium / normal</option>
+                  <option value="2">Heavy / greasy</option>
+                </select>
+              </div>
+              <div class="helper-text">
+                More fiber softens spikes slightly. Heavier fat can delay them so the worst part hits later.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-soft" style="margin-top:10px;">
+        <div class="card-title">
+          <span>Crash window map</span>
+          <button type="button" class="info-icon-btn" data-info-target="infoTimeline">i</button>
+        </div>
+        <div class="section-row" style="margin-top:2px;">
           <div class="timeline-bar">
             <div class="timeline-seg timeline-spike"></div>
             <div class="timeline-seg timeline-crash"></div>
@@ -875,6 +965,9 @@
           </div>
           <div class="timeline-marker">
             <div class="timeline-marker-line" id="timelineMarkerLine" style="left:0%;"></div>
+            <div class="timeline-marker-label" id="timelineMarkerLabel" style="left:0%;">
+              You are here
+            </div>
           </div>
           <div class="timeline-labels">
             <span>0–45 min: spike building</span>
@@ -888,23 +981,29 @@
             <span>180</span>
             <span>240 min</span>
           </div>
-          <div class="helper-text" id="clockWindowLabel">
-            Add a meal time on the left to see your crash window in clock time.
+          <div class="helper-text" id="timelineHelper">
+            Add meal, sugar / caffeine and timing to see where you sit in the 0–240 minute wave.
           </div>
           <div id="infoTimeline" class="info-text">
             Heavy carbs + sugar + caffeine rarely cause “random” feelings. They create a spike, then a crash, then a slump. This bar shows roughly where you are in that 0–240 minute cycle.
           </div>
         </div>
+      </div>
 
+      <div class="card-soft" style="margin-top:10px;">
+        <div class="card-title">
+          <span>Right now I feel…</span>
+        </div>
         <div class="section-row">
-          <label>Right now I feel…</label>
           <div class="symptom-buttons">
             <button type="button" class="symptom-btn" data-symptom="jittery">Jittery / buzzy</button>
             <button type="button" class="symptom-btn" data-symptom="warmChest">Warm chest / wired</button>
             <button type="button" class="symptom-btn" data-symptom="flat">Flat / wiped out</button>
             <button type="button" class="symptom-btn" data-symptom="gutBuzz">Gut buzzing</button>
             <button type="button" class="symptom-btn" data-symptom="headache">Headache-ish</button>
-            <button type="button" class="symptom-btn" data-symptom="randomAdrenaline">Random adrenaline hits</button>
+            <button type="button" class="symptom-btn" data-symptom="randomAdrenaline">
+              Random adrenaline hits
+            </button>
           </div>
           <div id="symptomText" class="helper-text">
             Tap one that fits and we’ll tell you whether it matches the predicted crash window.
@@ -913,26 +1012,29 @@
 
         <div class="share-row">
           <button type="button" class="small-btn primary" id="shareBtn">Copy a short summary</button>
-          <span id="shareStatus">No text copied yet.</span>
+          <span>Paste it into Reddit, a note, or a chat. It never leaves your device unless you paste it.</span>
         </div>
       </div>
+    </div>
 
-      <div class="card-soft" style="margin-top:10px;">
-        <div class="card-title">
-          Why does this feel like “anxiety”?
-        </div>
-        <button type="button" class="why-btn" id="whyBtn">
-          Why am I feeling this way?
-        </button>
-        <div id="whyText" class="why-text" style="display:none;">
-          Your brain often labels biology as “anxiety”. A heavy carb + sugar + caffeine load can:
-          <ul style="padding-left:18px; margin:4px 0;">
-            <li>Stretch your gut and trigger visceral nerves</li>
-            <li>Spike blood sugar and then over-correct into a crash</li>
-            <li>Layer caffeine-driven adrenaline on top of that crash</li>
-          </ul>
-          If you are highly sensitive, that internal noise can feel identical to “I am freaking out”, even when nothing external is wrong. This tool is here to show that a lot of it is timing and chemistry, not personal failure.
-        </div>
+    <div class="card">
+      <div class="card-title">
+        <span>Why does this feel like “anxiety”?</span>
+      </div>
+      <button type="button" class="why-btn" id="whyBtn">
+        Why am I feeling this way?
+      </button>
+      <div id="whyText" class="why-text" style="display:none;">
+        Your brain often labels biology as “anxiety”. A heavy carb + sugar + caffeine load can:
+        <ul style="padding-left:18px; margin:4px 0;">
+          <li>Stretch your gut and trigger visceral nerves</li>
+          <li>Spike blood sugar and then over-correct into a crash</li>
+          <li>Layer caffeine-driven adrenaline on top of that crash</li>
+        </ul>
+        If you are highly sensitive, that internal noise can feel identical to “I am freaking out”, even when nothing external is wrong.
+        <br /><br />
+        Over time you can use this to spot patterns, adjust timing, and prove to yourself that a lot of this is
+        <strong>predictable body chemistry</strong>, not random doom.
       </div>
     </div>
   </div> <!-- end layout -->
@@ -994,47 +1096,63 @@
     advancedModeBtn: document.getElementById("advancedModeBtn"),
     simplePanel: document.getElementById("simplePanel"),
     advancedPanel: document.getElementById("advancedPanel"),
+
     timeRange: document.getElementById("timeSinceMealRange"),
     timeLabel: document.getElementById("timeSinceMealLabel"),
     sensitivitySelect: document.getElementById("sensitivitySelect"),
     mealClockTime: document.getElementById("mealClockTime"),
     clockWindowLabel: document.getElementById("clockWindowLabel"),
+
     foodList: document.getElementById("foodList"),
     foodSearch: document.getElementById("foodSearch"),
     clearFoodBtn: document.getElementById("clearFoodBtn"),
+    dataWarning: document.getElementById("dataWarning"),
+
     simpleSugarExact: document.getElementById("simpleSugarExact"),
     simpleCafExact: document.getElementById("simpleCafExact"),
+
     scoreMainNumber: document.getElementById("scoreMainNumber"),
     scoreMainLabel: document.getElementById("scoreMainLabel"),
+    scoreMeaning: document.getElementById("scoreMeaning"),
+    biologyLine: document.getElementById("biologyLine"),
+    confidenceLine: document.getElementById("confidenceLine"),
+
     riskChip: document.getElementById("riskChip"),
     gaugeMarker: document.getElementById("gaugeMarker"),
     breakdownRow: document.getElementById("breakdownRow"),
+
     timelineMarkerLine: document.getElementById("timelineMarkerLine"),
+    timelineMarkerLabel: document.getElementById("timelineMarkerLabel"),
+    timelineHelper: document.getElementById("timelineHelper"),
+
     symptomText: document.getElementById("symptomText"),
+
     stripScoreNumber: document.getElementById("stripScoreNumber"),
     stripScoreLabel: document.getElementById("stripScoreLabel"),
     stripWindowLabel: document.getElementById("stripWindowLabel"),
+
     shareBtn: document.getElementById("shareBtn"),
     shareStripBtn: document.getElementById("shareStripBtn"),
     shareStatus: document.getElementById("shareStatus"),
+
     whyBtn: document.getElementById("whyBtn"),
     whyText: document.getElementById("whyText")
   };
 
   // ---------------------------
-  // UI helpers
+  // Small helpers
   // ---------------------------
   function minutesLabel(val) {
     const v = Number(val);
     if (v === 0) return "Just now";
     if (v <= 30) return "~" + v + " minutes ago";
-    const hours = Math.round(v / 60 * 10) / 10;
+    const hours = Math.round((v / 60) * 10) / 10;
     if (hours < 1) return "~" + v + " minutes ago";
     return "~" + hours + " hours ago";
   }
 
   function formatClock(mins) {
-    let m = ((mins % 1440) + 1440) % 1440; // wrap
+    let m = ((mins % 1440) + 1440) % 1440;
     const h = Math.floor(m / 60);
     const mm = m % 60;
     const suffix = h >= 12 ? "PM" : "AM";
@@ -1117,14 +1235,12 @@
     }
     return null;
   }
-
-  // ---------------------------
+      // ---------------------------
   // Core math model
   // ---------------------------
   function computeRisk() {
     const timeMin = Number(elements.timeRange.value);
     const sensitivity = Number(elements.sensitivitySelect.value);
-
     const useAdvanced = elements.advancedPanel.style.display !== "none";
 
     let carbs = 0;
@@ -1145,71 +1261,63 @@
         carbs = meal.carbs;
         fiber = meal.fiber || 0;
         fatLevel = meal.fatLevel || 0;
-        sugar = (meal.sugarBase || 0);
+        sugar = meal.sugarBase || 0;
       }
-      // Dessert extra sugar
-      const dessertExtra = elements.simpleSugarExact.value !== "" ?
-        Number(elements.simpleSugarExact.value) :
-        simpleSugarExtra;
+      const dessertExtra = elements.simpleSugarExact.value !== ""
+        ? Number(elements.simpleSugarExact.value)
+        : simpleSugarExtra;
       if (!isNaN(dessertExtra)) sugar += dessertExtra;
 
-      // Soda sugar + caffeine
       sugar += simpleSodaSugar;
-      // Base caffeine: other caffeine (coffee/tea/energy)
-      const extraCaf = elements.simpleCafExact.value !== "" ?
-        Number(elements.simpleCafExact.value) :
-        simpleCaffeine;
+
+      const extraCaf = elements.simpleCafExact.value !== ""
+        ? Number(elements.simpleCafExact.value)
+        : simpleCaffeine;
       caffeine = (isNaN(extraCaf) ? 0 : extraCaf) + simpleSodaCaf;
     }
 
-    // Clamp basics
     carbs = Math.max(0, Math.min(carbs, 200));
     sugar = Math.max(0, Math.min(sugar, 200));
     caffeine = Math.max(0, Math.min(caffeine, 500));
 
-    // Base points (before timing and sensitivity)
-    const carbPoints = Math.min(40, carbs * 0.5);          // 80 g ~ 40
-    const sugarPoints = Math.min(40, sugar * 0.7);         // ~57 g caps at 40
-    const caffeinePoints = Math.min(20, caffeine * 0.07);  // 285 mg ~ 20
+    const carbPoints = Math.min(40, carbs * 0.5);
+    const sugarPoints = Math.min(40, sugar * 0.7);
+    const caffeinePoints = Math.min(20, caffeine * 0.07);
 
-    // Timing curve: peak around 90 minutes, fades after ~3 hours
-    const t = Math.max(0, Math.min(timeMin, 240));
+    const t = Math.max(0, Math.min(Number(elements.timeRange.value), 240));
     const center = 90;
     const spread = 70;
-    const timingFactor = Math.exp(-Math.pow(t - center, 2) / (2 * spread * spread));
+
+    const fatDelayMinutes = fatLevel * 20;
+    const effectiveTime = Math.max(0, Math.min(t + fatDelayMinutes, 240));
+    const timingFactor = Math.exp(-Math.pow(effectiveTime - center, 2) / (2 * spread * spread));
     const timingMultiplier = 0.2 + timingFactor * 0.9;
 
-    // Fiber softens sugar/carbs impact slightly
-    const fiberEffect = 1 - Math.min(0.25, fiber * 0.02); // up to 25% reduction
-    // Fat delays: shift effective time
-    const fatDelayMinutes = fatLevel * 20;
-    const effectiveTime = Math.max(0, Math.min(timeMin + fatDelayMinutes, 240));
-    const t2 = effectiveTime;
-    const timingFactor2 = Math.exp(-Math.pow(t2 - center, 2) / (2 * spread * spread));
-    const timingMultiplierDelayed = 0.2 + timingFactor2 * 0.9;
+    const fiberEffect = 1 - Math.min(0.25, fiber * 0.02);
 
     const baseSum = carbPoints + sugarPoints + caffeinePoints;
-    let rawScore = baseSum * timingMultiplierDelayed * sensitivity * fiberEffect;
-
+    let rawScore = baseSum * timingMultiplier * sensitivity * fiberEffect;
     rawScore = Math.max(0, Math.min(100, rawScore));
 
     const contributions = { carbs: 0, sugar: 0, caffeine: 0, timing: 0 };
-    const baseTotal = carbPoints + sugarPoints + caffeinePoints;
-    if (baseTotal > 0) {
-      contributions.carbs = (carbPoints / baseTotal) * 100;
-      contributions.sugar = (sugarPoints / baseTotal) * 100;
-      contributions.caffeine = (caffeinePoints / baseTotal) * 100;
+    if (baseSum > 0) {
+      contributions.carbs = (carbPoints / baseSum) * 100;
+      contributions.sugar = (sugarPoints / baseSum) * 100;
+      contributions.caffeine = (caffeinePoints / baseSum) * 100;
+      contributions.timing = 100 - (contributions.carbs + contributions.sugar + contributions.caffeine);
     }
-    contributions.timing = 100 - (contributions.carbs + contributions.sugar + contributions.caffeine);
 
     return {
       score: rawScore,
       carbs,
       sugar,
       caffeine,
-      timeMin,
+      timeMin: t,
       effectiveTime,
-      contributions
+      contributions,
+      hasMeal: !!getSelectedMeal(),
+      hasSugar: sugar > 0,
+      hasCaffeine: caffeine > 0
     };
   }
 
@@ -1227,19 +1335,78 @@
     return "risk-chip risk-high";
   }
 
+  function scoreMeaningText(score) {
+    if (score < 5) {
+      return "Add a rough meal type, sugar or caffeine and timing to see a real spike estimate.";
+    }
+    if (score < 20) {
+      return "Biology is pretty quiet. This is probably not a strong food or caffeine-driven episode.";
+    }
+    if (score < 40) {
+      return "Mild spike. Your load might be nudging you, but something else may also be involved.";
+    }
+    if (score < 60) {
+      return "Moderate spike. Your gut and blood sugar are likely contributing to how you feel.";
+    }
+    if (score < 80) {
+      return "High spike. This timing and load strongly fit a crash window for sensitive people.";
+    }
+    return "Very high spike. This is classic body-driven anxiety territory for sensitive systems.";
+  }
+
+  function biologyLineText(score) {
+    if (score < 20) {
+      return "Biology: low. If you feel awful, it may be less about food timing and more about stress, thoughts or something else.";
+    }
+    if (score < 40) {
+      return "Biology: mild. Your body is involved, but it is not screaming. Thoughts, context and posture still matter a lot here.";
+    }
+    if (score < 60) {
+      return "Biology: moderate. This is likely biology-first, thoughts-second, especially if you are already sensitive.";
+    }
+    if (score < 80) {
+      return "Biology: strong. For most sensitive people this level of load and timing can feel like “pure anxiety” even when life is calm.";
+    }
+    return "Biology: very strong. This is the kind of spike that can convince anyone something is terribly wrong, even when it is mostly timing and chemistry.";
+  }
+
+  function confidenceText(result) {
+    const { hasMeal, hasSugar, hasCaffeine, timeMin } = result;
+
+    if (!hasMeal && !hasSugar && !hasCaffeine) {
+      return "Confidence: very low (no meal, sugar or caffeine entered yet).";
+    }
+    if (!hasMeal && (hasSugar || hasCaffeine)) {
+      return "Confidence: low (you entered sugar or caffeine, but no meal type; add a rough meal to tighten this up).";
+    }
+    if (hasMeal && (!hasSugar && !hasCaffeine)) {
+      if (timeMin === 0) {
+        return "Confidence: low (meal selected but timing is set to just now; slide the time since you started eating).";
+      }
+      return "Confidence: medium (meal and timing entered; sugar and caffeine left at zero).";
+    }
+    if (hasMeal && (hasSugar || hasCaffeine)) {
+      if (timeMin === 0) {
+        return "Confidence: medium (good load info, but timing is still at “just now”; slide it closer to reality).";
+      }
+      return "Confidence: high (you entered meal, timing and at least some sugar or caffeine).";
+    }
+    return "Confidence: medium (partial data; the more you enter, the better this will line up with reality).";
+  }
+
   function windowLabel(timeMin, effectiveTime) {
-    if (timeMin === 0) return "⏱️ Just ate this meal";
+    if (timeMin === 0) return "⏱️ Just ate this meal.";
     const t = effectiveTime;
-    if (t < 40) return "⏱️ Early digestion, spike building";
-    if (t <= 140) return "⚡ Crash / anxiety window is active";
-    if (t <= 200) return "🌫️ Late crash / slump window";
-    return "🌙 Probably in recovery phase now";
+    if (t < 40) return "⏱️ Early digestion; spike is still building.";
+    if (t <= 140) return "⚡ Crash / anxiety window is active.";
+    if (t <= 200) return "🌫️ Late crash / slump window.";
+    return "🌙 Probably in the recovery phase now.";
   }
 
   function updateClockWindow(result) {
     const input = elements.mealClockTime.value;
     if (!input) {
-      elements.clockWindowLabel.textContent = "Add a meal time on the left to see your crash window in clock time.";
+      elements.clockWindowLabel.textContent = "Add a rough meal time to see your crash window in clock time.";
       return;
     }
     const [hhStr, mmStr] = input.split(":");
@@ -1266,12 +1433,17 @@
     const result = computeRisk();
     const s = Math.round(result.score);
 
-    // Main + strip
+    elements.timeLabel.textContent = minutesLabel(result.timeMin);
+
     elements.scoreMainNumber.textContent = s;
     const label = riskLabel(s);
     elements.scoreMainLabel.textContent = label;
     elements.stripScoreNumber.textContent = s;
     elements.stripScoreLabel.textContent = label;
+
+    elements.scoreMeaning.textContent = scoreMeaningText(s);
+    elements.biologyLine.textContent = biologyLineText(s);
+    elements.confidenceLine.textContent = confidenceText(result);
 
     const markerPos = Math.max(0, Math.min(100, s));
     elements.gaugeMarker.style.left = markerPos + "%";
@@ -1285,27 +1457,49 @@
 
     elements.stripWindowLabel.textContent = windowLabel(result.timeMin, result.effectiveTime);
 
-    const c = result.contributions;
     elements.breakdownRow.innerHTML = "";
-    const chips = [
-      { label: "Carbs", val: c.carbs },
-      { label: "Sugar", val: c.sugar },
-      { label: "Caffeine", val: c.caffeine },
-      { label: "Timing / sensitivity", val: c.timing }
-    ];
-    chips.forEach(ch => {
+    if (s === 0) {
       const span = document.createElement("span");
-      span.className = "breakdown-chip";
-      span.textContent = `${ch.label}: ${Math.round(ch.val)}%`;
+      span.className = "helper-text";
+      span.textContent = "Waiting for enough data to show what is driving this (carbs, sugar, caffeine, timing).";
       elements.breakdownRow.appendChild(span);
-    });
-
-    elements.timeLabel.textContent = minutesLabel(result.timeMin);
+    } else {
+      const c = result.contributions;
+      const chips = [
+        { label: "Carbs", val: c.carbs },
+        { label: "Sugar", val: c.sugar },
+        { label: "Caffeine", val: c.caffeine },
+        { label: "Timing / sensitivity", val: c.timing }
+      ];
+      chips.forEach(ch => {
+        const span = document.createElement("span");
+        span.className = "breakdown-chip";
+        span.textContent = `${ch.label}: ${Math.round(ch.val)}%`;
+        elements.breakdownRow.appendChild(span);
+      });
+    }
 
     const tPercent = (Math.max(0, Math.min(result.effectiveTime, 240)) / 240) * 100;
     elements.timelineMarkerLine.style.left = tPercent + "%";
+    elements.timelineMarkerLabel.style.left = tPercent + "%";
 
-    elements.symptomText.textContent = "Tap one that fits and we’ll tell you whether it matches the predicted crash window.";
+    if (s === 0) {
+      elements.timelineHelper.textContent =
+        "Add meal, sugar / caffeine and timing to see where you sit in the 0–240 minute wave.";
+    } else {
+      elements.timelineHelper.textContent =
+        "This shows roughly where your body is in the spike → crash → recovery cycle for this meal.";
+    }
+
+    if (!result.hasMeal && (result.hasSugar || result.hasCaffeine)) {
+      elements.dataWarning.textContent =
+        "Tip: you entered sugar or caffeine but no meal type. Pick a rough meal above to tighten the estimate.";
+    } else {
+      elements.dataWarning.textContent = "";
+    }
+
+    elements.symptomText.textContent =
+      "Tap one that fits and we’ll tell you whether it matches the predicted crash window.";
 
     updateClockWindow(result);
   }
@@ -1314,8 +1508,8 @@
     const result = computeRisk();
     const s = Math.round(result.score);
     const t = result.effectiveTime;
-    let text = "";
 
+    let text = "";
     const inCrashWindow = t >= 40 && t <= 150;
     const lateCrash = t > 150 && t <= 210;
 
@@ -1393,7 +1587,6 @@
   // Event wiring
   // ---------------------------
   function initEvents() {
-    // Simple vs advanced mode
     elements.simpleModeBtn.addEventListener("click", () => {
       elements.simpleModeBtn.classList.add("active");
       elements.advancedModeBtn.classList.remove("active");
@@ -1410,22 +1603,18 @@
       updateScore();
     });
 
-    // Time since meal
     elements.timeRange.addEventListener("input", () => {
       elements.timeLabel.textContent = minutesLabel(elements.timeRange.value);
       updateScore();
     });
 
-    // Meal clock time
     elements.mealClockTime.addEventListener("input", () => {
       updateScore();
     });
 
-    // Sensitivity
     elements.sensitivitySelect.addEventListener("change", updateScore);
 
-    // Food search
-    elements.foodSearch.addEventListener("input", (e) => {
+    elements.foodSearch.addEventListener("input", e => {
       renderFoods(e.target.value);
     });
 
@@ -1436,7 +1625,6 @@
       updateScore();
     });
 
-    // Dessert sugar quick buttons
     document.querySelectorAll('[data-sugar]').forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll('[data-sugar]').forEach(b => b.classList.remove("active"));
@@ -1447,13 +1635,11 @@
       });
     });
 
-    // Dessert sugar exact input
     elements.simpleSugarExact.addEventListener("input", () => {
       document.querySelectorAll('[data-sugar]').forEach(b => b.classList.remove("active"));
       updateScore();
     });
 
-    // Soda buttons
     document.querySelectorAll('[data-soda-sugar]').forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll('[data-soda-sugar]').forEach(b => b.classList.remove("active"));
@@ -1464,7 +1650,6 @@
       });
     });
 
-    // Caffeine quick buttons (other caffeine)
     document.querySelectorAll('[data-caf]').forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll('[data-caf]').forEach(b => b.classList.remove("active"));
@@ -1475,13 +1660,11 @@
       });
     });
 
-    // Caffeine exact input
     elements.simpleCafExact.addEventListener("input", () => {
       document.querySelectorAll('[data-caf]').forEach(b => b.classList.remove("active"));
       updateScore();
     });
 
-    // Advanced inputs
     ["advCarbs", "advSugar", "advCaffeine", "advFiber", "advFat"].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1492,7 +1675,6 @@
       }
     });
 
-    // Info icons
     document.querySelectorAll(".info-icon-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const targetId = btn.getAttribute("data-info-target");
@@ -1503,7 +1685,6 @@
       });
     });
 
-    // Symptom buttons
     document.querySelectorAll(".symptom-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const s = btn.getAttribute("data-symptom");
@@ -1511,11 +1692,9 @@
       });
     });
 
-    // Share
     elements.shareBtn.addEventListener("click", copyShareText);
     elements.shareStripBtn.addEventListener("click", copyShareText);
 
-    // Why block (bottom only)
     function toggleWhy() {
       const visible = elements.whyText.style.display === "block";
       elements.whyText.style.display = visible ? "none" : "block";
