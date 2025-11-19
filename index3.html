@@ -7,7 +7,7 @@
   <meta name="description" content="Free, no-login calculator that estimates anxiety spikes after carbs, sugar and caffeine, based on timing and sensitivity.">
   <style>
     :root {
-      --base-font-size: 22px;
+      --base-font-size: 18px;  /* global scaling */
       --bg: #050709;
       --card: #11141a;
       --card-soft: #151923;
@@ -18,7 +18,7 @@
       --ok: #22c55e;
       --text-main: #f5f5f5;
       --text-soft: #c0c6d4;
-      --border-subtle: #252b38;
+      --border-subtle: #374151;  /* brighter border */
     }
 
     body {
@@ -31,13 +31,7 @@
     }
 
     body.large-text {
-      font-size: 26px;
-    }
-
-    body.high-contrast {
-      --card: #05070c;
-      --card-soft: #090d16;
-      --border-subtle: #2f3746;
+      font-size: 20px;  /* larger mode */
     }
 
     * {
@@ -71,7 +65,7 @@
     }
 
     h1 {
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       margin: 0;
       letter-spacing: 0.01em;
     }
@@ -81,7 +75,7 @@
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       color: var(--text-soft);
     }
 
@@ -89,14 +83,14 @@
       border-radius: 999px;
       padding: 4px 10px;
       border: 1px solid var(--border-subtle);
-      background: linear-gradient(120deg, rgba(34,197,255,0.16), rgba(15,23,42,0.4));
+      background: linear-gradient(120deg, rgba(34,197,255,0.18), rgba(15,23,42,0.5));
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
 
     .badge span.emoji {
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
 
     .controls-row {
@@ -104,7 +98,7 @@
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       color: var(--text-soft);
     }
 
@@ -125,7 +119,7 @@
       cursor: pointer;
       padding: 3px 8px;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
     }
 
     .toggle-pill button.active {
@@ -140,7 +134,7 @@
       border-radius: 10px;
       padding: 8px 12px;
       border: 1px solid var(--border-subtle);
-      background: linear-gradient(120deg, rgba(34,197,255,0.12), rgba(15,23,42,0.85));
+      background: linear-gradient(120deg, rgba(34,197,255,0.16), rgba(15,23,42,0.9));
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -155,26 +149,26 @@
     }
 
     .score-strip-label {
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       color: var(--text-soft);
     }
 
     .score-strip-value {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 600;
     }
 
     .score-strip-value span.number {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
 
     .score-strip-chip {
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       padding: 3px 9px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
+      border: 1px solid rgba(148,163,184,0.9);
       color: var(--text-soft);
-      background: rgba(15,23,42,0.8);
+      background: rgba(15,23,42,0.9);
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -194,7 +188,7 @@
       color: var(--text-soft);
       cursor: pointer;
       padding: 4px 10px;
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -219,7 +213,7 @@
 
     .card {
       border-radius: 14px;
-      background: radial-gradient(circle at top left, rgba(15,118,255,0.16), rgba(15,23,42,0.95));
+      background: radial-gradient(circle at top left, rgba(15,118,255,0.18), rgba(15,23,42,0.96));
       border: 1px solid var(--border-subtle);
       padding: 12px 12px 14px;
     }
@@ -232,7 +226,7 @@
     }
 
     .card-title {
-      font-size: 0.92rem;
+      font-size: 0.98rem;
       font-weight: 600;
       margin-bottom: 6px;
       display: flex;
@@ -241,7 +235,7 @@
     }
 
     .card-subtitle {
-      font-size: 0.78rem;
+      font-size: 0.86rem;
       color: var(--text-soft);
       margin-bottom: 10px;
     }
@@ -251,7 +245,7 @@
     }
 
     label {
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       color: var(--text-soft);
       display: inline-flex;
       align-items: center;
@@ -272,7 +266,7 @@
       border: 1px solid var(--border-subtle);
       background: rgba(15,23,42,0.96);
       color: var(--text-main);
-      font-size: 0.85rem;
+      font-size: 0.9rem;
     }
 
     input[type="range"] {
@@ -290,7 +284,7 @@
       border: 1px solid var(--border-subtle);
       background: rgba(15,23,42,0.96);
       color: var(--text-soft);
-      font-size: 0.8rem;
+      font-size: 0.86rem;
       padding: 4px 10px;
       cursor: pointer;
       display: inline-flex;
@@ -313,14 +307,14 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       background: rgba(15,23,42,0.9);
       color: var(--text-soft);
       cursor: pointer;
     }
 
     .info-text {
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
       margin-top: 4px;
       display: none;
@@ -352,7 +346,7 @@
       max-height: 220px;
       overflow-y: auto;
       padding: 6px;
-      font-size: 0.8rem;
+      font-size: 0.86rem;
     }
 
     .food-category {
@@ -360,7 +354,7 @@
     }
 
     .food-category-title {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -377,7 +371,7 @@
     }
 
     .food-row:hover {
-      background: rgba(15,118,255,0.14);
+      background: rgba(15,118,255,0.18);
     }
 
     .food-row.active {
@@ -394,29 +388,29 @@
     }
 
     .food-name {
-      font-size: 0.8rem;
+      font-size: 0.86rem;
     }
 
     .food-meta {
-      font-size: 0.72rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
     }
 
     .food-tag {
-      font-size: 0.7rem;
+      font-size: 0.78rem;
       padding: 1px 6px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
+      border: 1px solid rgba(148,163,184,0.9);
     }
 
     /* Right panel – score and timeline */
     .score-main-number {
-      font-size: 2.2rem;
+      font-size: 2.3rem;
       font-weight: 700;
     }
 
     .score-label-line {
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       color: var(--text-soft);
     }
 
@@ -426,25 +420,25 @@
       gap: 6px;
       padding: 3px 9px;
       border-radius: 999px;
-      font-size: 0.78rem;
-      border: 1px solid rgba(148,163,184,0.8);
+      font-size: 0.85rem;
+      border: 1px solid rgba(148,163,184,0.9);
     }
 
     .risk-low {
-      background: rgba(34,197,94,0.18);
-      border-color: rgba(34,197,94,0.8);
+      background: rgba(34,197,94,0.2);
+      border-color: rgba(34,197,94,0.9);
       color: #bbf7d0;
     }
 
     .risk-moderate {
-      background: rgba(250,204,21,0.18);
-      border-color: rgba(250,204,21,0.9);
+      background: rgba(250,204,21,0.2);
+      border-color: rgba(250,204,21,0.95);
       color: #fef9c3;
     }
 
     .risk-high {
-      background: rgba(248,113,113,0.18);
-      border-color: rgba(248,113,113,0.9);
+      background: rgba(248,113,113,0.2);
+      border-color: rgba(248,113,113,0.95);
       color: #fee2e2;
     }
 
@@ -481,7 +475,7 @@
     .gauge-scale {
       display: flex;
       justify-content: space-between;
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
       margin-bottom: 4px;
     }
@@ -490,7 +484,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
     }
 
@@ -501,6 +495,7 @@
       background: rgba(15,23,42,0.9);
     }
 
+    /* Crash window map (simpler, with minutes) */
     .timeline-bar {
       margin-top: 6px;
       margin-bottom: 4px;
@@ -508,11 +503,11 @@
       overflow: hidden;
       height: 14px;
       display: flex;
+      border: 1px solid var(--border-subtle);
     }
 
     .timeline-seg {
       flex: 1;
-      font-size: 0.7rem;
     }
 
     .timeline-spike {
@@ -520,11 +515,11 @@
     }
 
     .timeline-crash {
-      background: rgba(250,204,21,0.2);
+      background: rgba(250,204,21,0.25);
     }
 
     .timeline-recover {
-      background: rgba(59,130,246,0.22);
+      background: rgba(59,130,246,0.25);
     }
 
     .timeline-marker {
@@ -545,8 +540,17 @@
     .timeline-labels {
       display: flex;
       justify-content: space-between;
-      font-size: 0.72rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .timeline-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      margin-top: 2px;
     }
 
     .symptom-buttons {
@@ -562,7 +566,7 @@
       border: 1px solid var(--border-subtle);
       background: rgba(15,23,42,0.96);
       color: var(--text-soft);
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       padding: 4px 8px;
       cursor: pointer;
     }
@@ -572,7 +576,7 @@
     }
 
     .helper-text {
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
     }
 
@@ -582,7 +586,7 @@
       gap: 6px;
       margin-top: 6px;
       align-items: center;
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       color: var(--text-soft);
     }
 
@@ -591,7 +595,7 @@
       border: 1px solid var(--border-subtle);
       background: rgba(15,23,42,0.96);
       color: var(--text-main);
-      font-size: 0.8rem;
+      font-size: 0.86rem;
       padding: 5px 10px;
       cursor: pointer;
       display: inline-flex;
@@ -601,7 +605,7 @@
 
     .why-text {
       margin-top: 6px;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       color: var(--text-soft);
     }
 
@@ -614,7 +618,7 @@
         padding: 10px 10px 26px;
       }
       .score-main-number {
-        font-size: 1.9rem;
+        font-size: 2.1rem;
       }
       .food-list {
         max-height: 260px;
@@ -640,11 +644,6 @@
         <span>Text size</span>
         <button id="textNormalBtn" class="active" type="button">Normal</button>
         <button id="textLargeBtn" type="button">Larger</button>
-      </div>
-      <div class="toggle-pill">
-        <span>Contrast</span>
-        <button id="contrastOffBtn" class="active" type="button">Standard</button>
-        <button id="contrastOnBtn" type="button">Boosted</button>
       </div>
     </div>
   </header>
@@ -711,7 +710,7 @@
       <div id="simplePanel" class="card-soft" style="margin-top:10px;">
         <div class="card-title">Simple meal description</div>
         <div class="card-subtitle">
-          Pick the closest match to what you just ate. You can fine-tune sugar and caffeine below.
+          Pick the closest match to what you just ate. You can fine-tune dessert, soda, and caffeine below.
         </div>
 
         <div class="section-row">
@@ -746,13 +745,33 @@
           </div>
         </div>
 
+        <!-- Soda buttons: caffeinated vs not, small/med/large -->
         <div class="section-row">
           <label>
-            Caffeine with or around this meal
+            Soda with this meal
+            <button type="button" class="info-icon-btn" data-info-target="infoSoda">i</button>
+          </label>
+          <div class="pill-group">
+            <button type="button" class="pill-btn" data-soda-sugar="0" data-soda-caf="0">No soda</button>
+            <button type="button" class="pill-btn" data-soda-sugar="35" data-soda-caf="0">Small, no caffeine</button>
+            <button type="button" class="pill-btn" data-soda-sugar="50" data-soda-caf="0">Medium, no caffeine</button>
+            <button type="button" class="pill-btn" data-soda-sugar="65" data-soda-caf="0">Large, no caffeine</button>
+            <button type="button" class="pill-btn" data-soda-sugar="35" data-soda-caf="30">Small, caffeinated</button>
+            <button type="button" class="pill-btn" data-soda-sugar="50" data-soda-caf="45">Medium, caffeinated</button>
+            <button type="button" class="pill-btn" data-soda-sugar="65" data-soda-caf="60">Large, caffeinated</button>
+          </div>
+          <div id="infoSoda" class="info-text">
+            Soda is basically liquid sugar; caffeinated soda layers a smaller caffeine spike on top. Picking this helps the calculator set both sugar and caffeine realistically.
+          </div>
+        </div>
+
+        <div class="section-row">
+          <label>
+            Other caffeine with or around this meal
             <button type="button" class="info-icon-btn" data-info-target="infoCaffeine">i</button>
           </label>
           <div class="pill-group" style="margin-bottom:4px;">
-            <button type="button" class="pill-btn" data-caf="0">No caffeine</button>
+            <button type="button" class="pill-btn" data-caf="0">No other caffeine</button>
             <button type="button" class="pill-btn" data-caf="80">Small coffee / strong tea</button>
             <button type="button" class="pill-btn" data-caf="140">Big coffee</button>
             <button type="button" class="pill-btn" data-caf="200">Energy drink</button>
@@ -860,12 +879,19 @@
             <div class="timeline-marker-line" id="timelineMarkerLine" style="left:0%;"></div>
           </div>
           <div class="timeline-labels">
-            <span>Early / digestion</span>
-            <span>Crash / anxiety window</span>
-            <span>Recovery</span>
+            <span>0–45 min: spike building</span>
+            <span>45–150 min: crash / anxiety</span>
+            <span>150–240 min: recovery / slump</span>
+          </div>
+          <div class="timeline-scale">
+            <span>0</span>
+            <span>60</span>
+            <span>120</span>
+            <span>180</span>
+            <span>240 min</span>
           </div>
           <div id="infoTimeline" class="info-text">
-            Most symptoms are not random. Heavy carbs + sugar + caffeine usually create a spike, then a crash. This bar shows roughly where you are in that cycle.
+            Heavy carbs + sugar + caffeine rarely cause “random” feelings. They create a spike, then a crash, then a slump. This bar shows roughly where you are in that 0–240 minute cycle.
           </div>
         </div>
 
@@ -959,6 +985,8 @@
   let selectedMealId = null;
   let simpleSugarExtra = 0;
   let simpleCaffeine = 0;
+  let simpleSodaSugar = 0;
+  let simpleSodaCaf = 0;
 
   const elements = {
     simpleModeBtn: document.getElementById("simpleModeBtn"),
@@ -990,9 +1018,7 @@
     whyText: document.getElementById("whyText"),
     whyStripBtn: document.getElementById("whyStripBtn"),
     textNormalBtn: document.getElementById("textNormalBtn"),
-    textLargeBtn: document.getElementById("textLargeBtn"),
-    contrastOffBtn: document.getElementById("contrastOffBtn"),
-    contrastOnBtn: document.getElementById("contrastOnBtn")
+    textLargeBtn: document.getElementById("textLargeBtn")
   };
 
   // ---------------------------
@@ -1061,7 +1087,6 @@
 
         row.addEventListener("click", () => {
           selectedMealId = item.id;
-          // clear active first
           document.querySelectorAll(".food-row").forEach(r => r.classList.remove("active"));
           row.classList.add("active");
           updateScore();
@@ -1112,11 +1137,19 @@
         fatLevel = meal.fatLevel || 0;
         sugar = (meal.sugarBase || 0);
       }
-      const extraSugar = elements.simpleSugarExact.value !== "" ? Number(elements.simpleSugarExact.value) : simpleSugarExtra;
-      if (!isNaN(extraSugar)) sugar += extraSugar;
+      // Dessert extra sugar
+      const dessertExtra = elements.simpleSugarExact.value !== "" ?
+        Number(elements.simpleSugarExact.value) :
+        simpleSugarExtra;
+      if (!isNaN(dessertExtra)) sugar += dessertExtra;
 
-      const extraCaf = elements.simpleCafExact.value !== "" ? Number(elements.simpleCafExact.value) : simpleCaffeine;
-      caffeine = isNaN(extraCaf) ? 0 : extraCaf;
+      // Soda sugar + caffeine
+      sugar += simpleSodaSugar;
+      // Base caffeine: other caffeine (coffee/tea/energy)
+      const extraCaf = elements.simpleCafExact.value !== "" ?
+        Number(elements.simpleCafExact.value) :
+        simpleCaffeine;
+      caffeine = (isNaN(extraCaf) ? 0 : extraCaf) + simpleSodaCaf;
     }
 
     // Clamp basics
@@ -1132,28 +1165,24 @@
     // Timing curve: peak around 90 minutes, fades after ~3 hours
     const t = Math.max(0, Math.min(timeMin, 240));
     const center = 90;
-    const spread = 70; // controls width of peak
+    const spread = 70;
     const timingFactor = Math.exp(-Math.pow(t - center, 2) / (2 * spread * spread));
-    // map timing factor to something like 0.2–1.1 (never truly zero)
     const timingMultiplier = 0.2 + timingFactor * 0.9;
 
     // Fiber softens sugar/carbs impact slightly
     const fiberEffect = 1 - Math.min(0.25, fiber * 0.02); // up to 25% reduction
-    // Fat delays a bit: we will shift effective time by adding minutes
+    // Fat delays: shift effective time
     const fatDelayMinutes = fatLevel * 20;
     const effectiveTime = Math.max(0, Math.min(timeMin + fatDelayMinutes, 240));
     const t2 = effectiveTime;
     const timingFactor2 = Math.exp(-Math.pow(t2 - center, 2) / (2 * spread * spread));
     const timingMultiplierDelayed = 0.2 + timingFactor2 * 0.9;
 
-    // Combine:
     const baseSum = carbPoints + sugarPoints + caffeinePoints;
     let rawScore = baseSum * timingMultiplierDelayed * sensitivity * fiberEffect;
 
-    // Clip 0–100
     rawScore = Math.max(0, Math.min(100, rawScore));
 
-    // Contribution percentages
     const contributions = { carbs: 0, sugar: 0, caffeine: 0, timing: 0 };
     const baseTotal = carbPoints + sugarPoints + caffeinePoints;
     if (baseTotal > 0) {
@@ -1161,7 +1190,6 @@
       contributions.sugar = (sugarPoints / baseTotal) * 100;
       contributions.caffeine = (caffeinePoints / baseTotal) * 100;
     }
-    // timing / sensitivity lumped as "timing/sensitivity"
     contributions.timing = 100 - (contributions.carbs + contributions.sugar + contributions.caffeine);
 
     return {
@@ -1209,11 +1237,9 @@
     elements.stripScoreNumber.textContent = s;
     elements.stripScoreLabel.textContent = label;
 
-    // Gauge marker (0–100)
     const markerPos = Math.max(0, Math.min(100, s));
     elements.gaugeMarker.style.left = markerPos + "%";
 
-    // Risk chip
     elements.riskChip.className = riskChipClass(s);
     if (s === 0) {
       elements.riskChip.textContent = "Waiting for meal + sugar / caffeine";
@@ -1221,10 +1247,8 @@
       elements.riskChip.textContent = label + " spike right now";
     }
 
-    // Strip window label
     elements.stripWindowLabel.textContent = windowLabel(result.timeMin, result.effectiveTime);
 
-    // Breakdown
     const c = result.contributions;
     elements.breakdownRow.innerHTML = "";
     const chips = [
@@ -1240,18 +1264,14 @@
       elements.breakdownRow.appendChild(span);
     });
 
-    // Time labels
     elements.timeLabel.textContent = minutesLabel(result.timeMin);
 
-    // Timeline marker: map 0–240 min to 0–100%
     const tPercent = (Math.max(0, Math.min(result.effectiveTime, 240)) / 240) * 100;
     elements.timelineMarkerLine.style.left = tPercent + "%";
 
-    // Reset symptom text hint
     elements.symptomText.textContent = "Tap one that fits and we’ll tell you whether it matches the predicted crash window.";
   }
 
-  // Symptom analysis
   function analyzeSymptom(symptom) {
     const result = computeRisk();
     const s = Math.round(result.score);
@@ -1296,7 +1316,6 @@
     elements.symptomText.textContent = text;
   }
 
-  // Share text
   function buildShareText() {
     const r = computeRisk();
     const s = Math.round(r.score);
@@ -1324,7 +1343,6 @@
         await navigator.clipboard.writeText(text);
         elements.shareStatus.textContent = "Copied! You can paste this into Reddit, a note, or a chat.";
       } else {
-        // Fallback
         elements.shareStatus.textContent = "Copy failed: clipboard unavailable in this browser.";
         alert(text);
       }
@@ -1375,7 +1393,7 @@
       updateScore();
     });
 
-    // Sugar quick buttons
+    // Dessert sugar quick buttons
     document.querySelectorAll('[data-sugar]').forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll('[data-sugar]').forEach(b => b.classList.remove("active"));
@@ -1386,13 +1404,24 @@
       });
     });
 
-    // Sugar exact input
+    // Dessert sugar exact input
     elements.simpleSugarExact.addEventListener("input", () => {
       document.querySelectorAll('[data-sugar]').forEach(b => b.classList.remove("active"));
       updateScore();
     });
 
-    // Caffeine quick buttons
+    // Soda buttons
+    document.querySelectorAll('[data-soda-sugar]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll('[data-soda-sugar]').forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        simpleSodaSugar = Number(btn.dataset.sodaSugar || 0);
+        simpleSodaCaf = Number(btn.dataset.sodaCaf || 0);
+        updateScore();
+      });
+    });
+
+    // Caffeine quick buttons (other caffeine)
     document.querySelectorAll('[data-caf]').forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll('[data-caf]').forEach(b => b.classList.remove("active"));
@@ -1412,8 +1441,12 @@
     // Advanced inputs
     ["advCarbs", "advSugar", "advCaffeine", "advFiber", "advFat"].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener("input", updateScore);
-      if (el && el.tagName === "SELECT") el.addEventListener("change", updateScore);
+      if (!el) return;
+      if (el.tagName === "SELECT") {
+        el.addEventListener("change", updateScore);
+      } else {
+        el.addEventListener("input", updateScore);
+      }
     });
 
     // Info icons
@@ -1458,24 +1491,12 @@
       elements.textLargeBtn.classList.add("active");
       elements.textNormalBtn.classList.remove("active");
     });
-
-    // Contrast
-    elements.contrastOffBtn.addEventListener("click", () => {
-      document.body.classList.remove("high-contrast");
-      elements.contrastOffBtn.classList.add("active");
-      elements.contrastOnBtn.classList.remove("active");
-    });
-    elements.contrastOnBtn.addEventListener("click", () => {
-      document.body.classList.add("high-contrast");
-      elements.contrastOnBtn.classList.add("active");
-      elements.contrastOffBtn.classList.remove("active");
-    });
   }
 
-  // Init
   renderFoods("");
   initEvents();
   updateScore();
 </script>
 </body>
 </html>
+      
