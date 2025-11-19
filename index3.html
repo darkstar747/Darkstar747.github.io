@@ -20,6 +20,7 @@
       --accent-soft: #1d4ed8;
       --accent-green: #22c55e;
       --accent-yellow: #eab308;
+      --accent-orange: #f97316;
       --accent-red: #ef4444;
     }
 
@@ -75,7 +76,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .pill {
@@ -101,7 +102,7 @@
       }
     }
 
-    /* Right column: make inner content sticky, not the grid cell itself */
+    /* Right column: sticky inner content so it floats nicely on desktop */
     #right-column {
       align-self: flex-start;
     }
@@ -233,7 +234,8 @@
       border-color: transparent;
       font-weight: 600;
     }
-        .chip-soft {
+
+    .chip-soft {
       background: #020617;
       border-style: dashed;
     }
@@ -266,11 +268,10 @@
       border-color: transparent;
       font-weight: 600;
     }
-
-    /* scrollable meal cards area */
+        /* Scrollable meal cards area */
     .preset-grid-wrapper {
       margin-top: 6px;
-      max-height: 230px;      /* only a few rows visible; rest scrolls */
+      max-height: 230px;     /* show a few rows; rest scrolls */
       overflow-y: auto;
       padding-right: 2px;
     }
@@ -343,6 +344,7 @@
       display: inline-block;
     }
 
+    /* Gauge, knob, and breakdown */
     .gauge-bar {
       position: relative;
       height: 14px;
@@ -350,15 +352,28 @@
       background: linear-gradient(to right, #22c55e, #eab308, #ef4444);
       margin-top: 6px;
       margin-bottom: 2px;
+      overflow: visible;
     }
 
     .gauge-marker {
       position: absolute;
       top: -2px;
-      width: 2px;
       bottom: -2px;
+      width: 2px;
       background: #e5e7eb;
-      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.8);
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+    }
+
+    .gauge-knob {
+      position: absolute;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 2px solid #e5e7eb;
+      background: #020617;
+      box-shadow: 0 0 6px rgba(148, 163, 184, 0.7);
+      transform: translate(-50%, -50%);
     }
 
     .gauge-label-row {
@@ -370,11 +385,73 @@
     }
 
     .big-score {
-      font-size: 1.7rem;
+      font-size: 1.8rem;
       font-weight: 700;
       margin: 4px 0 2px;
     }
 
+    .break-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 0.78rem;
+    }
+
+    .break-item {
+      flex: 1;
+      min-width: 90px;
+      background: #020617;
+      border-radius: 8px;
+      padding: 4px 6px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .break-item-label {
+      color: var(--text-subtle);
+      font-size: 0.72rem;
+    }
+
+    .break-item-value {
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 1px;
+    }
+
+    /* Day stacking mini view */
+    .stack-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .stack-block {
+      flex: 1;
+      min-width: 110px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: #020617;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+    }
+
+    .stack-label {
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+    }
+
+    .stack-badge {
+      margin-top: 2px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 999px;
+      display: inline-block;
+      background: #020617;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    /* Timeline */
     .timeline-bar {
       position: relative;
       height: 14px;
@@ -461,6 +538,7 @@
       <div class="focus-pills">
         <span class="pill">Focus: post-meal hours, not psychology</span>
         <span class="pill">Built for sensitive gut / nervous system people</span>
+        <span class="pill">Free, browser-based, no login</span>
       </div>
     </header>
 
@@ -483,6 +561,24 @@
             <div class="field-label" style="margin-top: 8px;">
               Simple: what did the meal look like?
             </div>
+
+            <!-- NEW: portion size, affects only simple mode -->
+            <div class="field-label" style="margin-top: 2px;">Portion size</div>
+            <div class="chips-3" id="portionGroup">
+              <div class="chip-3">
+                <button type="button" data-val="light">Smaller</button>
+              </div>
+              <div class="chip-3">
+                <button type="button" data-val="normal" class="selected">Typical</button>
+              </div>
+              <div class="chip-3">
+                <button type="button" data-val="large">Larger</button>
+              </div>
+            </div>
+            <p class="subtext">
+              Portion only changes the simple preset math. Advanced mode uses your gram estimates exactly.
+            </p>
+
             <input type="text" id="mealSearch" placeholder="Search (pizza, pasta, sushi, salad, soda...)" />
             <div class="preset-grid-wrapper">
               <div class="preset-grid" id="presetGrid"></div>
@@ -512,7 +608,8 @@
             </p>
           </div>
         </div>
-                <div class="card card-tight" style="margin-top: 8px;">
+
+        <div class="card card-tight" style="margin-top: 8px;">
           <div class="section-label">Did you add dessert?</div>
           <div class="chip-row" id="dessertGroup">
             <button type="button" class="chip selected" data-dessert="none">No dessert</button>
@@ -598,8 +695,7 @@
           </p>
         </div>
       </div>
-
-      <!-- RIGHT SIDE: OUTPUTS -->
+            <!-- RIGHT SIDE: OUTPUTS -->
       <div id="right-column">
         <div id="rightSticky">
           <div class="card card-tight">
@@ -617,6 +713,7 @@
             </div>
             <div class="gauge-bar">
               <div id="gaugeMarker" class="gauge-marker" style="left:0%;"></div>
+              <div id="gaugeKnob" class="gauge-knob" style="left:0%;"></div>
             </div>
 
             <div class="big-score" id="bigScore">0 / 100</div>
@@ -628,6 +725,58 @@
             <p id="biologyLine">
               Biology says this pattern should feel fairly steady for most people.
             </p>
+
+            <div class="divider"></div>
+
+            <!-- Trigger breakdown -->
+            <div class="break-row">
+              <div class="break-item">
+                <div class="break-item-label">Carb load</div>
+                <div class="break-item-value" id="breakCarbs">0</div>
+              </div>
+              <div class="break-item">
+                <div class="break-item-label">Added sugar</div>
+                <div class="break-item-value" id="breakSugar">0</div>
+              </div>
+              <div class="break-item">
+                <div class="break-item-label">Caffeine</div>
+                <div class="break-item-value" id="breakCaff">0</div>
+              </div>
+              <div class="break-item">
+                <div class="break-item-label">Earlier day carbs</div>
+                <div class="break-item-value" id="breakDay">0</div>
+              </div>
+              <div class="break-item">
+                <div class="break-item-label">Gut sensitivity</div>
+                <div class="break-item-value" id="breakGut">0</div>
+              </div>
+              <div class="break-item">
+                <div class="break-item-label">Anxiety sensitivity</div>
+                <div class="break-item-value" id="breakAnx">0</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Day stacking mini view -->
+            <div class="stack-row">
+              <div class="stack-block">
+                <div class="stack-label">Earlier day load</div>
+                <div class="stack-badge" id="stackEarlierBadge">Medium</div>
+              </div>
+              <div class="stack-block">
+                <div class="stack-label">This plate</div>
+                <div class="stack-badge" id="stackPlateBadge">Medium</div>
+              </div>
+              <div class="stack-block">
+                <div class="stack-label">Sugar & drinks</div>
+                <div class="stack-badge" id="stackSugarBadge">Low</div>
+              </div>
+              <div class="stack-block">
+                <div class="stack-label">Sensitivity</div>
+                <div class="stack-badge" id="stackSensBadge">Medium</div>
+              </div>
+            </div>
           </div>
 
           <div class="card card-tight" style="margin-top: 8px;">
@@ -660,7 +809,8 @@
               <div id="recoveryText" class="subtext">-</div>
             </div>
           </div>
-                    <div class="card card-tight" style="margin-top: 8px;">
+
+          <div class="card card-tight" style="margin-top: 8px;">
             <h2>Quick summary</h2>
             <p id="quickSummary" class="summary-text">
               0/100 risk in the 1 to 4 hour window after this meal.
@@ -698,12 +848,12 @@
       paywalled distribution. Do not repurpose this work for any product or service that charges money.
     </footer>
   </div> <!-- end shell -->
-
-  <script>
+    <script>
     // ----- STATE -----
     const state = {
       mode: "simple",
       mealId: null,
+      portion: "normal",
       advCarbs: 60,
       advSugar: 10,
       advCaff: 0,
@@ -716,7 +866,9 @@
       mealTimeMinutes: null
     };
 
-        // ----- MEAL PRESETS -----
+    const SENS_KEY = "anxietyCalcSensitivityDefaults";
+
+    // ----- MEAL PRESETS (large menu) -----
     const mealPresets = [
       // Pasta and Italian
       { id: "pastaPlate", emoji: "🍝", name: "Plate of pasta", category: "Dinner, Italian", carbs: 80, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "High carb" },
@@ -867,6 +1019,7 @@
       { id: "otherHeavy", emoji: "🍽️", name: "Other heavy carb dinner", category: "General heavy meal", carbs: 75, fiber: 3, fatLevel: 1, sugarBase: 3, tag: "Heavy" },
       { id: "otherLight", emoji: "🥗", name: "Other lighter plate", category: "General light meal", carbs: 25, fiber: 4, fatLevel: 1, sugarBase: 2, tag: "Light to medium carb" }
     ];
+
     // ----- HELPERS -----
     function clamp(v, min, max) {
       return Math.max(min, Math.min(max, v));
@@ -885,6 +1038,12 @@
       if (label === "Moderate") return "#eab308";
       if (label === "High") return "#f97316";
       return "#ef4444";
+    }
+
+    function stackColor(level) {
+      if (level === "Low") return "#22c55e";
+      if (level === "Medium") return "#eab308";
+      return "#f97316";
     }
 
     function parseTimeToMinutes(timeStr) {
@@ -919,7 +1078,13 @@
         return "Biology says this pattern is heavy on carbs, sugar, and/or stimulants. Sensitive guts and nervous systems may feel this strongly.";
       }
     }
-        // ----- RENDER PRESETS -----
+
+    function portionFactor(portion) {
+      if (portion === "light") return 0.7;
+      if (portion === "large") return 1.3;
+      return 1.0;
+    }
+          // ----- RENDER PRESETS -----
     const presetGrid = document.getElementById("presetGrid");
     const mealSearch = document.getElementById("mealSearch");
     const selectedMealText = document.getElementById("selectedMealText");
@@ -989,6 +1154,18 @@
       computeAndUpdate();
     });
 
+    // ----- PORTION GROUP -----
+    const portionGroup = document.getElementById("portionGroup");
+    portionGroup.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-val]");
+      if (!btn) return;
+      state.portion = btn.dataset.val;
+      portionGroup.querySelectorAll("button[data-val]").forEach(b => {
+        b.classList.toggle("selected", b === btn);
+      });
+      computeAndUpdate();
+    });
+
     // ----- CHIP GROUPS -----
     function attachChipGroup(groupId, key, attrName) {
       const group = document.getElementById(groupId);
@@ -1007,6 +1184,15 @@
     attachChipGroup("caffeineGroup", "caffeine", "data-caff");
     attachChipGroup("drinkSugarGroup", "drinkSugar", "data-drink");
 
+    function updateThreeButtonGroup(groupId, key) {
+      const group = document.getElementById(groupId);
+      if (!group) return;
+      group.querySelectorAll("button[data-val]").forEach(b => {
+        const v = parseInt(b.dataset.val, 10);
+        b.classList.toggle("selected", v === state[key]);
+      });
+    }
+
     function attachThreeButtons(groupId, key) {
       const group = document.getElementById(groupId);
       group.addEventListener("click", (e) => {
@@ -1017,6 +1203,7 @@
         group.querySelectorAll("button[data-val]").forEach(b => {
           b.classList.toggle("selected", b === btn);
         });
+        saveSensitivityDefaults();
         computeAndUpdate();
       });
     }
@@ -1053,6 +1240,37 @@
       whyText.style.display = showing ? "none" : "block";
     });
 
+    // ----- LOCALSTORAGE FOR SENSITIVITY DEFAULTS -----
+    function saveSensitivityDefaults() {
+      try {
+        const payload = {
+          restCarb: state.restCarb,
+          visceral: state.visceral,
+          anxiety: state.anxiety
+        };
+        localStorage.setItem(SENS_KEY, JSON.stringify(payload));
+      } catch (e) {
+        // ignore if unavailable
+      }
+    }
+
+    function loadSensitivityDefaults() {
+      try {
+        const raw = localStorage.getItem(SENS_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (typeof data.restCarb === "number") state.restCarb = data.restCarb;
+        if (typeof data.visceral === "number") state.visceral = data.visceral;
+        if (typeof data.anxiety === "number") state.anxiety = data.anxiety;
+
+        updateThreeButtonGroup("restCarbGroup", "restCarb");
+        updateThreeButtonGroup("visceralGroup", "visceral");
+        updateThreeButtonGroup("anxietyGroup", "anxiety");
+      } catch (e) {
+        // ignore
+      }
+    }
+
     // ----- CORE MATH -----
     function getMealNumbers() {
       let carbs = 0;
@@ -1061,8 +1279,9 @@
       if (state.mode === "simple") {
         const meal = mealPresets.find(m => m.id === state.mealId);
         if (meal) {
-          carbs = meal.carbs;
-          sugar = meal.sugarBase;
+          const f = portionFactor(state.portion);
+          carbs = meal.carbs * f;
+          sugar = meal.sugarBase * f;
         }
       } else {
         carbs = state.advCarbs || 0;
@@ -1089,7 +1308,7 @@
       return { carbs, sugar, caffMg };
     }
 
-    function computeScore() {
+    function computeScoreParts() {
       const { carbs, sugar, caffMg } = getMealNumbers();
 
       // Carbs contribute up to 60
@@ -1110,7 +1329,7 @@
       raw = clamp(raw, 0, 120);
 
       const finalScore = clamp(Math.round(raw * (100 / 120)), 0, 100);
-      return finalScore;
+      return { score: finalScore, carbScore, sugarScore, caffScore, restScore, viscScore, anxScore, carbs, sugar, caffMg };
     }
 
     function computeTimeline() {
@@ -1119,33 +1338,73 @@
         const now = new Date();
         base = now.getHours() * 60 + now.getMinutes();
       }
+      // Reasonable physiology-based windows, no weird gaps
       const spikeStart = base + 30;
-      const spikeEnd = base + 75;
+      const spikeEnd = base + 90;      // 0.5–1.5h
       const crashStart = spikeEnd;
-      const crashEnd = base + 150;
+      const crashEnd = base + 165;     // 1.5–2.75h
       const recStart = crashEnd;
-      const recEnd = base + 300;
+      const recEnd = base + 285;       // up to ~4.75h
       return { spikeStart, spikeEnd, crashStart, crashEnd, recStart, recEnd };
     }
 
     // ----- UPDATE UI -----
     function computeAndUpdate() {
-      const score = computeScore();
+      const parts = computeScoreParts();
+      const score = parts.score;
       const label = scoreToLabel(score);
 
       const bigScoreEl = document.getElementById("bigScore");
       const scoreLine = document.getElementById("scoreLine");
       const scoreBadge = document.getElementById("scoreBadge");
       const gaugeMarker = document.getElementById("gaugeMarker");
+      const gaugeKnob = document.getElementById("gaugeKnob");
       const biologyLine = document.getElementById("biologyLine");
 
       bigScoreEl.textContent = `${score} / 100`;
       scoreLine.textContent = `Current score ${score} of 100`;
       scoreBadge.textContent = label;
       scoreBadge.style.background = labelColor(label);
-      gaugeMarker.style.left = `${clamp(score, 0, 100)}%`;
+
+      const percent = clamp(score, 0, 100);
+      gaugeMarker.style.left = `${percent}%`;
+      gaugeKnob.style.left = `${percent}%`;
       biologyLine.textContent = describeBiology(score);
 
+      // Breakdown numbers
+      document.getElementById("breakCarbs").textContent = Math.round(parts.carbScore);
+      document.getElementById("breakSugar").textContent = Math.round(parts.sugarScore);
+      document.getElementById("breakCaff").textContent = Math.round(parts.caffScore);
+      document.getElementById("breakDay").textContent = Math.round(parts.restScore);
+      document.getElementById("breakGut").textContent = Math.round(parts.viscScore);
+      document.getElementById("breakAnx").textContent = Math.round(parts.anxScore);
+
+      // Day stacking mini view
+      const earlierBadge = document.getElementById("stackEarlierBadge");
+      const plateBadge = document.getElementById("stackPlateBadge");
+      const sugarBadge = document.getElementById("stackSugarBadge");
+      const sensBadge = document.getElementById("stackSensBadge");
+
+      const earlierLevel = state.restCarb === 0 ? "Low" : (state.restCarb === 1 ? "Medium" : "High");
+      const plateLevel = parts.carbs < 30 ? "Low" : (parts.carbs < 70 ? "Medium" : "High");
+      const sugarLevel = parts.sugar < 10 ? "Low" : (parts.sugar < 30 ? "Medium" : "High");
+      const sensSum = state.visceral + state.anxiety; // 0–4
+      const sensLevel = sensSum <= 1 ? "Low" : (sensSum <= 3 ? "Medium" : "High");
+
+      function setStackBadge(badge, level) {
+        const c = stackColor(level);
+        badge.textContent = level;
+        badge.style.borderColor = c;
+        badge.style.backgroundColor = "rgba(15,23,42,0.95)";
+        badge.style.color = "#e5e7eb";
+      }
+
+      setStackBadge(earlierBadge, earlierLevel);
+      setStackBadge(plateBadge, plateLevel);
+      setStackBadge(sugarBadge, sugarLevel);
+      setStackBadge(sensBadge, sensLevel);
+
+      // Timeline
       const { spikeStart, spikeEnd, crashStart, crashEnd, recStart, recEnd } = computeTimeline();
       document.getElementById("spikeText").textContent =
         `${formatMinutesAsTime(spikeStart)} – ${formatMinutesAsTime(spikeEnd)}`;
@@ -1172,24 +1431,23 @@
       segRecover.style.left = `${spikePct + crashPct}%`;
       segRecover.style.width = `${recPct}%`;
 
+      // Quick summary
       const quickSummary = document.getElementById("quickSummary");
       const quickBody = document.getElementById("quickBody");
 
       quickSummary.textContent =
         `${score}/100 risk in the 1 to 4 hour window after this meal.`;
 
-      const { carbs, sugar, caffMg } = getMealNumbers();
       const pieces = [];
+      if (parts.carbs >= 70) pieces.push("heavy carb plate");
+      else if (parts.carbs >= 40) pieces.push("medium carb plate");
+      else if (parts.carbs > 0) pieces.push("lighter carb plate");
 
-      if (carbs >= 70) pieces.push("heavy carb plate");
-      else if (carbs >= 40) pieces.push("medium carb plate");
-      else if (carbs > 0) pieces.push("lighter carb plate");
+      if (parts.sugar >= 35) pieces.push("high sugar hit");
+      else if (parts.sugar >= 15) pieces.push("moderate sugar");
 
-      if (sugar >= 35) pieces.push("high sugar hit");
-      else if (sugar >= 15) pieces.push("moderate sugar");
-
-      if (caffMg >= 150) pieces.push("strong caffeine");
-      else if (caffMg >= 60) pieces.push("moderate caffeine");
+      if (parts.caffMg >= 150) pieces.push("strong caffeine");
+      else if (parts.caffMg >= 60) pieces.push("moderate caffeine");
 
       const stackDesc = pieces.length ? pieces.join(", plus ") : "light intake";
 
@@ -1199,8 +1457,8 @@
 
     // ----- INIT -----
     renderPresets();
+    loadSensitivityDefaults();
     computeAndUpdate();
   </script>
 </body>
 </html>
-        
