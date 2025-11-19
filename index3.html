@@ -458,9 +458,31 @@
       </p>
     </div>
 
-    <div class="app-grid">
+        <div class="app-grid">
       <!-- LEFT COLUMN -->
       <div id="left-column">
+
+        <!-- TIMING (TOP LEFT) -->
+        <div class="card">
+          <div class="card-title">Timing</div>
+          <p class="card-subtitle">
+            The model assumes a ~4 hour (240 min) wave: spike → crash → recovery.
+          </p>
+
+          <label class="input-label">What time did you finish this meal?</label>
+          <input id="mealTimeInput" type="time" />
+
+          <label class="input-label" style="margin-top:12px;">
+            Roughly how long has it been since you finished eating?
+          </label>
+          <input id="minutesSinceMealRange" type="range" min="0" max="240" value="0" />
+          <div id="minutesSinceLabel"
+               style="font-size:12px; color:var(--text-soft); margin-top:2px;">
+            0 minutes since meal.
+          </div>
+        </div>
+
+        <!-- WHAT DID YOU EAT (MEAL SELECTOR) -->
         <div class="card">
           <div class="card-title">Simple: what did this meal look like?</div>
           <p class="card-subtitle">
@@ -480,7 +502,8 @@
 
           <div id="foodGrid" class="food-grid"></div>
         </div>
-                <!-- DESSERT + DRINKS -->
+
+        <!-- DESSERT + DRINKS -->
         <div class="card">
           <div class="card-title">Dessert and drinks</div>
 
@@ -534,28 +557,28 @@
             <button class="pill anxBtn" data-anx="2">High</button>
           </div>
         </div>
+      </div>
 
-        <!-- TIMING -->
-        <div class="card">
-          <div class="card-title">Timing</div>
-          <p class="card-subtitle">
-            The model assumes a ~4 hour (240 min) wave: spike → crash → recovery.
-          </p>
+      <!-- RIGHT COLUMN -->
+      <div id="right-column">
 
-          <label class="input-label">What time did you finish this meal?</label>
-          <input id="mealTimeInput" type="time" />
+        <!-- CURRENT SCORE (TOP RIGHT) -->
+        <div class="score-card">
+          <div class="risk-title">Current projected score</div>
+          <div id="riskScore" class="risk-score">0</div>
+          <div id="riskLabel" class="risk-label">Very low wave activity right now.</div>
 
-          <label class="input-label" style="margin-top:12px;">
-            Roughly how long has it been since you finished eating?
-          </label>
-          <input id="minutesSinceMealRange" type="range" min="0" max="240" value="0" />
-          <div id="minutesSinceLabel"
-               style="font-size:12px; color:var(--text-soft); margin-top:2px;">
-            0 minutes since meal.
+          <div class="risk-bar-container">
+            <div class="risk-bar-track"></div>
+            <div id="riskBarFill" class="risk-bar-fill"></div>
+
+            <div id="markerLane">
+              <div id="youAreHereMarker">You are here</div>
+            </div>
           </div>
         </div>
 
-        <!-- TIMELINE -->
+        <!-- SPIKE → CRASH → RECOVERY TIMELINE (MOVED TO RIGHT) -->
         <div class="card timeline-card">
           <div class="card-title">Spike → Crash → Recovery timeline</div>
           <p class="card-subtitle">
@@ -593,25 +616,6 @@
             </div>
           </div>
         </div>
-      </div>
-            <!-- RIGHT COLUMN -->
-      <div id="right-column">
-
-        <!-- SCORE CARD -->
-        <div class="score-card">
-          <div class="risk-title">Current projected score</div>
-          <div id="riskScore" class="risk-score">0</div>
-          <div id="riskLabel" class="risk-label">Very low wave activity right now.</div>
-
-          <div class="risk-bar-container">
-            <div class="risk-bar-track"></div>
-            <div id="riskBarFill" class="risk-bar-fill"></div>
-
-            <div id="markerLane">
-              <div id="youAreHereMarker">You are here</div>
-            </div>
-          </div>
-        </div>
 
         <!-- CRASH WINDOW -->
         <div class="crash-window">
@@ -642,8 +646,6 @@
         </div>
       </div> <!-- end right-column -->
     </div> <!-- end grid -->
-  </div> <!-- end shell -->
-
   <!-- SCRIPT -->
   <script>
     /* ---------- STATE ---------- */
