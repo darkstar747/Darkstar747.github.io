@@ -99,6 +99,20 @@
       .app-grid {
         grid-template-columns: minmax(0, 1fr);
       }
+          /* Make the right column float / stay visible while scrolling */
+    #right-column {
+      position: sticky;
+      top: 10px;          /* distance from top of the screen */
+      align-self: flex-start;
+      height: fit-content;
+    }
+
+    /* Turn off sticky on smaller screens so it does not act weird */
+    @media (max-width: 950px) {
+      #right-column {
+        position: static;
+      }
+    }
     }
 
     .card {
