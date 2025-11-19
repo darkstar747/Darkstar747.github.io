@@ -99,19 +99,24 @@
       .app-grid {
         grid-template-columns: minmax(0, 1fr);
       }
-          /* Make the right column float / stay visible while scrolling */
-    #right-column {
-      position: sticky;
-      top: 10px;          /* distance from top of the screen */
-      align-self: flex-start;
-      height: fit-content;
-    }
+      /* Right column: let inner content be sticky */
+#right-column {
+  align-self: flex-start;
+}
 
-    /* Turn off sticky on smaller screens so it does not act weird */
-    @media (max-width: 950px) {
-      #right-column {
-        position: static;
-      }
+/* The actual sticky container inside the right column */
+#rightSticky {
+  position: sticky;
+  top: 10px;          /* distance from top of the screen */
+  height: fit-content;
+}
+
+/* Turn off sticky on smaller screens so it does not act weird */
+@media (max-width: 950px) {
+  #rightSticky {
+    position: static;
+  }
+}
     }
     }
 
