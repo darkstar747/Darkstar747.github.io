@@ -155,7 +155,7 @@
       flex-direction: column;
       gap: 3px;
       font-size: 12px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .slider-group label {
       display: flex;
@@ -163,9 +163,32 @@
       font-size: 11px;
       color: #b3b7d2;
     }
-    .slider-group input[type="range"] {
+
+    /* Bigger sliders for iPad */
+    input[type="range"] {
       width: 100%;
+      height: 26px;
+      cursor: pointer;
+      background: transparent;
     }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      background: #2b3147;
+      border-radius: 3px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #2f7df6;
+      border: 2px solid #ffffff33;
+      margin-top: -7px;
+    }
+    input[type="range"]:focus {
+      outline: none;
+    }
+
     .mini-label {
       font-size: 10px;
       color: #7e84a8;
@@ -288,22 +311,7 @@
 
       <!-- IBS panel -->
       <div id="ibsPanel">
-        <!-- Quick actions -->
-        <div class="panel">
-          <h3>Quick actions</h3>
-          <div class="btn-row">
-            <button class="btn" onclick="preset('log_today')">Log today</button>
-            <button class="btn" onclick="preset('insight')">Show pattern</button>
-            <button class="btn" onclick="preset('forecast')">Forecast tomorrow</button>
-          </div>
-          <div class="btn-row" style="margin-top:4px;">
-            <button class="btn" onclick="preset('explain')">Explain my system</button>
-            <button class="btn" onclick="preset('driving')">What is driving today?</button>
-            <button class="btn" onclick="preset('questions')">Ask me questions</button>
-          </div>
-        </div>
-
-        <!-- State sliders -->
+        <!-- State sliders first -->
         <div class="panel">
           <h3>State sliders</h3>
           <div class="slider-group">
@@ -335,8 +343,23 @@
             <input type="range" id="anx" min="0" max="10" value="3" oninput="updateLabel('anx')">
           </div>
           <p class="mini-label">
-            These describe how your nervous system feels right now. In a full version this is what the logic or AI would use to estimate sensitivity and predict mornings.
+            Set these to match how your body and nervous system feel right now.
           </p>
+        </div>
+
+        <!-- Quick actions now come after sliders -->
+        <div class="panel">
+          <h3>What do you want to do?</h3>
+          <div class="btn-row">
+            <button class="btn" onclick="preset('log_today')">Log today</button>
+            <button class="btn" onclick="preset('insight')">Show pattern</button>
+            <button class="btn" onclick="preset('forecast')">Forecast tomorrow</button>
+          </div>
+          <div class="btn-row" style="margin-top:4px;">
+            <button class="btn" onclick="preset('explain')">Explain my system</button>
+            <button class="btn" onclick="preset('driving')">What is driving today?</button>
+            <button class="btn" onclick="preset('questions')">Ask me questions</button>
+          </div>
         </div>
 
         <!-- Tonight timing + last meal (IBS mode) -->
@@ -424,7 +447,7 @@
           <h3>Anxiety quick actions</h3>
           <div class="btn-row">
             <button class="btn" onclick="anxAction('log')">Log anxiety day</button>
-            <button class="btn" onclick="anxAction('forecast')">Estimate crash window</button>
+            <button class="btn" onclick="anxAction('forecast')">Show spike / crash time</button>
           </div>
           <div class="btn-row" style="margin-top:4px;">
             <button class="btn" onclick="anxAction('explain')">Explain today</button>
@@ -827,8 +850,30 @@
       }
 
       if (type === 'forecast') {
-        addMessage('You', 'Estimate crash window.');
-        let msg = 'Based on today’s inputs this looks like a mild to moderate crash risk rather than a full spike and crash day.';
+        addMessage('You', 'Show spike / crash time.');
+
+        // Basic risk score
+        let score = 0;
+        if (sugar >= 6) score++;
+        if (caf >= 5) score++;
+        if (sleep <= 4) score++;
+        if (sens >= 7) score++;
+
+        let risk = 'Low';
+        if (score === 2) risk = 'Moderate';
+        if (score >= 3) risk = 'High';
+
+        // Main driver
+        let driver = 'mixed factors';
+        if (sugar >= 7 && caf >= 5) {
+          driver = 'big sugar plus caffeine load';
+        } else if (sugar >= 6 && caf <= 3) {
+          driver = 'heavier carbs with low caffeine';
+        } else if (sugar <= 3 && caf >= 7) {
+          driver = 'caffeine more than sugar';
+        } else if (sleep <= 4 && sens >= 7) {
+          driver = 'thin sleep and high sensitivity';
+        }
 
         let spikeStart = null;
         let spikeEnd = null;
@@ -836,48 +881,44 @@
         let crashEnd = null;
 
         if (hitTime != null) {
-          // Base windows in minutes relative to hit time
+          // Shape the windows based on sugar and caffeine
           if (sugar >= 7 && caf >= 5) {
-            // Strong sugar + caffeine: sharper spike and crash
             spikeStart = hitTime + 30;
             spikeEnd = hitTime + 90;
             crashStart = hitTime + 120;
             crashEnd = hitTime + 240;
-            msg = 'High sugar and noticeable caffeine give you a strong chance of a clear spike and crash pattern today.';
           } else if (sugar >= 6 && caf <= 3) {
-            // Sugar heavier, caffeine mild
             spikeStart = hitTime + 60;
             spikeEnd = hitTime + 120;
             crashStart = hitTime + 180;
             crashEnd = hitTime + 300;
-            msg = 'Sugar and carbs are moderate to high with low caffeine, so this is more of a slow climb then slow dip rather than a sharp wired then crash day.';
           } else if (sugar <= 3 && caf >= 7) {
-            // Mostly caffeine driven
             spikeStart = hitTime + 30;
             spikeEnd = hitTime + 90;
             crashStart = hitTime + 180;
             crashEnd = hitTime + 300;
-            msg = 'Caffeine is carrying most of the load, so any crash will likely follow a few hours after the caffeine peak rather than the sugar itself.';
           } else {
-            // Mixed moderate inputs
             spikeStart = hitTime + 60;
             spikeEnd = hitTime + 150;
             crashStart = hitTime + 180;
             crashEnd = hitTime + 300;
-            msg = 'Today looks like a moderate spike and drift-down pattern rather than an extreme crash day.';
           }
         }
 
-        if (sleep <= 4 || sens >= 7) {
-          msg += ' Poor sleep or a high baseline sensitivity makes whatever spike or crash happens feel louder and more anxiety colored than it really is.';
-        }
+        let msg = `Crash risk: ${risk}.`;
 
         if (hitTime != null && spikeStart != null && crashStart != null) {
           const spikeWindow = `${minutesToClockString(spikeStart)} to ${minutesToClockString(spikeEnd)}`;
           const crashWindow = `${minutesToClockString(crashStart)} to ${minutesToClockString(crashEnd)}`;
-          msg += ` For your inputs today, the likely spike window is about ${spikeWindow}, and the likely crash or flat window is about ${crashWindow}.`;
+          msg += ` Spike window: ${spikeWindow}. Crash window: ${crashWindow}.`;
         } else {
-          msg += ' If you add a main carb or sugar time, I can give you a more specific spike and crash window.';
+          msg += ' Add a main carb or sugar time to see a more precise spike and crash window.';
+        }
+
+        msg += ` Main driver: ${driver}.`;
+
+        if (sleep <= 4 || sens >= 7) {
+          msg += ' Because sleep was rough or sensitivity is high, whatever lands in that crash window is likely to feel louder than it really is.';
         }
 
         addMessage('App', msg);
@@ -939,5 +980,3 @@
   </script>
 </body>
 </html>
-  
-    
