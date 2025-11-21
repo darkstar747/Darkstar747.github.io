@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Body Rhythm Console - Beta v0.1</title>
+  <title>Body Rhythm Console - Beta v0.2</title>
   <style>
     body {
       margin: 0;
@@ -220,6 +220,7 @@
         <div class="btn-row" style="margin-top:4px;">
           <button class="btn" onclick="preset('explain')">Explain my system</button>
           <button class="btn" onclick="preset('driving')">What is driving today?</button>
+          <button class="btn" onclick="preset('questions')">Ask me questions</button>
         </div>
       </div>
 
@@ -255,7 +256,7 @@
           <input type="range" id="anx" min="0" max="10" value="3" oninput="updateLabel('anx')">
         </div>
         <p class="mini-label">
-          These describe how your nervous system feels right now. In the real version this is what the AI uses to estimate sensitivity and predict mornings.
+          These describe how your nervous system feels right now. In the full version this is what the AI uses to estimate sensitivity and predict mornings.
         </p>
       </div>
 
@@ -428,6 +429,34 @@
         } else {
           addMessage('App', `The main drivers tonight look like: ${drivers.join(', ')}. Those are the knobs that usually change your sensitivity the most.`);
         }
+      }
+
+      if (type === 'questions') {
+        addMessage('You', 'Ask me some narrowing questions.');
+
+        const qs = [];
+
+        if (drinkGap !== null && drinkGap < 75) {
+          qs.push('Your last drink is fairly close to magnesium. On nights like this, have your worst or softest mornings usually happened, or does it feel random?');
+        }
+        if (shoulder >= 7) {
+          qs.push('With shoulder tension this high, do you usually notice more left side gut awareness or splenic flexure style pressure the next morning?');
+        }
+        if (anx >= 6) {
+          qs.push('When anxiety is this elevated, do you tend to feel the anxiety first and then the gut reacts, or does the gut flare first and your mind responds after?');
+        }
+        if (stress >= 6 && anx < 6) {
+          qs.push('Stress is high but anxiety is a bit lower. Does your body hold this mostly in muscle tension, or does your gut join in too on days like this?');
+        }
+        if (gut <= 4) {
+          qs.push('Gut comfort is low. Would you describe it more as sharp pain, pressure, bloating, or just hypersensitive awareness where everything inside feels “too loud”?');
+        }
+
+        if (qs.length === 0) {
+          qs.push('Nothing jumps out as a clear driver from the sliders alone. If you had to guess, what part of today feels most off: timing, stress, sleep, or body tension?');
+        }
+
+        qs.forEach(q => addMessage('App', q));
       }
     }
   </script>
