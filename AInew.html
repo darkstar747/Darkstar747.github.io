@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Body Rhythm Console - Beta v0.7</title>
+  <title>Body Rhythm Console - Beta</title>
   <style>
     body {
       margin: 0;
@@ -275,8 +275,7 @@
         <button onclick="sendChat()">Send</button>
       </div>
     </div>
-
-    <!-- Controls side -->
+        <!-- Controls side -->
     <div class="controls">
       <!-- Mode toggle -->
       <div class="panel">
@@ -336,11 +335,11 @@
             <input type="range" id="anx" min="0" max="10" value="3" oninput="updateLabel('anx')">
           </div>
           <p class="mini-label">
-            These describe how your nervous system feels right now. In a full version this is what the AI would use to estimate sensitivity and predict mornings.
+            These describe how your nervous system feels right now. In a full version this is what the logic or AI would use to estimate sensitivity and predict mornings.
           </p>
         </div>
 
-        <!-- Tonight timing + last meal -->
+        <!-- Tonight timing + last meal (IBS mode) -->
         <div class="panel">
           <h3>Tonight's timing</h3>
           <div class="time-grid">
@@ -370,17 +369,15 @@
             </label>
             <label class="full-span">
               Last meal eaten
-              <textarea id="ibsMeal" placeholder="Chicken and rice, burger, salad, pasta, etc..."></textarea>
+              <textarea id="ibsMeal" style="min-height:32px;"
+                placeholder="Chicken and rice, cereal + banana, salad, pizza..."></textarea>
             </label>
           </div>
-          <div class="tag-row">
-            <span class="tag">Timing focused</span>
-            <span class="tag">Vagus aware</span>
-            <span class="tag">Morning stability</span>
-          </div>
+          <p class="mini-label">
+            Keep it simple. You do not need grams, just a quick description of the last plate.
+          </p>
         </div>
-
-        <!-- Morning outcome -->
+                <!-- Morning outcome -->
         <div class="panel">
           <h3>Morning outcome</h3>
           <div class="time-grid">
@@ -464,7 +461,7 @@
             </label>
             <label class="full-span">
               Foods and notes
-              <textarea id="anxFoods" placeholder="Small bowl of cereal, banana, two cookies, late soda, etc..."></textarea>
+              <textarea id="anxFoods" placeholder="Small bowl of cereal, 2 cookies, soda before bed, etc..."></textarea>
             </label>
           </div>
           <p class="mini-label">
@@ -474,8 +471,7 @@
       </div>
     </div>
   </div>
-
-  <script>
+    <script>
     const HISTORY_KEY = 'brcHistory_v1';
     let currentMode = 'ibs';
 
@@ -515,7 +511,7 @@
       addMessage('You', text);
       input.value = '';
       setTimeout(() => {
-        addMessage('App', 'In the full version this text would be interpreted alongside your sliders, timing, and outcome so the AI can learn your patterns.');
+        addMessage('App', 'In the full version this text would be interpreted alongside your sliders, timing, and outcome so the system can learn your patterns.');
       }, 400);
     }
 
@@ -892,7 +888,9 @@
       }
     }
 
+    // initial history render
     renderHistory();
   </script>
 </body>
 </html>
+  
