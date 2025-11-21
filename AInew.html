@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Body Rhythm Console - Beta v0.4</title>
+  <title>Body Rhythm Console - Beta v0.5</title>
   <style>
     body {
       margin: 0;
@@ -14,8 +14,8 @@
     }
     .console {
       margin: auto;
-      width: min(980px, 100vw - 20px);
-      height: min(640px, 100vh - 20px);
+      width: min(1150px, 95vw);
+      height: min(720px, 92vh);
       border-radius: 24px;
       border: 2px solid #313446;
       display: grid;
@@ -186,6 +186,20 @@
       color: #aab0d5;
     }
 
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 4px 0 0 0;
+      font-size: 11px;
+      color: #c5c9e5;
+    }
+    .history-list li {
+      margin-bottom: 4px;
+    }
+    .history-label {
+      font-weight: 600;
+    }
+
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -197,7 +211,7 @@
       border-radius: 3px;
     }
 
-    /* Basic responsive tweak */
+    /* Stack on small screens */
     @media (max-width: 800px) {
       .console {
         grid-template-columns: 1fr;
@@ -348,13 +362,26 @@
           </label>
         </div>
         <p class="mini-label">
-          This is what actually happened in the morning. Later, this feeds back into pattern detection so you can see how last night’s timing and state match your outcomes.
+          This is what actually happened in the morning. Later, this feeds into pattern detection so you can see how last night’s timing and state match your outcomes.
+        </p>
+      </div>
+
+      <!-- Recent days -->
+      <div class="panel">
+        <h3>Recent days</h3>
+        <ul id="historyList" class="history-list">
+          <!-- filled by JS -->
+        </ul>
+        <p class="mini-label">
+          These are quick summaries saved on this device only. They show how your last few evenings and mornings fit into stable, sensitive, or in-between patterns.
         </p>
       </div>
     </div>
   </div>
 
   <script>
+    const HISTORY_KEY = 'brcHistory_v1';
+
     function addMessage(sender, text) {
       const box = document.getElementById('chatMessages');
       const div = document.createElement('div');
@@ -405,6 +432,76 @@
       return h * 60 + m;
     }
 
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (!raw) return [];
+        const data = JSON.parse(raw);
+        return Array.isArray(data) ? data : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHistory(list) {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+    }
+
+    function renderHistory() {
+      const list = loadHistory();
+      const ul = document.getElementById('historyList');
+      ul.innerHTML = '';
+      if (!list.length) {
+        const li = document.createElement('li');
+        li.textContent = 'No days logged yet.';
+        ul.appendChild(li);
+        return;
+      }
+      list.slice(-7).reverse().forEach(entry => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="history-label">${entry.dayLabel}</span> · ${entry.label} · driver: ${entry.driver}`;
+        ul.appendChild(li);
+      });
+    }
+
+    function classifyDay(info) {
+      const { drinkGap, stress, anx, shoulder, gut, bmForm, bmPain } = info;
+
+      let label = 'Recovery / mixed';
+
+      if (
+        drinkGap != null && drinkGap >= 90 &&
+        stress <= 4 && anx <= 4 &&
+        shoulder <= 5 &&
+        gut >= 6 &&
+        bmPain <= 2 &&
+        bmForm >= 3 && bmForm <= 5
+      ) {
+        label = 'Stable';
+      } else if (
+        bmForm >= 6 ||
+        bmPain >= 5 ||
+        (drinkGap != null && drinkGap < 60) ||
+        stress >= 7 ||
+        anx >= 7
+      ) {
+        label = 'Sensitive';
+      }
+
+      // main driver text
+      const drivers = [];
+      if (drinkGap != null && drinkGap < 75) drivers.push('late/tight drink gap');
+      if (stress >= 6) drivers.push('high stress');
+      if (anx >= 6) drivers.push('high anxiety');
+      if (shoulder >= 6) drivers.push('shoulder/neck tension');
+      if (bmForm >= 6) drivers.push('soft/watery form');
+      if (bmPain >= 5) drivers.push('higher pain');
+
+      const driver = drivers[0] || 'no single dominant factor';
+
+      return { label, driver };
+    }
+
     function preset(type) {
       const stress = +document.getElementById('stress').value;
       const shoulder = +document.getElementById('shoulder').value;
@@ -419,7 +516,7 @@
       const tWake = timeToMinutes('wakeTime');
 
       const tBm = timeToMinutes('bmTime');
-      const bmForm = document.getElementById('bmForm').value;
+      const bmForm = +document.getElementById('bmForm').value;
       const bmPain = +document.getElementById('bmPain').value;
 
       const drinkGap = tMag != null && tDrink != null ? tMag - tDrink : null;
@@ -430,9 +527,37 @@
           'You',
           `Log today: stress=${stress}, shoulder=${shoulder}, gut=${gut}, anxiety=${anx}, BM form=${bmForm}, BM pain=${bmPain}.`
         );
+
+        const classification = classifyDay({
+          drinkGap,
+          stress,
+          anx,
+          shoulder,
+          gut,
+          bmForm,
+          bmPain
+        });
+
+        const today = new Date();
+        const dayLabel = today.toLocaleDateString(undefined, {
+          weekday: 'short',
+          month: 'numeric',
+          day: 'numeric'
+        });
+
+        const history = loadHistory();
+        history.push({
+          dayLabel,
+          label: classification.label,
+          driver: classification.driver
+        });
+        const trimmed = history.slice(-14); // keep last 14 days
+        saveHistory(trimmed);
+        renderHistory();
+
         addMessage(
           'App',
-          'Logged this state and outcome. In a full build this would be stored and used to refine your personal rhythm model over time.'
+          `Logged as a "${classification.label}" day with main driver: ${classification.driver}. In a full build this history would be used to refine your personal rhythm model over time.`
         );
       }
 
@@ -452,11 +577,10 @@
           msg = 'Today looks mixed. Nothing screams disaster, but sensitivity is a bit elevated. Small improvements in cutoff or evening calm will likely pay off tomorrow.';
         }
 
-        // Light mention of outcome if available
         if (tBm != null) {
           if (bmForm >= 6) {
-            msg += ' This morning’s form suggests your system is still on the softer side. Often that tracks back to either a tight drink gap or a bit more nervous system load than ideal.';
-          } else if (bmForm === '4' && bmPain <= 2) {
+            msg += ' This morning’s form suggests your system is still on the softer side. Often that tracks back to either a tight drink gap or more nervous system load than ideal.';
+          } else if (bmForm === 4 && bmPain <= 2) {
             msg += ' The morning outcome you logged (smooth form and low pain) fits your more stable pattern, which is a good sign that your timing is on the right track.';
           }
         }
@@ -491,18 +615,10 @@
         addMessage('You', 'What is driving today?');
         let drivers = [];
 
-        if (drinkGap !== null && drinkGap < 75) {
-          drivers.push('tight last drink to magnesium gap');
-        }
-        if (shoulder >= 6) {
-          drivers.push('shoulder and neck tension');
-        }
-        if (anx >= 6) {
-          drivers.push('anxiety level');
-        }
-        if (stress >= 6) {
-          drivers.push('overall stress load');
-        }
+        if (drinkGap !== null && drinkGap < 75) drivers.push('tight last drink to magnesium gap');
+        if (shoulder >= 6) drivers.push('shoulder and neck tension');
+        if (anx >= 6) drivers.push('anxiety level');
+        if (stress >= 6) drivers.push('overall stress load');
 
         if (drivers.length === 0) {
           addMessage(
@@ -545,6 +661,9 @@
         qs.forEach(q => addMessage('App', q));
       }
     }
+
+    // initial render of history on load
+    renderHistory();
   </script>
 </body>
 </html>
