@@ -347,21 +347,6 @@
           </p>
         </div>
 
-        <!-- Quick actions now come after sliders -->
-        <div class="panel">
-          <h3>What do you want to do?</h3>
-          <div class="btn-row">
-            <button class="btn" onclick="preset('log_today')">Log today</button>
-            <button class="btn" onclick="preset('insight')">Show pattern</button>
-            <button class="btn" onclick="preset('forecast')">Forecast tomorrow</button>
-          </div>
-          <div class="btn-row" style="margin-top:4px;">
-            <button class="btn" onclick="preset('explain')">Explain my system</button>
-            <button class="btn" onclick="preset('driving')">What is driving today?</button>
-            <button class="btn" onclick="preset('questions')">Ask me questions</button>
-          </div>
-        </div>
-
         <!-- Tonight timing + last meal (IBS mode) -->
         <div class="panel">
           <h3>Tonight's timing</h3>
@@ -379,7 +364,7 @@
               <input type="time" id="drinkTime" value="21:30">
             </label>
             <label>
-              Magnesium
+              Magnesium glycinate
               <input type="time" id="magTime" value="23:00">
             </label>
             <label>
@@ -399,6 +384,21 @@
           <p class="mini-label">
             Keep it simple. You do not need grams, just a quick description of the last plate.
           </p>
+        </div>
+
+        <!-- Quick actions now come after timing -->
+        <div class="panel">
+          <h3>What do you want to do?</h3>
+          <div class="btn-row">
+            <button class="btn" onclick="preset('log_today')">Log today</button>
+            <button class="btn" onclick="preset('insight')">Show pattern</button>
+            <button class="btn" onclick="preset('forecast')">Forecast tomorrow</button>
+          </div>
+          <div class="btn-row" style="margin-top:4px;">
+            <button class="btn" onclick="preset('explain')">Explain my system</button>
+            <button class="btn" onclick="preset('driving')">What is driving today?</button>
+            <button class="btn" onclick="preset('questions')">Ask me questions</button>
+          </div>
         </div>
 
         <!-- Morning outcome -->
@@ -488,13 +488,13 @@
             </label>
           </div>
           <p class="mini-label">
-            This side aims at timing based anxiety and crash patterns. It treats carbs, sugar, caffeine, sleep, and baseline sensitivity as one system instead of separate problems.
+            In the full version, this foods box will feed the AI so it can estimate how heavy the sugar / carb load was and fold it into the spike and crash timing.
           </p>
         </div>
       </div>
     </div>
   </div>
-    <script>
+        <script>
     const HISTORY_KEY = 'brcHistory_v1';
     let currentMode = 'ibs';
 
@@ -656,7 +656,7 @@
       }
 
       const drivers = [];
-      if (drinkGap != null && drinkGap < 75) drivers.push('late/tight drink gap');
+      if (drinkGap != null && drinkGap < 75) drivers.push('late/tight last drink to magnesium glycinate gap');
       if (stress >= 6) drivers.push('high stress');
       if (anx >= 6) drivers.push('high anxiety');
       if (shoulder >= 6) drivers.push('shoulder/neck tension');
@@ -736,20 +736,20 @@
         let msg;
 
         if (drinkGap !== null && drinkGap < 75) {
-          msg = 'Your last drink is fairly close to magnesium. On systems like yours, mornings tend to be softer or more unpredictable when the gap is under about 75 to 90 minutes.';
+          msg = 'Your last drink is fairly close to magnesium glycinate. On systems like yours, mornings tend to be softer or more unpredictable when the gap is under about 75 to 90 minutes.';
         } else if (shoulder >= 7) {
           msg = 'Shoulder tension is high. On days like this, splenic flexure and left side sensitivity often show up even if digestion itself is fine. This is more nervous system than gut tissue.';
         } else if (anx >= 6 && stress >= 6) {
           msg = 'Both stress and anxiety are elevated. That usually raises your internal volume knob and makes normal sensations feel louder, even when timing is decent.';
         } else if (gut >= 7 && stress <= 3 && (drinkGap === null || drinkGap >= 90)) {
-          msg = 'This looks close to your stable rhythm: decent gut comfort, low stress, and a solid gap between last drink and magnesium. That is usually a strong setup for a predictable morning.';
+          msg = 'This looks close to your stable rhythm: decent gut comfort, low stress, and a solid gap between last drink and magnesium glycinate. That is usually a strong setup for a predictable morning.';
         } else {
           msg = 'Today looks mixed. Nothing screams disaster, but sensitivity is a bit elevated. Small improvements in cutoff or evening calm will likely pay off tomorrow.';
         }
 
         if (tBm != null) {
           if (bmForm >= 6) {
-            msg += ' This morning’s form suggests your system is still on the softer side. Often that tracks back to either a tight drink gap or more nervous system load than ideal.';
+            msg += ' This morning’s form suggests your system is still on the softer side. Often that tracks back to either a tight last drink to magnesium glycinate gap or more nervous system load than ideal.';
           } else if (bmForm === 4 && bmPain <= 2) {
             msg += ' The morning outcome you logged (smooth form and low pain) fits your more stable pattern, which is a good sign that your timing is on the right track.';
           }
@@ -766,7 +766,7 @@
         if (drinkGap !== null && drinkGap >= 90 && stress <= 3 && anx <= 3 && shoulder <= 4 && gut >= 6) {
           msg = 'This is one of your stronger setups. I would expect a single mostly solid morning BM, low pain, and a quieter nervous system overall.';
         } else if (drinkGap !== null && drinkGap < 60) {
-          msg = 'Tomorrow has a higher chance of a soft or partly watery morning, mostly due to the tight drink to magnesium gap. Not dangerous, just less stable.';
+          msg = 'Tomorrow has a higher chance of a soft or partly watery morning, mostly due to the tight last drink to magnesium glycinate gap. Not dangerous, just less stable.';
         } else if (anx >= 7 || stress >= 7) {
           msg = 'Tomorrow may feel louder in your body even if the gut behaves. Expect more internal noise, mostly driven by nervous system state rather than true gut trouble.';
         }
@@ -777,7 +777,7 @@
       if (type === 'explain') {
         addMessage('You', 'Explain my system.');
         const msg =
-          'You have a timing sensitive, nervous system heavy pattern. Evenings with calmer stress, lower shoulder tension, and a clear cutoff between last drink and magnesium usually give you stable mornings. When stress, anxiety, or shoulder tension run high, your sensitivity goes up even if nothing is “wrong” in the gut itself.';
+          'You have a timing sensitive, nervous system heavy pattern. Evenings with calmer stress, lower shoulder tension, and a clear cutoff between last drink and magnesium glycinate usually give you stable mornings. When stress, anxiety, or shoulder tension run high, your sensitivity goes up even if nothing is “wrong” in the gut itself.';
         addMessage('App', msg);
       }
 
@@ -785,7 +785,7 @@
         addMessage('You', 'What is driving today?');
         let drivers = [];
 
-        if (drinkGap !== null && drinkGap < 75) drivers.push('tight last drink to magnesium gap');
+        if (drinkGap !== null && drinkGap < 75) drivers.push('tight last drink to magnesium glycinate gap');
         if (shoulder >= 6) drivers.push('shoulder and neck tension');
         if (anx >= 6) drivers.push('anxiety level');
         if (stress >= 6) drivers.push('overall stress load');
@@ -809,7 +809,7 @@
         const qs = [];
 
         if (drinkGap !== null && drinkGap < 75) {
-          qs.push('Your last drink is fairly close to magnesium. On nights like this, have your worst or softest mornings usually happened, or does it still feel random to you?');
+          qs.push('Your last drink is fairly close to magnesium glycinate. On nights like this, have your worst or softest mornings usually happened, or does it still feel random to you?');
         }
         if (shoulder >= 7) {
           qs.push('With shoulder tension this high, do you usually notice more left side gut awareness or splenic flexure style pressure either that night or the next morning?');
@@ -916,6 +916,10 @@
         }
 
         msg += ` Main driver: ${driver}.`;
+
+        if (foods) {
+          msg += ` In the full AI version, the app will also read your foods note to estimate the actual sugar and carb load from: "${foods}".`;
+        }
 
         if (sleep <= 4 || sens >= 7) {
           msg += ' Because sleep was rough or sensitivity is high, whatever lands in that crash window is likely to feel louder than it really is.';
