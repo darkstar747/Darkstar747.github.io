@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Body Rhythm Console - Beta v0.3</title>
+  <title>Body Rhythm Console - Beta v0.4</title>
   <style>
     body {
       margin: 0;
@@ -15,14 +15,14 @@
     .console {
       margin: auto;
       width: min(980px, 100vw - 20px);
-      height: min(580px, 100vh - 20px);
+      height: min(640px, 100vh - 20px);
       border-radius: 24px;
       border: 2px solid #313446;
       display: grid;
       grid-template-columns: 2fr 1fr;
       background: radial-gradient(circle at top, #22263a 0, #090b13 40%, #05060a 80%);
       box-shadow: 0 22px 45px rgba(0,0,0,0.8);
-      overflow: hidden; /* allow internal panels to scroll instead */
+      overflow: hidden;
     }
 
     /* Chat side */
@@ -30,7 +30,7 @@
       border-right: 1px solid #26293a;
       display: flex;
       flex-direction: column;
-      min-width: 0; /* helps prevent overflow on narrow screens */
+      min-width: 0;
     }
     .chat-header {
       padding: 10px 14px;
@@ -90,7 +90,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      overflow-y: auto;        /* <<< main fix: right side scrolls */
+      overflow-y: auto;
       min-width: 0;
     }
     .panel {
@@ -161,7 +161,8 @@
       gap: 2px;
       color: #c1c6e3;
     }
-    .time-grid input[type="time"] {
+    .time-grid input[type="time"],
+    .time-grid select {
       background: #151829;
       border: 1px solid #303651;
       border-radius: 6px;
@@ -196,7 +197,7 @@
       border-radius: 3px;
     }
 
-    /* Basic responsive tweak: stack on very small screens */
+    /* Basic responsive tweak */
     @media (max-width: 800px) {
       .console {
         grid-template-columns: 1fr;
@@ -216,11 +217,17 @@
       <div class="chat-header">Body Rhythm Console · Beta</div>
       <div class="chat-messages" id="chatMessages">
         <div class="chat-msg">
-          <strong>App:</strong> Welcome back. Use the sliders and times on the right, then tap a button to see how your system looks tonight.
+          <strong>App:</strong> Welcome. This console helps you understand how your body actually works. Not through diets or diagnoses, but through timing, stress load, and your gut–brain rhythm.
+        </div>
+        <div class="chat-msg">
+          <strong>App:</strong> Most long term IBS-like issues and anxiety driven physical symptoms follow patterns that no one ever maps. This tool helps you find your personal rhythm so your mornings become more predictable and your nervous system stays calmer.
+        </div>
+        <div class="chat-msg">
+          <strong>App:</strong> Use the sliders to describe how you feel, set tonight’s timing, and then log and explore. You are not broken, you just have a pattern that has not been visible yet.
         </div>
       </div>
       <div class="chat-input">
-        <input id="chatInput" placeholder="Type a note or question (optional, not wired to AI yet)...">
+        <input id="chatInput" placeholder="Type a note or question (optional, not wired to real AI yet)...">
         <button onclick="sendChat()">Send</button>
       </div>
     </div>
@@ -274,11 +281,11 @@
           <input type="range" id="anx" min="0" max="10" value="3" oninput="updateLabel('anx')">
         </div>
         <p class="mini-label">
-          These describe how your nervous system feels right now. In the full version this is what the AI uses to estimate sensitivity and predict mornings.
+          These describe how your nervous system feels right now. In a full version this is what the AI would use to estimate sensitivity and predict mornings.
         </p>
       </div>
 
-      <!-- Timing -->
+      <!-- Tonight timing -->
       <div class="panel">
         <h3>Tonight's timing</h3>
         <div class="time-grid">
@@ -313,6 +320,37 @@
           <span class="tag">Morning stability</span>
         </div>
       </div>
+
+      <!-- Morning outcome -->
+      <div class="panel">
+        <h3>Morning outcome</h3>
+        <div class="time-grid">
+          <label>
+            BM time
+            <input type="time" id="bmTime" value="08:05">
+          </label>
+          <label>
+            Pain level
+            <input type="range" id="bmPain" min="0" max="10" value="2" oninput="updateLabel('pain')">
+            <span id="bmPainVal" style="font-size:10px;color:#b3b7d2;">2/10</span>
+          </label>
+          <label>
+            Bristol form
+            <select id="bmForm">
+              <option value="1">1 · Separate hard lumps</option>
+              <option value="2">2 · Lumpy sausage</option>
+              <option value="3">3 · Cracked sausage</option>
+              <option value="4" selected>4 · Smooth, soft sausage</option>
+              <option value="5">5 · Soft blobs, clear edges</option>
+              <option value="6">6 · Fluffy, mushy</option>
+              <option value="7">7 · Watery, no solids</option>
+            </select>
+          </label>
+        </div>
+        <p class="mini-label">
+          This is what actually happened in the morning. Later, this feeds back into pattern detection so you can see how last night’s timing and state match your outcomes.
+        </p>
+      </div>
     </div>
   </div>
 
@@ -333,7 +371,7 @@
       addMessage('You', text);
       input.value = '';
       setTimeout(() => {
-        addMessage('App', 'In the full version this text would be interpreted alongside your sliders and timing so the AI can learn your patterns.');
+        addMessage('App', 'In the full version this text would be interpreted alongside your sliders, timing, and outcome so the AI can learn your patterns.');
       }, 400);
     }
 
@@ -353,6 +391,10 @@
       if (which === 'anx') {
         const v = document.getElementById('anx').value;
         document.getElementById('anxVal').textContent = `${v}/10`;
+      }
+      if (which === 'pain') {
+        const v = document.getElementById('bmPain').value;
+        document.getElementById('bmPainVal').textContent = `${v}/10`;
       }
     }
 
@@ -376,12 +418,22 @@
       const tSleep = timeToMinutes('sleepTime');
       const tWake = timeToMinutes('wakeTime');
 
+      const tBm = timeToMinutes('bmTime');
+      const bmForm = document.getElementById('bmForm').value;
+      const bmPain = +document.getElementById('bmPain').value;
+
       const drinkGap = tMag != null && tDrink != null ? tMag - tDrink : null;
       const foodGap = tSleep != null && tFood != null ? tSleep - tFood : null;
 
       if (type === 'log_today') {
-        addMessage('You', `Log today with stress=${stress}, shoulder=${shoulder}, gut=${gut}, anxiety=${anx}.`);
-        addMessage('App', 'Logged this state. In a full build this would be stored and used to refine your personal rhythm model over time.');
+        addMessage(
+          'You',
+          `Log today: stress=${stress}, shoulder=${shoulder}, gut=${gut}, anxiety=${anx}, BM form=${bmForm}, BM pain=${bmPain}.`
+        );
+        addMessage(
+          'App',
+          'Logged this state and outcome. In a full build this would be stored and used to refine your personal rhythm model over time.'
+        );
       }
 
       if (type === 'insight') {
@@ -389,15 +441,24 @@
         let msg;
 
         if (drinkGap !== null && drinkGap < 75) {
-          msg = 'Your last drink is fairly close to magnesium. On your kind of system, mornings tend to be softer or more unpredictable when the gap is under 75 to 90 minutes.';
+          msg = 'Your last drink is fairly close to magnesium. On systems like yours, mornings tend to be softer or more unpredictable when the gap is under about 75 to 90 minutes.';
         } else if (shoulder >= 7) {
-          msg = 'Shoulder tension is high. On days like this, splenic flexure and left side sensitivity often show up even if digestion is fine. This is more nervous system than gut.';
+          msg = 'Shoulder tension is high. On days like this, splenic flexure and left side sensitivity often show up even if digestion itself is fine. This is more nervous system than gut tissue.';
         } else if (anx >= 6 && stress >= 6) {
-          msg = 'Both stress and anxiety are elevated. This usually raises your internal volume knob and makes normal sensations feel louder, even when timing is decent.';
+          msg = 'Both stress and anxiety are elevated. That usually raises your internal volume knob and makes normal sensations feel louder, even when timing is decent.';
         } else if (gut >= 7 && stress <= 3 && (drinkGap === null || drinkGap >= 90)) {
           msg = 'This looks close to your stable rhythm: decent gut comfort, low stress, and a solid gap between last drink and magnesium. That is usually a strong setup for a predictable morning.';
         } else {
           msg = 'Today looks mixed. Nothing screams disaster, but sensitivity is a bit elevated. Small improvements in cutoff or evening calm will likely pay off tomorrow.';
+        }
+
+        // Light mention of outcome if available
+        if (tBm != null) {
+          if (bmForm >= 6) {
+            msg += ' This morning’s form suggests your system is still on the softer side. Often that tracks back to either a tight drink gap or a bit more nervous system load than ideal.';
+          } else if (bmForm === '4' && bmPain <= 2) {
+            msg += ' The morning outcome you logged (smooth form and low pain) fits your more stable pattern, which is a good sign that your timing is on the right track.';
+          }
         }
 
         addMessage('App', msg);
@@ -406,14 +467,14 @@
       if (type === 'forecast') {
         addMessage('You', 'What is the forecast for tomorrow?');
 
-        let msg = 'Given this setup, tomorrow looks like a “sensitive but workable” morning. Not perfect, not terrible. Expect a bit more awareness than pain.';
+        let msg = 'Given this setup, tomorrow looks like a sensitive but workable morning. Not perfect, not terrible. Expect more awareness than true pain.';
 
         if (drinkGap !== null && drinkGap >= 90 && stress <= 3 && anx <= 3 && shoulder <= 4 && gut >= 6) {
           msg = 'This is one of your stronger setups. I would expect a single mostly solid morning BM, low pain, and a quieter nervous system overall.';
         } else if (drinkGap !== null && drinkGap < 60) {
-          msg = 'Tomorrow has a higher chance of a soft or partially watery morning, mostly due to the tight drink to magnesium gap. Not dangerous, just less stable.';
+          msg = 'Tomorrow has a higher chance of a soft or partly watery morning, mostly due to the tight drink to magnesium gap. Not dangerous, just less stable.';
         } else if (anx >= 7 || stress >= 7) {
-          msg = 'Tomorrow may feel louder in your body even if the gut behaves. Expect a little more internal noise, mostly driven by nervous system state rather than true gut trouble.';
+          msg = 'Tomorrow may feel louder in your body even if the gut behaves. Expect more internal noise, mostly driven by nervous system state rather than true gut trouble.';
         }
 
         addMessage('App', msg);
@@ -421,7 +482,8 @@
 
       if (type === 'explain') {
         addMessage('You', 'Explain my system.');
-        const msg = 'You have a timing sensitive, nervous system heavy pattern. Evenings with calm stress, lower shoulder tension, and a clear cutoff between last drink and magnesium usually give you stable mornings. When stress, anxiety, or shoulder tension run high, your sensitivity goes up even if nothing is “wrong” in the gut itself.';
+        const msg =
+          'You have a timing sensitive, nervous system heavy pattern. Evenings with calmer stress, lower shoulder tension, and a clear cutoff between last drink and magnesium usually give you stable mornings. When stress, anxiety, or shoulder tension run high, your sensitivity goes up even if nothing is “wrong” in the gut itself.';
         addMessage('App', msg);
       }
 
@@ -443,9 +505,15 @@
         }
 
         if (drivers.length === 0) {
-          addMessage('App', 'Nothing is screaming as a strong driver today. This looks more like a “fine tune and watch what happens” kind of day rather than a clear trigger day.');
+          addMessage(
+            'App',
+            'Nothing is screaming as a strong driver today from the sliders alone. This looks more like a fine tune and watch what happens kind of day rather than a clear trigger day.'
+          );
         } else {
-          addMessage('App', `The main drivers tonight look like: ${drivers.join(', ')}. Those are the knobs that usually change your sensitivity the most.`);
+          addMessage(
+            'App',
+            `The main drivers tonight look like: ${drivers.join(', ')}. Those are the knobs that usually change your sensitivity the most.`
+          );
         }
       }
 
@@ -455,19 +523,19 @@
         const qs = [];
 
         if (drinkGap !== null && drinkGap < 75) {
-          qs.push('Your last drink is fairly close to magnesium. On nights like this, have your worst or softest mornings usually happened, or does it feel random?');
+          qs.push('Your last drink is fairly close to magnesium. On nights like this, have your worst or softest mornings usually happened, or does it still feel random to you?');
         }
         if (shoulder >= 7) {
-          qs.push('With shoulder tension this high, do you usually notice more left side gut awareness or splenic flexure style pressure the next morning?');
+          qs.push('With shoulder tension this high, do you usually notice more left side gut awareness or splenic flexure style pressure either that night or the next morning?');
         }
         if (anx >= 6) {
           qs.push('When anxiety is this elevated, do you tend to feel the anxiety first and then the gut reacts, or does the gut flare first and your mind responds after?');
         }
         if (stress >= 6 && anx < 6) {
-          qs.push('Stress is high but anxiety is a bit lower. Does your body hold this mostly in muscle tension, or does your gut join in too on days like this?');
+          qs.push('Stress is high but anxiety is a bit lower. Does your body hold this mostly in muscle tension (shoulders, neck, jaw), or does your gut often join in too on days like this?');
         }
         if (gut <= 4) {
-          qs.push('Gut comfort is low. Would you describe it more as sharp pain, pressure, bloating, or just hypersensitive awareness where everything inside feels “too loud”?');
+          qs.push('Gut comfort is low. Would you describe it more as sharp pain, pressure, bloating, or just hypersensitive awareness where everything inside feels too loud?');
         }
 
         if (qs.length === 0) {
