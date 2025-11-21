@@ -377,7 +377,8 @@
             Keep it simple. You do not need grams, just a quick description of the last plate.
           </p>
         </div>
-                <!-- Morning outcome -->
+
+        <!-- Morning outcome -->
         <div class="panel">
           <h3>Morning outcome</h3>
           <div class="time-grid">
@@ -417,8 +418,7 @@
           </p>
         </div>
       </div>
-
-      <!-- Anxiety panel -->
+            <!-- Anxiety panel -->
       <div id="anxPanel" style="display:none;">
         <div class="panel">
           <h3>Anxiety quick actions</h3>
@@ -562,6 +562,18 @@
       if (!t) return null;
       const [h, m] = t.split(':').map(Number);
       return h * 60 + m;
+    }
+
+    function minutesToClockString(mins) {
+      if (mins == null) return '';
+      let m = mins % (24 * 60);
+      if (m < 0) m += 24 * 60;
+      const hour = Math.floor(m / 60);
+      const minute = m % 60;
+      const ampm = hour >= 12 ? 'pm' : 'am';
+      const hour12 = ((hour + 11) % 12) + 1;
+      const minuteStr = minute.toString().padStart(2, '0');
+      return `${hour12}:${minuteStr} ${ampm}`;
     }
 
     function loadHistory() {
@@ -818,20 +830,54 @@
         addMessage('You', 'Estimate crash window.');
         let msg = 'Based on today’s inputs this looks like a mild to moderate crash risk rather than a full spike and crash day.';
 
-        if (sugar >= 7 && caf >= 5) {
-          if (hitTime != null) {
-            msg = 'High sugar and noticeable caffeine give you a strong chance of a crash about 2 to 4 hours after your main hit time. That is usually the window where anxiety, spacey feelings, or body noise get louder.';
+        let spikeStart = null;
+        let spikeEnd = null;
+        let crashStart = null;
+        let crashEnd = null;
+
+        if (hitTime != null) {
+          // Base windows in minutes relative to hit time
+          if (sugar >= 7 && caf >= 5) {
+            // Strong sugar + caffeine: sharper spike and crash
+            spikeStart = hitTime + 30;
+            spikeEnd = hitTime + 90;
+            crashStart = hitTime + 120;
+            crashEnd = hitTime + 240;
+            msg = 'High sugar and noticeable caffeine give you a strong chance of a clear spike and crash pattern today.';
+          } else if (sugar >= 6 && caf <= 3) {
+            // Sugar heavier, caffeine mild
+            spikeStart = hitTime + 60;
+            spikeEnd = hitTime + 120;
+            crashStart = hitTime + 180;
+            crashEnd = hitTime + 300;
+            msg = 'Sugar and carbs are moderate to high with low caffeine, so this is more of a slow climb then slow dip rather than a sharp wired then crash day.';
+          } else if (sugar <= 3 && caf >= 7) {
+            // Mostly caffeine driven
+            spikeStart = hitTime + 30;
+            spikeEnd = hitTime + 90;
+            crashStart = hitTime + 180;
+            crashEnd = hitTime + 300;
+            msg = 'Caffeine is carrying most of the load, so any crash will likely follow a few hours after the caffeine peak rather than the sugar itself.';
           } else {
-            msg = 'High sugar and noticeable caffeine give you a strong chance of a crash about 2 to 4 hours after the biggest sugar hit. That is usually when anxiety or body noise jumps.';
+            // Mixed moderate inputs
+            spikeStart = hitTime + 60;
+            spikeEnd = hitTime + 150;
+            crashStart = hitTime + 180;
+            crashEnd = hitTime + 300;
+            msg = 'Today looks like a moderate spike and drift-down pattern rather than an extreme crash day.';
           }
-        } else if (sugar >= 6 && caf <= 3) {
-          msg = 'Sugar and carbs are moderate to high but caffeine is lower. That often creates a 3 to 5 hour slow dip rather than a sharp spike and crash.';
-        } else if (sugar <= 3 && caf >= 7) {
-          msg = 'Caffeine is doing most of the work today. If a crash happens it usually comes a few hours after the caffeine peak, especially if sleep was not great.';
         }
 
         if (sleep <= 4 || sens >= 7) {
-          msg += ' Poor sleep or a high baseline sensitivity makes any crash that does happen feel louder and more anxiety colored than it really is.';
+          msg += ' Poor sleep or a high baseline sensitivity makes whatever spike or crash happens feel louder and more anxiety colored than it really is.';
+        }
+
+        if (hitTime != null && spikeStart != null && crashStart != null) {
+          const spikeWindow = `${minutesToClockString(spikeStart)} to ${minutesToClockString(spikeEnd)}`;
+          const crashWindow = `${minutesToClockString(crashStart)} to ${minutesToClockString(crashEnd)}`;
+          msg += ` For your inputs today, the likely spike window is about ${spikeWindow}, and the likely crash or flat window is about ${crashWindow}.`;
+        } else {
+          msg += ' If you add a main carb or sugar time, I can give you a more specific spike and crash window.';
         }
 
         addMessage('App', msg);
@@ -894,3 +940,4 @@
 </body>
 </html>
   
+    
