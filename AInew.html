@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Body Rhythm Console - Beta v0.6</title>
+  <title>Body Rhythm Console - Beta v0.7</title>
   <style>
     body {
       margin: 0;
@@ -197,7 +197,10 @@
     }
     .time-grid textarea {
       resize: vertical;
-      min-height: 48px;
+      min-height: 40px;
+    }
+    .full-span {
+      grid-column: 1 / -1;
     }
 
     .tag-row {
@@ -337,7 +340,7 @@
           </p>
         </div>
 
-        <!-- Tonight timing -->
+        <!-- Tonight timing + last meal -->
         <div class="panel">
           <h3>Tonight's timing</h3>
           <div class="time-grid">
@@ -364,6 +367,10 @@
             <label>
               Wake
               <input type="time" id="wakeTime" value="08:00">
+            </label>
+            <label class="full-span">
+              Last meal eaten
+              <textarea id="ibsMeal" placeholder="Chicken and rice, burger, salad, pasta, etc..."></textarea>
             </label>
           </div>
           <div class="tag-row">
@@ -455,9 +462,9 @@
               <input type="range" id="anxSens" min="0" max="10" value="5" oninput="updateAnxLabel('sens')">
               <span id="anxSensVal" style="font-size:10px;color:#b3b7d2;">5/10</span>
             </label>
-            <label>
+            <label class="full-span">
               Foods and notes
-              <textarea id="anxFoods" placeholder="Type what you ate, drank, and anything that felt spiky or heavy today..."></textarea>
+              <textarea id="anxFoods" placeholder="Small bowl of cereal, banana, two cookies, late soda, etc..."></textarea>
             </label>
           </div>
           <p class="mini-label">
@@ -648,14 +655,17 @@
       const bmForm = +document.getElementById('bmForm').value;
       const bmPain = +document.getElementById('bmPain').value;
 
+      const ibsMeal = document.getElementById('ibsMeal').value.trim();
+
       const drinkGap = tMag != null && tDrink != null ? tMag - tDrink : null;
       const foodGap = tSleep != null && tFood != null ? tSleep - tFood : null;
 
       if (type === 'log_today') {
-        addMessage(
-          'You',
-          `Log today: stress=${stress}, shoulder=${shoulder}, gut=${gut}, anxiety=${anx}, BM form=${bmForm}, BM pain=${bmPain}.`
-        );
+        let summary = `Log today: stress=${stress}, shoulder=${shoulder}, gut=${gut}, anxiety=${anx}, BM form=${bmForm}, BM pain=${bmPain}.`;
+        addMessage('You', summary);
+        if (ibsMeal) {
+          addMessage('You', `Last meal: ${ibsMeal}`);
+        }
 
         const classification = classifyDay({
           drinkGap,
@@ -680,7 +690,7 @@
           label: classification.label,
           driver: classification.driver
         });
-        const trimmed = history.slice(-30); // keep last 30 days
+        const trimmed = history.slice(-30);
         saveHistory(trimmed);
         renderHistory();
 
@@ -783,7 +793,7 @@
           qs.push('Gut comfort is low. Would you describe it more as sharp pain, pressure, bloating, or just hypersensitive awareness where everything inside feels too loud?');
         }
 
-        if (qs.length === 0) {
+        if (!qs.length) {
           qs.push('Nothing jumps out as a clear driver from the sliders alone. If you had to guess, what part of today feels most off: timing, stress, sleep, or body tension?');
         }
 
