@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Timing Console</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0b0b0f;
+      color: #eee;
+      display: flex;
+      height: 100vh;
+    }
+    .console {
+      margin: auto;
+      width: 900px;
+      height: 550px;
+      border-radius: 20px;
+      border: 2px solid #444;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      background: #111521;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      overflow: hidden;
+    }
+    .chat {
+      border-right: 1px solid #333;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #333;
+    }
+    .chat-input input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      background: #15192a;
+      color: #eee;
+      outline: none;
+    }
+    .chat-input button {
+      border: none;
+      padding: 10px 16px;
+      background: #2f7df6;
+      color: white;
+      cursor: pointer;
+    }
+    .controls {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .panel {
+      background: #15192a;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid #272b3a;
+    }
+    .panel h3 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #9aa4ff;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: 1px solid #3a3f55;
+      background: #202537;
+      color: #eee;
+      cursor: pointer;
+    }
+    .btn:active {
+      transform: translateY(1px);
+    }
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+    .slider-group input[type="range"] {
+      width: 100%;
+    }
+    .mini-label {
+      font-size: 11px;
+      color: #9a9fb8;
+    }
+  </style>
+</head>
+<body>
+  <div class="console">
+    <!-- Chat side -->
+    <div class="chat">
+      <div class="chat-messages" id="chatMessages">
+        <div><strong>App:</strong> Welcome to your timing console. Log a day and I’ll look for patterns.</div>
+      </div>
+      <div class="chat-input">
+        <input id="chatInput" placeholder="Type a question or note...">
+        <button onclick="sendChat()">Send</button>
+      </div>
+    </div>
+
+    <!-- Controls side -->
+    <div class="controls">
+      <div class="panel">
+        <h3>Quick Actions</h3>
+        <div class="btn-row">
+          <button class="btn" onclick="preset('log_today')">Log today</button>
+          <button class="btn" onclick="preset('insight')">Show pattern</button>
+          <button class="btn" onclick="preset('forecast')">Tomorrow forecast</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>State sliders</h3>
+        <div class="slider-group">
+          <span>Stress level: <span id="stressVal">2</span>/10</span>
+          <input type="range" id="stress" min="0" max="10" value="2"
+                 oninput="updateLabel('stress')">
+        </div>
+        <div class="slider-group">
+          <span>Shoulder tension: <span id="shoulderVal">3</span>/10</span>
+          <input type="range" id="shoulder" min="0" max="10" value="3"
+                 oninput="updateLabel('shoulder')">
+        </div>
+        <div class="slider-group">
+          <span>Gut comfort: <span id="gutVal">6</span>/10</span>
+          <input type="range" id="gut" min="0" max="10" value="6"
+                 oninput="updateLabel('gut')">
+        </div>
+        <p class="mini-label">
+          These “levelers” are what the brain uses to interpret your day and make timing suggestions.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>Tonight’s timing</h3>
+        <div class="slider-group">
+          <span>Planned last drink (relative): <span id="drinkVal">-90</span> min</span>
+          <input type="range" id="drink" min="-120" max="0" value="-90"
+                 oninput="updateLabel('drink')">
+        </div>
+        <button class="btn" onclick="preset('timing_summary')">
+          Summarize tonight’s setup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function addMessage(sender, text) {
+      const box = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage('You', text);
+      input.value = '';
+      // Here is where you would call the real AI.
+      // For now we just echo.
+      setTimeout(() => {
+        addMessage('App', "If this were wired to the AI, I’d interpret that in context of today's timing and state.");
+      }, 400);
+    }
+
+    function preset(type) {
+      const stress = +document.getElementById('stress').value;
+      const shoulder = +document.getElementById('shoulder').value;
+      const gut = +document.getElementById('gut').value;
+      const drink = +document.getElementById('drink').value;
+
+      if (type === 'log_today') {
+        addMessage('You', `Log today: stress=${stress}, shoulder=${shoulder}, gut=${gut}, last drink ~${drink} min before mag.`);
+        addMessage('App', "Got it. I’ll add this to your pattern history (in a real version this would be saved).");
+      }
+      if (type === 'insight') {
+        addMessage('You', "Show me today’s pattern.");
+        // Fake logic just to show behavior:
+        let msg;
+        if (drink > -60) {
+          msg = "You’re cutting liquids a bit close. Your best mornings usually happen when last drink is 90–120 minutes before magnesium.";
+        } else if (shoulder > 6) {
+          msg = "High shoulder tension days often line up with sensitive mornings. If you can, ease your traps before bed.";
+        } else {
+          msg = "Tonight looks like one of your more stable setups. I’d expect a fairly calm morning if this matches your usual pattern.";
+        }
+        addMessage('App', msg);
+      }
+      if (type === 'forecast') {
+        addMessage('You', "What’s the forecast for tomorrow?");
+        let msg = "Based on tonight’s stress and timing, I’d rate tomorrow as a ‘stable but slightly sensitive’ morning.";
+        if (stress <= 2 && shoulder <= 3 && drink <= -90) {
+          msg = "This looks like a high-stability setup. Odds are good for a single solid morning BM and low pain.";
+        }
+        addMessage('App', msg);
+      }
+      if (type === 'timing_summary') {
+        addMessage(
+          'App',
+          `Tonight you’re planning last drink about ${drink} minutes before magnesium, with stress=${stress}, shoulder=${shoulder}, gut=${gut}. In a real build I’d send this to the AI for a personalized explanation.`
+        );
+      }
+    }
+
+    function updateLabel(which) {
+      if (which === 'stress') {
+        document.getElementById('stressVal').textContent =
+          document.getElementById('stress').value;
+      }
+      if (which === 'shoulder') {
+        document.getElementById('shoulderVal').textContent =
+          document.getElementById('shoulder').value;
+      }
+      if (which === 'gut') {
+        document.getElementById('gutVal').textContent =
+          document.getElementById('gut').value;
+      }
+      if (which === 'drink') {
+        document.getElementById('drinkVal').textContent =
+          document.getElementById('drink').value;
+      }
+    }
+  </script>
+</body>
+</html>
