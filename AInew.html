@@ -1,756 +1,1383 @@
-<script>
-  const HISTORY_KEY = 'brcHistory_v1';
-  let currentMode = 'ibs';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Body Rhythm Console - Pseudo AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #05080b;
+      color: #e0e0e0;
+    }
+    .app-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin: 0;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #101822, #070b10);
+      border: 1px solid #1b2735;
+    }
+    .top-sub {
+      font-size: 0.85rem;
+      color: #a0aab8;
+    }
+    .mode-toggle {
+      display: inline-flex;
+      border-radius: 999px;
+      border: 1px solid #243345;
+      overflow: hidden;
+      background: #05080b;
+    }
+    .mode-toggle button {
+      border: none;
+      background: transparent;
+      color: #9aa6b7;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .mode-toggle button.active {
+      background: #1a2737;
+      color: #f5f5f5;
+    }
 
-  // Simple food keyword map
-  const FOOD_KEYWORDS = [
-    { label: 'Sugary cereal', keywords: ['cereal', 'cinnamon toast crunch', 'frosted flakes', 'lucky charms', 'cap n crunch'], sugar: 9, carbs: 8 },
-    { label: 'Pancakes or waffles with syrup', keywords: ['pancakes', 'waffles', 'syrup'], sugar: 9, carbs: 8 },
-    { label: 'White bread or toast', keywords: ['white bread', 'toast', 'bagel', 'english muffin'], sugar: 4, carbs: 7 },
-    { label: 'Pizza', keywords: ['pizza'], sugar: 4, carbs: 8 },
-    { label: 'Pasta', keywords: ['pasta', 'spaghetti', 'mac and cheese', 'macaroni'], sugar: 3, carbs: 8 },
-    { label: 'White rice', keywords: ['white rice', 'fried rice', 'rice bowl'], sugar: 3, carbs: 7 },
-    { label: 'Chips or fries', keywords: ['chips', 'doritos', 'tortilla chips', 'kettle chips', 'fries'], sugar: 3, carbs: 7 },
-    { label: 'Candy', keywords: ['candy', 'skittles', 'gummy', 'gummies', 'starburst', 'jelly bean'], sugar: 10, carbs: 6 },
-    { label: 'Cookies', keywords: ['cookie', 'cookies', 'oreos'], sugar: 9, carbs: 6 },
-    { label: 'Cake or brownies', keywords: ['cake', 'cupcake', 'cupcakes', 'brownie', 'brownies'], sugar: 9, carbs: 6 },
-    { label: 'Ice cream', keywords: ['ice cream', 'gelato', 'frozen yogurt', 'froyo'], sugar: 9, carbs: 5 },
-    { label: 'Sugary drinks', keywords: ['soda', 'coke', 'cola', 'pepsi', 'sprite', 'mountain dew', 'dr pepper', 'energy drink', 'red bull', 'monster'], sugar: 10, carbs: 6 },
-    { label: 'Juice', keywords: ['juice', 'orange juice', 'apple juice', 'grape juice'], sugar: 8, carbs: 5 },
-    { label: 'Chocolate', keywords: ['chocolate', 'm&m', 'm & m'], sugar: 8, carbs: 5 },
-    { label: 'Sweet coffee drink', keywords: ['frappuccino', 'latte', 'mocha', 'iced coffee', 'coffee drink'], sugar: 7, carbs: 4 },
-    { label: 'Oatmeal', keywords: ['oatmeal', 'oats', 'porridge'], sugar: 3, carbs: 6 },
-    { label: 'Fruit', keywords: ['banana', 'apple', 'grapes', 'mango', 'pineapple'], sugar: 5, carbs: 4 },
-    { label: 'Low sugar meal', keywords: ['eggs', 'omelette', 'chicken', 'salad', 'broccoli', 'steamed veggies', 'fish', 'steak'], sugar: 1, carbs: 2 },
-    { label: 'Nuts', keywords: ['nuts', 'almonds', 'cashews', 'peanuts'], sugar: 1, carbs: 2 },
-    { label: 'Yogurt', keywords: ['yogurt', 'yoghurt'], sugar: 5, carbs: 4 }
-  ];
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 2.2fr) minmax(0, 1.4fr);
+      gap: 12px;
+      align-items: start;
+    }
 
-  function estimateFoodLoad(text) {
-    if (!text) return { sugar: 0, carbs: 0, matches: [] };
-    const lower = text.toLowerCase();
-    let maxSugar = 0;
-    let maxCarbs = 0;
-    const matches = [];
-    for (const item of FOOD_KEYWORDS) {
-      const hit = item.keywords.some(k => lower.includes(k));
-      if (hit) {
-        matches.push(item.label);
-        if (item.sugar > maxSugar) maxSugar = item.sugar;
-        if (item.carbs > maxCarbs) maxCarbs = item.carbs;
+    .panel {
+      background: #070b11;
+      border-radius: 10px;
+      border: 1px solid #182231;
+      padding: 10px 12px;
+    }
+    .panel h2 {
+      font-size: 0.95rem;
+      margin: 0 0 6px 0;
+      color: #f0f0f0;
+    }
+    .panel small {
+      font-size: 0.8rem;
+      color: #9aa6b7;
+    }
+
+    .section {
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #111722;
+    }
+    .section:last-child {
+      border-bottom: none;
+    }
+    .section-title {
+      font-size: 0.8rem;
+      color: #a9b4c5;
+      margin-bottom: 2px;
+    }
+    .field-group {
+      margin-bottom: 4px;
+    }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      color: #a9b4c5;
+      margin-bottom: 2px;
+    }
+    input[type="time"],
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      background: #050911;
+      border-radius: 6px;
+      border: 1px solid #202a3b;
+      color: #f0f0f0;
+      font-size: 0.8rem;
+      padding: 4px 6px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 48px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    input[type="range"] {
+      flex: 1;
+    }
+    .slider-value {
+      font-size: 0.78rem;
+      color: #b8c2d0;
+      min-width: 34px;
+      text-align: right;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .quick-actions button {
+      border-radius: 6px;
+      border: 1px solid #253245;
+      background: #0a111b;
+      color: #e0e7f0;
+      font-size: 0.78rem;
+      padding: 4px 6px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .quick-actions button:hover {
+      background: #101a28;
+    }
+
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 6px;
+    }
+    .chat-log {
+      flex: 1;
+      min-height: 220px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 8px;
+      background: #050810;
+      border-radius: 8px;
+      border: 1px solid #141d2a;
+      font-size: 0.8rem;
+    }
+    .chat-msg {
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    #chatInput {
+      flex: 1;
+      font-size: 0.8rem;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid #202a3b;
+      background: #050911;
+      color: #f0f0f0;
+    }
+    .chat-input-row button {
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #30415a;
+      background: #132035;
+      color: #e6edf8;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .history-list {
+      list-style: none;
+      margin: 6px 0 0 0;
+      padding: 0;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+    }
+    .history-list li {
+      padding: 3px 0;
+      border-bottom: 1px solid #101520;
+    }
+    .history-label {
+      font-weight: 600;
+      color: #e4ecf7;
+    }
+
+    .small-note {
+      font-size: 0.74rem;
+      color: #818a9a;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
-    return { sugar: maxSugar, carbs: maxCarbs, matches };
-  }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="top-bar">
+      <div>
+        <h1>Body Rhythm Console · Pseudo AI</h1>
+        <div class="top-sub">
+          Timing based IBS and anxiety model using local logic. No backend, no cost per use.
+        </div>
+      </div>
+      <div>
+        <div class="mode-toggle">
+          <button id="modeIbs" class="active" onclick="setMode('ibs')">IBS timing</button>
+          <button id="modeAnx" onclick="setMode('anx')">Anxiety timing</button>
+        </div>
+      </div>
+    </div>
 
-  function setMode(mode) {
-    currentMode = mode;
-    const ibsPanel = document.getElementById('ibsPanel');
-    const anxPanel = document.getElementById('anxPanel');
-    const modeIbs = document.getElementById('modeIbs');
-    const modeAnx = document.getElementById('modeAnx');
-    if (!ibsPanel || !anxPanel) return;
+    <div class="main-grid">
+      <!-- Left: IBS panel -->
+      <div class="panel" id="ibsPanel">
+        <h2>IBS and evening timing</h2>
+        <small>Sliders and times describe tonight and this morning. Quick actions use your pattern rules.</small>
 
-    if (mode === 'ibs') {
-      ibsPanel.style.display = '';
-      anxPanel.style.display = 'none';
-      if (modeIbs) modeIbs.classList.add('active');
-      if (modeAnx) modeAnx.classList.remove('active');
-    } else {
-      ibsPanel.style.display = 'none';
-      anxPanel.style.display = '';
-      if (modeAnx) modeAnx.classList.add('active');
-      if (modeIbs) modeIbs.classList.remove('active');
-    }
-  }
+        <div class="section">
+          <div class="section-title">1. Body load right now</div>
 
-  function addMessage(sender, text) {
-    const box = document.getElementById('chatMessages');
-    if (!box) return;
-    const div = document.createElement('div');
-    div.className = 'chat-msg';
-    div.innerHTML = '<strong>' + sender + ':</strong> ' + text;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
+          <div class="field-group">
+            <label>Stress level</label>
+            <div class="slider-row">
+              <input type="range" id="stress" min="0" max="10" value="3" oninput="updateLabel('stress')" />
+              <div class="slider-value" id="stressVal">3/10</div>
+            </div>
+          </div>
 
-  function sendChat() {
-    const input = document.getElementById('chatInput');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-    addMessage('You', text);
-    input.value = '';
-    const snapshot = getStateSnapshot();
-    const reply = generateLocalAIReply(text, snapshot);
-    addMessage('App', reply);
-  }
+          <div class="field-group">
+            <label>Shoulder and neck tension</label>
+            <div class="slider-row">
+              <input type="range" id="shoulder" min="0" max="10" value="3" oninput="updateLabel('shoulder')" />
+              <div class="slider-value" id="shoulderVal">3/10</div>
+            </div>
+          </div>
 
-  function updateLabel(which) {
-    if (which === 'stress') {
-      const v = document.getElementById('stress').value;
-      document.getElementById('stressVal').textContent = v + '/10';
-    }
-    if (which === 'shoulder') {
-      const v = document.getElementById('shoulder').value;
-      document.getElementById('shoulderVal').textContent = v + '/10';
-    }
-    if (which === 'gut') {
-      const v = document.getElementById('gut').value;
-      document.getElementById('gutVal').textContent = v + '/10';
-    }
-    if (which === 'anx') {
-      const v = document.getElementById('anx').value;
-      document.getElementById('anxVal').textContent = v + '/10';
-    }
-    if (which === 'pain') {
-      const v = document.getElementById('bmPain').value;
-      document.getElementById('bmPainVal').textContent = v + '/10';
-    }
-  }
+          <div class="field-group">
+            <label>Gut comfort overall</label>
+            <div class="slider-row">
+              <input type="range" id="gut" min="0" max="10" value="6" oninput="updateLabel('gut')" />
+              <div class="slider-value" id="gutVal">6/10</div>
+            </div>
+          </div>
 
-  function updateAnxLabel(which) {
-    if (which === 'sugar') {
-      const v = document.getElementById('anxSugar').value;
-      document.getElementById('anxSugarVal').textContent = v + '/10';
-    }
-    if (which === 'caf') {
-      const v = document.getElementById('anxCaf').value;
-      document.getElementById('anxCafVal').textContent = v + '/10';
-    }
-    if (which === 'sleep') {
-      const v = document.getElementById('anxSleep').value;
-      document.getElementById('anxSleepVal').textContent = v + '/10';
-    }
-    if (which === 'sens') {
-      const v = document.getElementById('anxSens').value;
-      document.getElementById('anxSensVal').textContent = v + '/10';
-    }
-  }
+          <div class="field-group">
+            <label>Anxiety baseline</label>
+            <div class="slider-row">
+              <input type="range" id="anx" min="0" max="10" value="3" oninput="updateLabel('anx')" />
+              <div class="slider-value" id="anxVal">3/10</div>
+            </div>
+          </div>
+        </div>
 
-  function timeToMinutes(id) {
-    const el = document.getElementById(id);
-    if (!el) return null;
-    const t = el.value;
-    if (!t) return null;
-    const parts = t.split(':');
-    if (parts.length < 2) return null;
-    const h = Number(parts[0]);
-    const m = Number(parts[1]);
-    if (isNaN(h) || isNaN(m)) return null;
-    return h * 60 + m;
-  }
+        <div class="section">
+          <div class="section-title">2. Evening timing</div>
+          <div class="field-group">
+            <label>Dinner time</label>
+            <input type="time" id="dinTime" />
+          </div>
+          <div class="field-group">
+            <label>Last food after dinner</label>
+            <input type="time" id="foodTime" />
+          </div>
+          <div class="field-group">
+            <label>Last liquid cutoff</label>
+            <input type="time" id="drinkTime" />
+          </div>
+          <div class="field-group">
+            <label>Magnesium glycinate time</label>
+            <input type="time" id="magTime" />
+          </div>
+          <div class="field-group">
+            <label>Sleep start</label>
+            <input type="time" id="sleepTime" />
+          </div>
+          <div class="field-group">
+            <label>Wake time</label>
+            <input type="time" id="wakeTime" />
+          </div>
+        </div>
 
-  function parseTimeStringToMinutes(t) {
-    if (!t) return null;
-    const parts = t.split(':');
-    if (parts.length < 2) return null;
-    const h = Number(parts[0]);
-    const m = Number(parts[1]);
-    if (isNaN(h) || isNaN(m)) return null;
-    return h * 60 + m;
-  }
+        <div class="section">
+          <div class="section-title">3. Morning outcome</div>
+          <div class="field-group">
+            <label>BM time</label>
+            <input type="time" id="bmTime" />
+          </div>
+          <div class="field-group">
+            <label>BM pain</label>
+            <div class="slider-row">
+              <input type="range" id="bmPain" min="0" max="10" value="2" oninput="updateLabel('pain')" />
+              <div class="slider-value" id="bmPainVal">2/10</div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label>BM form (1 hard, 7 watery)</label>
+            <select id="bmForm">
+              <option value="1">1 - Hard lumps</option>
+              <option value="2">2 - Lumpy sausage</option>
+              <option value="3">3 - Cracks on surface</option>
+              <option value="4" selected>4 - Smooth soft sausage</option>
+              <option value="5">5 - Soft blobs</option>
+              <option value="6">6 - Fluffy mushy</option>
+              <option value="7">7 - Watery</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Last meal description (optional)</label>
+            <textarea id="ibsMeal" placeholder="Example: Chicken, potatoes, carrots, low sugar."></textarea>
+          </div>
+        </div>
 
-  function minutesToClockString(mins) {
-    if (mins == null) return '';
-    let m = mins % (24 * 60);
-    if (m < 0) m += 24 * 60;
-    const hour = Math.floor(m / 60);
-    const minute = m % 60;
-    const ampm = hour >= 12 ? 'pm' : 'am';
-    const hour12 = ((hour + 11) % 12) + 1;
-    const minuteStr = minute.toString().padStart(2, '0');
-    return hour12 + ':' + minuteStr + ' ' + ampm;
-  }
+        <div class="section">
+          <div class="section-title">4. Quick actions</div>
+          <div class="quick-actions">
+            <button onclick="preset('log_today')">Save today</button>
+            <button onclick="preset('insight')">Show today’s pattern</button>
+            <button onclick="preset('forecast')">Predict tomorrow</button>
+            <button onclick="preset('driving')">What is driving today</button>
+            <button onclick="preset('explain')">Explain my system</button>
+            <button onclick="preset('questions')">Ask narrowing questions</button>
+          </div>
+        </div>
+      </div>
 
-  function loadHistory() {
-    try {
-      const raw = localStorage.getItem(HISTORY_KEY);
-      if (!raw) return [];
-      const data = JSON.parse(raw);
-      if (Array.isArray(data)) return data;
-      return [];
-    } catch (e) {
-      return [];
-    }
-  }
+      <!-- Left: Anxiety panel (hidden by default) -->
+      <div class="panel" id="anxPanel" style="display:none;">
+        <h2>Anxiety and spike / crash timing</h2>
+        <small>Use this side when the main problem feels like anxiety, wired then flat, or crashy days.</small>
 
-  function saveHistory(list) {
-    try {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
-    } catch (e) {
-      // ignore
-    }
-  }
+        <div class="section">
+          <div class="section-title">1. Spike anchor and sliders</div>
+          <div class="field-group">
+            <label>Main carb or sugar time (anchor)</label>
+            <input type="time" id="anxHitTime" />
+          </div>
 
-  function renderHistory() {
-    const ul = document.getElementById('historyList');
-    if (!ul) return;
-    const list = loadHistory();
-    ul.innerHTML = '';
-    if (!list.length) {
-      const li = document.createElement('li');
-      li.textContent = 'No days logged yet.';
-      ul.appendChild(li);
-      return;
-    }
-    list.slice(-7).reverse().forEach(entry => {
-      const li = document.createElement('li');
-      li.innerHTML = '<span class="history-label">' + entry.dayLabel +
-        '</span> · ' + entry.label + ' · driver: ' + entry.driver;
-      ul.appendChild(li);
-    });
-  }
+          <div class="field-group">
+            <label>Daily sugar and carb load</label>
+            <div class="slider-row">
+              <input type="range" id="anxSugar" min="0" max="10" value="4" oninput="updateAnxLabel('sugar')" />
+              <div class="slider-value" id="anxSugarVal">4/10</div>
+            </div>
+          </div>
 
-  function classifyDay(info) {
-    const drinkGap = info.drinkGap;
-    const stress = info.stress;
-    const anx = info.anx;
-    const shoulder = info.shoulder;
-    const gut = info.gut;
-    const bmForm = info.bmForm;
-    const bmPain = info.bmPain;
+          <div class="field-group">
+            <label>Caffeine load</label>
+            <div class="slider-row">
+              <input type="range" id="anxCaf" min="0" max="10" value="3" oninput="updateAnxLabel('caf')" />
+              <div class="slider-value" id="anxCafVal">3/10</div>
+            </div>
+          </div>
 
-    let label = 'Recovery / mixed';
+          <div class="field-group">
+            <label>Sleep quality</label>
+            <div class="slider-row">
+              <input type="range" id="anxSleep" min="0" max="10" value="7" oninput="updateAnxLabel('sleep')" />
+              <div class="slider-value" id="anxSleepVal">7/10</div>
+            </div>
+          </div>
 
-    if (
-      drinkGap != null && drinkGap >= 90 &&
-      stress <= 4 && anx <= 4 &&
-      shoulder <= 5 &&
-      gut >= 6 &&
-      bmPain <= 2 &&
-      bmForm >= 3 && bmForm <= 5
-    ) {
-      label = 'Stable';
-    } else if (
-      bmForm >= 6 ||
-      bmPain >= 5 ||
-      (drinkGap != null && drinkGap < 60) ||
-      stress >= 7 ||
-      anx >= 7
-    ) {
-      label = 'Sensitive';
-    }
+          <div class="field-group">
+            <label>Baseline sensitivity</label>
+            <div class="slider-row">
+              <input type="range" id="anxSens" min="0" max="10" value="6" oninput="updateAnxLabel('sens')" />
+              <div class="slider-value" id="anxSensVal">6/10</div>
+            </div>
+          </div>
+        </div>
 
-    const drivers = [];
-    if (drinkGap != null && drinkGap < 75) drivers.push('tight last drink to magnesium glycinate gap');
-    if (stress >= 6) drivers.push('high stress');
-    if (anx >= 6) drivers.push('high anxiety');
-    if (shoulder >= 6) drivers.push('shoulder or neck tension');
-    if (bmForm >= 6) drivers.push('soft or watery form');
-    if (bmPain >= 5) drivers.push('higher pain');
+        <div class="section">
+          <div class="section-title">2. Foods and notes</div>
+          <div class="field-group">
+            <label>Foods or notes (pseudo AI will scan for common items)</label>
+            <textarea id="anxFoods" placeholder="Example: Cereal, soda, cookies, or pizza, nuts, chicken and veggies."></textarea>
+          </div>
+        </div>
 
-    const driver = drivers.length ? drivers[0] : 'no single dominant factor';
-    return { label: label, driver: driver };
-  }
+        <div class="section">
+          <div class="section-title">3. Quick actions</div>
+          <div class="quick-actions">
+            <button onclick="anxAction('log')">Log anxiety day</button>
+            <button onclick="anxAction('forecast')">Show spike and crash time</button>
+            <button onclick="anxAction('explain')">Explain today’s anxiety pattern</button>
+            <button onclick="anxAction('questions')">Ask narrowing questions</button>
+          </div>
+        </div>
+        <div class="small-note">
+          Note: the foods box uses a simple keyword map right now. It does not call any external AI or server.
+        </div>
+      </div>
 
-  function getStateSnapshot() {
-    const stress = Number(document.getElementById('stress').value || 0);
-    const shoulder = Number(document.getElementById('shoulder').value || 0);
-    const gut = Number(document.getElementById('gut').value || 0);
-    const anx = Number(document.getElementById('anx').value || 0);
+      <!-- Middle: Chat -->
+      <div class="panel">
+        <h2>Console chat</h2>
+        <small>Asks questions, returns explanations, and uses your sliders and timing as context. This is all local logic.</small>
+        <div class="chat-box">
+          <div id="chatMessages" class="chat-log"></div>
+          <div class="chat-input-row">
+            <input id="chatInput" type="text" placeholder="Example: What does tonight look like, or predict tomorrow, or explain why today hurt." />
+            <button onclick="sendChat()">Send</button>
+          </div>
+          <div class="small-note">
+            Tip: Ask things like "Explain my system", "Predict tomorrow", or "What is the main driver tonight".
+          </div>
+        </div>
+      </div>
 
-    const dinTime = document.getElementById('dinTime').value;
-    const foodTime = document.getElementById('foodTime').value;
-    const drinkTime = document.getElementById('drinkTime').value;
-    const magTime = document.getElementById('magTime').value;
-    const sleepTime = document.getElementById('sleepTime').value;
-    const wakeTime = document.getElementById('wakeTime').value;
+      <!-- Right: History -->
+      <div class="panel">
+        <h2>30 day rhythm history</h2>
+        <small>Each day logs as Stable, Recovery or Sensitive with a dominant driver.</small>
+        <ul id="historyList" class="history-list"></ul>
+        <div class="small-note">
+          Stored in your browser only. Clearing browser storage will reset this history.
+        </div>
+      </div>
+    </div>
+  </div>
 
-    const bmTime = document.getElementById('bmTime').value;
-    const bmPain = Number(document.getElementById('bmPain').value || 0);
-    const bmForm = Number(document.getElementById('bmForm').value || 4);
-    const ibsMeal = document.getElementById('ibsMeal').value.trim();
+  <script>
+    const HISTORY_KEY = 'brcHistory_v1';
+    let currentMode = 'ibs';
 
-    const anxHitTime = document.getElementById('anxHitTime').value;
-    const anxSugar = Number(document.getElementById('anxSugar').value || 0);
-    const anxCaf = Number(document.getElementById('anxCaf').value || 0);
-    const anxSleep = Number(document.getElementById('anxSleep').value || 0);
-    const anxSens = Number(document.getElementById('anxSens').value || 0);
-    const anxFoods = document.getElementById('anxFoods').value.trim();
+    const FOOD_KEYWORDS = [
+      { label: 'Sugary cereal', keywords: ['cereal', 'cinnamon toast crunch', 'frosted flakes', 'lucky charms', 'cap n crunch'], sugar: 9, carbs: 8 },
+      { label: 'Pancakes or waffles with syrup', keywords: ['pancakes', 'waffles', 'syrup'], sugar: 9, carbs: 8 },
+      { label: 'White bread or toast', keywords: ['white bread', 'toast', 'bagel', 'english muffin'], sugar: 4, carbs: 7 },
+      { label: 'Pizza', keywords: ['pizza'], sugar: 4, carbs: 8 },
+      { label: 'Pasta', keywords: ['pasta', 'spaghetti', 'mac and cheese', 'macaroni'], sugar: 3, carbs: 8 },
+      { label: 'White rice', keywords: ['white rice', 'fried rice', 'rice bowl'], sugar: 3, carbs: 7 },
+      { label: 'Chips or fries', keywords: ['chips', 'doritos', 'tortilla chips', 'kettle chips', 'fries'], sugar: 3, carbs: 7 },
+      { label: 'Candy', keywords: ['candy', 'skittles', 'gummy', 'gummies', 'starburst', 'jelly bean'], sugar: 10, carbs: 6 },
+      { label: 'Cookies', keywords: ['cookie', 'cookies', 'oreos'], sugar: 9, carbs: 6 },
+      { label: 'Cake or brownies', keywords: ['cake', 'cupcake', 'cupcakes', 'brownie', 'brownies'], sugar: 9, carbs: 6 },
+      { label: 'Ice cream', keywords: ['ice cream', 'gelato', 'frozen yogurt', 'froyo'], sugar: 9, carbs: 5 },
+      { label: 'Sugary drinks', keywords: ['soda', 'coke', 'cola', 'pepsi', 'sprite', 'mountain dew', 'dr pepper', 'energy drink', 'red bull', 'monster'], sugar: 10, carbs: 6 },
+      { label: 'Juice', keywords: ['juice', 'orange juice', 'apple juice', 'grape juice'], sugar: 8, carbs: 5 },
+      { label: 'Chocolate', keywords: ['chocolate', 'm&m', 'm & m'], sugar: 8, carbs: 5 },
+      { label: 'Sweet coffee drink', keywords: ['frappuccino', 'latte', 'mocha', 'iced coffee', 'coffee drink'], sugar: 7, carbs: 4 },
+      { label: 'Oatmeal', keywords: ['oatmeal', 'oats', 'porridge'], sugar: 3, carbs: 6 },
+      { label: 'Fruit', keywords: ['banana', 'apple', 'grapes', 'mango', 'pineapple'], sugar: 5, carbs: 4 },
+      { label: 'Low sugar meal', keywords: ['eggs', 'omelette', 'chicken', 'salad', 'broccoli', 'steamed veggies', 'fish', 'steak'], sugar: 1, carbs: 2 },
+      { label: 'Nuts', keywords: ['nuts', 'almonds', 'cashews', 'peanuts'], sugar: 1, carbs: 2 },
+      { label: 'Yogurt', keywords: ['yogurt', 'yoghurt'], sugar: 5, carbs: 4 }
+    ];
 
-    return {
-      mode: currentMode,
-      ibs: {
-        stress: stress,
-        shoulder: shoulder,
-        gutComfort: gut,
-        anxiety: anx,
-        dinnerTime: dinTime,
-        lastFoodTime: foodTime,
-        lastDrinkTime: drinkTime,
-        magnesiumGlycinateTime: magTime,
-        sleepTime: sleepTime,
-        wakeTime: wakeTime,
-        bmTime: bmTime,
-        bmPain: bmPain,
-        bmForm: bmForm,
-        lastMealDescription: ibsMeal
-      },
-      anxietySide: {
-        mainHitTime: anxHitTime,
-        sugarLoad: anxSugar,
-        caffeineLoad: anxCaf,
-        sleepQuality: anxSleep,
-        baselineSensitivity: anxSens,
-        foodsNotes: anxFoods
-      }
-    };
-  }
-
-  function generateLocalAIReply(userText, snapshot) {
-    if (snapshot.mode === 'ibs') {
-      const s = snapshot.ibs;
-      const drinkM = parseTimeStringToMinutes(s.lastDrinkTime);
-      const magM = parseTimeStringToMinutes(s.magnesiumGlycinateTime);
-      const drinkGap = (drinkM != null && magM != null) ? (magM - drinkM) : null;
-
-      const classInfo = classifyDay({
-        drinkGap: drinkGap,
-        stress: s.stress,
-        anx: s.anxiety,
-        shoulder: s.shoulder,
-        gut: s.gutComfort,
-        bmForm: s.bmForm,
-        bmPain: s.bmPain
-      });
-
-      let msg = 'Today at a glance: ' + classInfo.label + ' day, main driver: ' + classInfo.driver + '. ';
-
-      if (drinkGap != null) {
-        if (drinkGap < 60) {
-          msg += 'The last drink to magnesium glycinate gap is short; mornings like this tend to be softer or more unpredictable for your pattern. ';
-        } else if (drinkGap >= 90) {
-          msg += 'Your last drink to magnesium glycinate gap is wide enough that it usually supports a more stable morning. ';
+    function estimateFoodLoad(text) {
+      if (!text) return { sugar: 0, carbs: 0, matches: [] };
+      const lower = text.toLowerCase();
+      let maxSugar = 0;
+      let maxCarbs = 0;
+      const matches = [];
+      for (const item of FOOD_KEYWORDS) {
+        const hit = item.keywords.some(k => lower.includes(k));
+        if (hit) {
+          matches.push(item.label);
+          if (item.sugar > maxSugar) maxSugar = item.sugar;
+          if (item.carbs > maxCarbs) maxCarbs = item.carbs;
         }
       }
+      return { sugar: maxSugar, carbs: maxCarbs, matches };
+    }
 
-      if (s.shoulder >= 7) {
-        msg += 'Shoulder and neck tension are high, so left side awareness and that descending shoulder to gut sensation may feel louder even if the gut itself is behaving. ';
-      }
-
-      if (s.anxiety >= 6 && s.stress >= 6) {
-        msg += 'Both stress and anxiety are elevated; that turns up the volume knob on normal gut sensations and makes them feel more like a threat. ';
-      }
-
-      if (s.gutComfort >= 7 && s.stress <= 3 && (drinkGap == null || drinkGap >= 90)) {
-        msg += 'Overall this looks close to your good pattern setup: calmer nervous system and decent timing. ';
-      }
-
-      if (s.bmForm >= 6) {
-        msg += 'This morning’s form is on the softer side, which often tracks with either tight liquid timing or a recent stretch of higher nervous system load. ';
-      } else if (s.bmForm === 4 && s.bmPain <= 2) {
-        msg += 'Smooth form and low pain line up with your more stable pattern days. ';
-      }
-
-      if (s.lastMealDescription) {
-        msg += 'Last meal logged as: ' + s.lastMealDescription + '. In this version, timing and nervous system state still do most of the heavy lifting. ';
-      }
-
-      if (userText.toLowerCase().indexOf('tomorrow') !== -1) {
-        msg += 'Given this setup, tomorrow is more likely to be a sensitive but manageable morning than a full flare, unless timing gets much tighter or stress spikes. ';
-      }
-
-      return msg.trim();
-    } else {
-      const a = snapshot.anxietySide;
-      const hitM = parseTimeStringToMinutes(a.mainHitTime);
-      const foodEstimate = estimateFoodLoad(a.foodsNotes);
-      const effectiveSugar = Math.max(a.sugarLoad, foodEstimate.sugar);
-
-      let score = 0;
-      if (effectiveSugar >= 6) score++;
-      if (a.caffeineLoad >= 5) score++;
-      if (a.sleepQuality <= 4) score++;
-      if (a.baselineSensitivity >= 7) score++;
-
-      let risk = 'Low';
-      if (score === 2) risk = 'Moderate';
-      if (score >= 3) risk = 'High';
-
-      let driver = 'mixed factors';
-      if (effectiveSugar >= 7 && a.caffeineLoad >= 5) {
-        driver = 'big sugar plus caffeine load';
-      } else if (effectiveSugar >= 6 && a.caffeineLoad <= 3) {
-        driver = 'heavier carbs with low caffeine';
-      } else if (effectiveSugar <= 3 && a.caffeineLoad >= 7) {
-        driver = 'caffeine more than sugar';
-      } else if (a.sleepQuality <= 4 && a.baselineSensitivity >= 7) {
-        driver = 'thin sleep and high sensitivity';
-      }
-
-      let spikeStart = null;
-      let spikeEnd = null;
-      let crashStart = null;
-      let crashEnd = null;
-
-      if (hitM != null) {
-        if (effectiveSugar >= 7 && a.caffeineLoad >= 5) {
-          spikeStart = hitM + 30;
-          spikeEnd = hitM + 90;
-          crashStart = hitM + 120;
-          crashEnd = hitM + 240;
-        } else if (effectiveSugar >= 6 && a.caffeineLoad <= 3) {
-          spikeStart = hitM + 60;
-          spikeEnd = hitM + 120;
-          crashStart = hitM + 180;
-          crashEnd = hitM + 300;
-        } else if (effectiveSugar <= 3 && a.caffeineLoad >= 7) {
-          spikeStart = hitM + 30;
-          spikeEnd = hitM + 90;
-          crashStart = hitM + 180;
-          crashEnd = hitM + 300;
-        } else {
-          spikeStart = hitM + 60;
-          spikeEnd = hitM + 150;
-          crashStart = hitM + 180;
-          crashEnd = hitM + 300;
-        }
-      }
-
-      let msg = 'Crash risk: ' + risk + '. Main driver: ' + driver + '. ';
-
-      if (hitM != null && spikeStart != null && crashStart != null) {
-        const spikeWindow = minutesToClockString(spikeStart) + ' to ' + minutesToClockString(spikeEnd);
-        const crashWindow = minutesToClockString(crashStart) + ' to ' + minutesToClockString(crashEnd);
-        msg += 'Spike window: ' + spikeWindow + '. Crash window: ' + crashWindow + '. ';
+    function setMode(mode) {
+      currentMode = mode;
+      const ibsPanel = document.getElementById('ibsPanel');
+      const anxPanel = document.getElementById('anxPanel');
+      const modeIbs = document.getElementById('modeIbs');
+      const modeAnx = document.getElementById('modeAnx');
+      if (!ibsPanel || !anxPanel) return;
+      if (mode === 'ibs') {
+        ibsPanel.style.display = '';
+        anxPanel.style.display = 'none';
+        if (modeIbs) modeIbs.classList.add('active');
+        if (modeAnx) modeAnx.classList.remove('active');
       } else {
-        msg += 'Set a main carb or sugar time to get a more precise spike and crash window. ';
+        ibsPanel.style.display = 'none';
+        anxPanel.style.display = '';
+        if (modeAnx) modeAnx.classList.add('active');
+        if (modeIbs) modeIbs.classList.remove('active');
       }
-
-      if (a.foodsNotes) {
-        if (foodEstimate.matches.length) {
-          msg += 'From your foods, this looks like roughly a ' + effectiveSugar + '/10 sugar day (matches: ' + foodEstimate.matches.join(', ') + '). ';
-        } else {
-          msg += 'Foods are logged but did not match the current list yet; the sugar slider is doing most of the work. ';
-        }
-      }
-
-      if (a.sleepQuality <= 4 || a.baselineSensitivity >= 7) {
-        msg += 'Because sleep is thin or baseline sensitivity is high, whatever lands inside that crash window is likely to feel louder than it really is. ';
-      }
-
-      let meaning;
-      if (risk === 'High') {
-        meaning = 'wired then flat kind of day, with more body noise than usual in the crash window.';
-      } else if (risk === 'Moderate') {
-        meaning = 'mild spike then drift down type of day; you may feel off in the crash window but not wrecked.';
-      } else {
-        meaning = 'low crash risk day; small waves more than a true crash.';
-      }
-
-      msg += 'What this means: ' + meaning;
-      return msg.trim();
     }
-  }
 
-  function preset(type) {
-    const stress = Number(document.getElementById('stress').value || 0);
-    const shoulder = Number(document.getElementById('shoulder').value || 0);
-    const gut = Number(document.getElementById('gut').value || 0);
-    const anx = Number(document.getElementById('anx').value || 0);
+    function addMessage(sender, text) {
+      const box = document.getElementById('chatMessages');
+      if (!box) return;
+      const div = document.createElement('div');
+      div.className = 'chat-msg';
+      div.innerHTML = '<strong>' + sender + ':</strong> ' + text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
 
-    const tDrink = timeToMinutes('drinkTime');
-    const tMag = timeToMinutes('magTime');
-    const drinkGap = (tDrink != null && tMag != null) ? (tMag - tDrink) : null;
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage('You', text);
+      input.value = '';
+      const snapshot = getStateSnapshot();
+      const reply = generateLocalAIReply(text, snapshot);
+      addMessage('App', reply);
+    }
 
-    const tBm = timeToMinutes('bmTime');
-    const bmForm = Number(document.getElementById('bmForm').value || 4);
-    const bmPain = Number(document.getElementById('bmPain').value || 0);
-    const ibsMeal = document.getElementById('ibsMeal').value.trim();
+    function updateLabel(which) {
+      if (which === 'stress') {
+        const v = document.getElementById('stress').value;
+        document.getElementById('stressVal').textContent = v + '/10';
+      }
+      if (which === 'shoulder') {
+        const v = document.getElementById('shoulder').value;
+        document.getElementById('shoulderVal').textContent = v + '/10';
+      }
+      if (which === 'gut') {
+        const v = document.getElementById('gut').value;
+        document.getElementById('gutVal').textContent = v + '/10';
+      }
+      if (which === 'anx') {
+        const v = document.getElementById('anx').value;
+        document.getElementById('anxVal').textContent = v + '/10';
+      }
+      if (which === 'pain') {
+        const v = document.getElementById('bmPain').value;
+        document.getElementById('bmPainVal').textContent = v + '/10';
+      }
+    }
 
-    if (type === 'log_today') {
-      let summary = 'Save today: stress=' + stress +
-        ', shoulder=' + shoulder +
-        ', gut=' + gut +
-        ', anxiety=' + anx +
-        ', BM form=' + bmForm +
-        ', BM pain=' + bmPain + '.';
-      addMessage('You', summary);
-      if (ibsMeal) addMessage('You', 'Last meal: ' + ibsMeal);
+    function updateAnxLabel(which) {
+      if (which === 'sugar') {
+        const v = document.getElementById('anxSugar').value;
+        document.getElementById('anxSugarVal').textContent = v + '/10';
+      }
+      if (which === 'caf') {
+        const v = document.getElementById('anxCaf').value;
+        document.getElementById('anxCafVal').textContent = v + '/10';
+      }
+      if (which === 'sleep') {
+        const v = document.getElementById('anxSleep').value;
+        document.getElementById('anxSleepVal').textContent = v + '/10';
+      }
+      if (which === 'sens') {
+        const v = document.getElementById('anxSens').value;
+        document.getElementById('anxSensVal').textContent = v + '/10';
+      }
+    }
 
-      const classInfo = classifyDay({
-        drinkGap: drinkGap,
-        stress: stress,
-        anx: anx,
-        shoulder: shoulder,
-        gut: gut,
-        bmForm: bmForm,
-        bmPain: bmPain
+    function timeToMinutes(id) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const t = el.value;
+      if (!t) return null;
+      const parts = t.split(':');
+      if (parts.length < 2) return null;
+      const h = Number(parts[0]);
+      const m = Number(parts[1]);
+      if (isNaN(h) || isNaN(m)) return null;
+      return h * 60 + m;
+    }
+
+    function parseTimeStringToMinutes(t) {
+      if (!t) return null;
+      const parts = t.split(':');
+      if (parts.length < 2) return null;
+      const h = Number(parts[0]);
+      const m = Number(parts[1]);
+      if (isNaN(h) || isNaN(m)) return null;
+      return h * 60 + m;
+    }
+
+    function minutesToClockString(mins) {
+      if (mins == null) return '';
+      let m = mins % (24 * 60);
+      if (m < 0) m += 24 * 60;
+      const hour = Math.floor(m / 60);
+      const minute = m % 60;
+      const ampm = hour >= 12 ? 'pm' : 'am';
+      const hour12 = ((hour + 11) % 12) + 1;
+      const minuteStr = minute.toString().padStart(2, '0');
+      return hour12 + ':' + minuteStr + ' ' + ampm;
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        if (!raw) return [];
+        const data = JSON.parse(raw);
+        return Array.isArray(data) ? data : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveHistory(list) {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+      } catch (e) {}
+    }
+
+    function renderHistory() {
+      const ul = document.getElementById('historyList');
+      if (!ul) return;
+      const list = loadHistory();
+      ul.innerHTML = '';
+      if (!list.length) {
+        const li = document.createElement('li');
+        li.textContent = 'No days logged yet.';
+        ul.appendChild(li);
+        return;
+      }
+      list.slice(-7).reverse().forEach(entry => {
+        const li = document.createElement('li');
+        li.innerHTML =
+          '<span class="history-label">' +
+          entry.dayLabel +
+          '</span> · ' +
+          entry.label +
+          ' · driver: ' +
+          entry.driver;
+        ul.appendChild(li);
       });
-
-      const today = new Date();
-      const dayLabel = today.toLocaleDateString(undefined, {
-        weekday: 'short',
-        month: 'numeric',
-        day: 'numeric'
-      });
-
-      const history = loadHistory();
-      history.push({
-        dayLabel: dayLabel,
-        label: classInfo.label,
-        driver: classInfo.driver
-      });
-      const trimmed = history.slice(-30);
-      saveHistory(trimmed);
-      renderHistory();
-
-      addMessage('App', 'Today at a glance: ' + classInfo.label +
-        ' day, main driver: ' + classInfo.driver + '.');
-      addMessage('App', 'Logged as a "' + classInfo.label +
-        '" day with main driver: ' + classInfo.driver +
-        '. In a fuller build this history would be used to refine your personal rhythm model over time.');
     }
 
-    if (type === 'insight') {
-      addMessage('You', 'Show me today’s pattern.');
-      let msg;
-      if (drinkGap != null && drinkGap < 75) {
-        msg = 'Your last drink is fairly close to magnesium glycinate. On systems like yours, mornings tend to be softer or more unpredictable when that gap is under about 75 to 90 minutes.';
-      } else if (shoulder >= 7) {
-        msg = 'Shoulder tension is high. On days like this, splenic flexure and left side sensitivity often show up even if digestion itself is fine. This is more nervous system than gut tissue.';
-      } else if (anx >= 6 && stress >= 6) {
-        msg = 'Both stress and anxiety are elevated. That usually raises your internal volume knob and makes normal sensations feel louder, even when timing is decent.';
-      } else if (gut >= 7 && stress <= 3 && (drinkGap == null || drinkGap >= 90)) {
-        msg = 'This looks close to your stable rhythm: decent gut comfort, low stress, and a solid gap between last drink and magnesium glycinate. That is usually a strong setup for a predictable morning.';
-      } else {
-        msg = 'Today looks mixed. Nothing screams disaster, but sensitivity is a bit elevated. Small improvements in cutoff or evening calm will likely pay off tomorrow.';
+    function classifyDay(info) {
+      const drinkGap = info.drinkGap;
+      const stress = info.stress;
+      const anx = info.anx;
+      const shoulder = info.shoulder;
+      const gut = info.gut;
+      const bmForm = info.bmForm;
+      const bmPain = info.bmPain;
+
+      let label = 'Recovery / mixed';
+
+      if (
+        drinkGap != null && drinkGap >= 90 &&
+        stress <= 4 && anx <= 4 &&
+        shoulder <= 5 &&
+        gut >= 6 &&
+        bmPain <= 2 &&
+        bmForm >= 3 && bmForm <= 5
+      ) {
+        label = 'Stable';
+      } else if (
+        bmForm >= 6 ||
+        bmPain >= 5 ||
+        (drinkGap != null && drinkGap < 60) ||
+        stress >= 7 ||
+        anx >= 7
+      ) {
+        label = 'Sensitive';
       }
-      if (tBm != null) {
-        if (bmForm >= 6) {
-          msg += ' This morning’s form suggests your system is still on the softer side. That often tracks back to either a tight last drink to magnesium glycinate gap or more nervous system load than ideal.';
-        } else if (bmForm === 4 && bmPain <= 2) {
-          msg += ' The morning outcome you logged, smooth form and low pain, fits your more stable pattern and is a good sign that timing is on the right track.';
-        }
-      }
-      addMessage('App', msg);
-    }
 
-    if (type === 'forecast') {
-      addMessage('You', 'Predict tomorrow morning.');
-      let msg = 'Given this setup, tomorrow looks like a sensitive but workable morning. Not perfect, not terrible. Expect more awareness than true pain.';
-      if (drinkGap != null && drinkGap >= 90 && stress <= 3 && anx <= 3 && shoulder <= 4 && gut >= 6) {
-        msg = 'This is one of your stronger setups. I would expect a single mostly solid morning BM, low pain, and a quieter nervous system overall.';
-      } else if (drinkGap != null && drinkGap < 60) {
-        msg = 'Tomorrow has a higher chance of a soft or partly watery morning, mostly due to the tight last drink to magnesium glycinate gap. Not dangerous, just less stable.';
-      } else if (anx >= 7 || stress >= 7) {
-        msg = 'Tomorrow may feel louder in your body even if the gut behaves. Expect more internal noise, mostly driven by nervous system state rather than true gut trouble.';
-      }
-      addMessage('App', msg);
-    }
-
-    if (type === 'explain') {
-      addMessage('You', 'Explain my system.');
-      const msg =
-        'You have a timing sensitive, nervous system heavy pattern. Evenings with calmer stress, lower shoulder tension, and a clear cutoff between last drink and magnesium glycinate usually give you stable mornings. When stress, anxiety, or shoulder tension run high, your sensitivity goes up even if nothing is wrong in the gut itself.';
-      addMessage('App', msg);
-    }
-
-    if (type === 'driving') {
-      addMessage('You', 'What is driving today?');
       const drivers = [];
       if (drinkGap != null && drinkGap < 75) drivers.push('tight last drink to magnesium glycinate gap');
-      if (shoulder >= 6) drivers.push('shoulder and neck tension');
-      if (anx >= 6) drivers.push('anxiety level');
-      if (stress >= 6) drivers.push('overall stress load');
+      if (stress >= 6) drivers.push('high stress');
+      if (anx >= 6) drivers.push('high anxiety');
+      if (shoulder >= 6) drivers.push('shoulder or neck tension');
+      if (bmForm >= 6) drivers.push('soft or watery form');
+      if (bmPain >= 5) drivers.push('higher pain');
 
-      if (!drivers.length) {
-        addMessage('App', 'Nothing is screaming as a strong driver today from the sliders alone. This looks more like a fine tune and watch what happens kind of day rather than a clear trigger day.');
+      const driver = drivers.length ? drivers[0] : 'no single dominant factor';
+      return { label: label, driver: driver };
+    }
+
+    function getStateSnapshot() {
+      const stress = Number(document.getElementById('stress').value || 0);
+      const shoulder = Number(document.getElementById('shoulder').value || 0);
+      const gut = Number(document.getElementById('gut').value || 0);
+      const anx = Number(document.getElementById('anx').value || 0);
+
+      const dinTime = document.getElementById('dinTime').value;
+      const foodTime = document.getElementById('foodTime').value;
+      const drinkTime = document.getElementById('drinkTime').value;
+      const magTime = document.getElementById('magTime').value;
+      const sleepTime = document.getElementById('sleepTime').value;
+      const wakeTime = document.getElementById('wakeTime').value;
+
+      const bmTime = document.getElementById('bmTime').value;
+      const bmPain = Number(document.getElementById('bmPain').value || 0);
+      const bmForm = Number(document.getElementById('bmForm').value || 4);
+      const ibsMeal = document.getElementById('ibsMeal').value.trim();
+
+      const anxHitTime = document.getElementById('anxHitTime').value;
+      const anxSugar = Number(document.getElementById('anxSugar').value || 0);
+      const anxCaf = Number(document.getElementById('anxCaf').value || 0);
+      const anxSleep = Number(document.getElementById('anxSleep').value || 0);
+      const anxSens = Number(document.getElementById('anxSens').value || 0);
+      const anxFoods = document.getElementById('anxFoods').value.trim();
+
+      return {
+        mode: currentMode,
+        ibs: {
+          stress: stress,
+          shoulder: shoulder,
+          gutComfort: gut,
+          anxiety: anx,
+          dinnerTime: dinTime,
+          lastFoodTime: foodTime,
+          lastDrinkTime: drinkTime,
+          magnesiumGlycinateTime: magTime,
+          sleepTime: sleepTime,
+          wakeTime: wakeTime,
+          bmTime: bmTime,
+          bmPain: bmPain,
+          bmForm: bmForm,
+          lastMealDescription: ibsMeal
+        },
+        anxietySide: {
+          mainHitTime: anxHitTime,
+          sugarLoad: anxSugar,
+          caffeineLoad: anxCaf,
+          sleepQuality: anxSleep,
+          baselineSensitivity: anxSens,
+          foodsNotes: anxFoods
+        }
+      };
+    }
+
+    function generateLocalAIReply(userText, snapshot) {
+      if (snapshot.mode === 'ibs') {
+        const s = snapshot.ibs;
+        const drinkM = parseTimeStringToMinutes(s.lastDrinkTime);
+        const magM = parseTimeStringToMinutes(s.magnesiumGlycinateTime);
+        const drinkGap = drinkM != null && magM != null ? magM - drinkM : null;
+
+        const classInfo = classifyDay({
+          drinkGap: drinkGap,
+          stress: s.stress,
+          anx: s.anxiety,
+          shoulder: s.shoulder,
+          gut: s.gutComfort,
+          bmForm: s.bmForm,
+          bmPain: s.bmPain
+        });
+
+        let msg =
+          'Today at a glance: ' +
+          classInfo.label +
+          ' day, main driver: ' +
+          classInfo.driver +
+          '. ';
+
+        if (drinkGap != null) {
+          if (drinkGap < 60) {
+            msg +=
+              'The last drink to magnesium glycinate gap is short; mornings like this tend to be softer or more unpredictable for your pattern. ';
+          } else if (drinkGap >= 90) {
+            msg +=
+              'Your last drink to magnesium glycinate gap is wide enough that it usually supports a more stable morning. ';
+          }
+        }
+
+        if (s.shoulder >= 7) {
+          msg +=
+            'Shoulder and neck tension are high, so left side awareness and that descending shoulder to gut sensation may feel louder even if the gut itself is behaving. ';
+        }
+
+        if (s.anxiety >= 6 && s.stress >= 6) {
+          msg +=
+            'Both stress and anxiety are elevated; that turns up the volume knob on normal gut sensations and makes them feel more like a threat. ';
+        }
+
+        if (
+          s.gutComfort >= 7 &&
+          s.stress <= 3 &&
+          (drinkGap == null || drinkGap >= 90)
+        ) {
+          msg +=
+            'Overall this looks close to your good pattern setup: calmer nervous system and decent timing. ';
+        }
+
+        if (s.bmForm >= 6) {
+          msg +=
+            'This morning’s form is on the softer side, which often tracks with either tight liquid timing or a recent stretch of higher nervous system load. ';
+        } else if (s.bmForm === 4 && s.bmPain <= 2) {
+          msg +=
+            'Smooth form and low pain line up with your more stable pattern days. ';
+        }
+
+        if (s.lastMealDescription) {
+          msg +=
+            'Last meal logged as: ' +
+            s.lastMealDescription +
+            '. In this version, timing and nervous system state still do most of the heavy lifting. ';
+        }
+
+        if (userText.toLowerCase().indexOf('tomorrow') !== -1) {
+          msg +=
+            'Given this setup, tomorrow is more likely to be a sensitive but manageable morning than a full flare, unless timing gets much tighter or stress spikes. ';
+        }
+
+        return msg.trim();
       } else {
-        addMessage('App', 'The main drivers tonight look like: ' + drivers.join(', ') + '. Those are the knobs that usually change your sensitivity the most.');
-      }
-    }
+        const a = snapshot.anxietySide;
+        const hitM = parseTimeStringToMinutes(a.mainHitTime);
+        const foodEstimate = estimateFoodLoad(a.foodsNotes);
+        const effectiveSugar = Math.max(a.sugarLoad, foodEstimate.sugar);
 
-    if (type === 'questions') {
-      addMessage('You', 'Ask me some narrowing questions.');
-      const qs = [];
-      if (drinkGap != null && drinkGap < 75) {
-        qs.push('Your last drink is fairly close to magnesium glycinate. On nights like this, have your worst or softest mornings usually happened, or does it still feel random to you?');
-      }
-      if (shoulder >= 7) {
-        qs.push('With shoulder tension this high, do you usually notice more left side gut awareness or splenic flexure style pressure either that night or the next morning?');
-      }
-      if (anx >= 6) {
-        qs.push('When anxiety is this elevated, do you tend to feel the anxiety first and then the gut reacts, or does the gut flare first and your mind responds after?');
-      }
-      if (stress >= 6 && anx < 6) {
-        qs.push('Stress is high but anxiety is a bit lower. Does your body hold this mostly in muscle tension, shoulders, neck, jaw, or does your gut often join in too on days like this?');
-      }
-      if (gut <= 4) {
-        qs.push('Gut comfort is low. Would you describe it more as sharp pain, pressure, bloating, or just hypersensitive awareness where everything inside feels too loud?');
-      }
-      if (!qs.length) {
-        qs.push('Nothing jumps out as a clear driver. If you had to guess, what part of today feels most off: timing, stress, sleep, or body tension?');
-      }
-      qs.forEach(q => addMessage('App', q));
-    }
-  }
+        let score = 0;
+        if (effectiveSugar >= 6) score++;
+        if (a.caffeineLoad >= 5) score++;
+        if (a.sleepQuality <= 4) score++;
+        if (a.baselineSensitivity >= 7) score++;
 
-  function anxAction(type) {
-    const sugar = Number(document.getElementById('anxSugar').value || 0);
-    const caf = Number(document.getElementById('anxCaf').value || 0);
-    const sleep = Number(document.getElementById('anxSleep').value || 0);
-    const sens = Number(document.getElementById('anxSens').value || 0);
-    const foods = document.getElementById('anxFoods').value.trim();
-    const hitTime = timeToMinutes('anxHitTime');
+        let risk = 'Low';
+        if (score === 2) risk = 'Moderate';
+        if (score >= 3) risk = 'High';
 
-    const foodEstimate = estimateFoodLoad(foods);
-    const effectiveSugar = Math.max(sugar, foodEstimate.sugar);
+        let driver = 'mixed factors';
+        if (effectiveSugar >= 7 && a.caffeineLoad >= 5) {
+          driver = 'big sugar plus caffeine load';
+        } else if (effectiveSugar >= 6 && a.caffeineLoad <= 3) {
+          driver = 'heavier carbs with low caffeine';
+        } else if (effectiveSugar <= 3 && a.caffeineLoad >= 7) {
+          driver = 'caffeine more than sugar';
+        } else if (a.sleepQuality <= 4 && a.baselineSensitivity >= 7) {
+          driver = 'thin sleep and high sensitivity';
+        }
 
-    if (type === 'log') {
-      addMessage('You', 'Log anxiety day: sugar slider=' + sugar +
-        '/10, caffeine=' + caf + '/10, sleep=' + sleep +
-        '/10, baseline sensitivity=' + sens + '/10.');
-      if (foods) {
-        addMessage('You', 'Foods or notes: ' + foods);
-      }
-      if (foodEstimate.matches.length) {
-        addMessage('App', 'From foods this looks like about a ' + effectiveSugar +
-          '/10 sugar load (matches: ' + foodEstimate.matches.join(', ') + ').');
-      } else if (foods) {
-        addMessage('App', 'Foods are logged but did not match the current list yet. Slider value is used as the main sugar estimate.');
-      }
-      addMessage('App', 'Logged this anxiety day. In a fuller build this would be stored along with your IBS timing so both rhythms can be compared side by side.');
-    }
+        let spikeStart = null;
+        let spikeEnd = null;
+        let crashStart = null;
+        let crashEnd = null;
 
-    if (type === 'forecast') {
-      addMessage('You', 'Show spike and crash time.');
-      let score = 0;
-      if (effectiveSugar >= 6) score++;
-      if (caf >= 5) score++;
-      if (sleep <= 4) score++;
-      if (sens >= 7) score++;
+        if (hitM != null) {
+          if (effectiveSugar >= 7 && a.caffeineLoad >= 5) {
+            spikeStart = hitM + 30;
+            spikeEnd = hitM + 90;
+            crashStart = hitM + 120;
+            crashEnd = hitM + 240;
+          } else if (effectiveSugar >= 6 && a.caffeineLoad <= 3) {
+            spikeStart = hitM + 60;
+            spikeEnd = hitM + 120;
+            crashStart = hitM + 180;
+            crashEnd = hitM + 300;
+          } else if (effectiveSugar <= 3 && a.caffeineLoad >= 7) {
+            spikeStart = hitM + 30;
+            spikeEnd = hitM + 90;
+            crashStart = hitM + 180;
+            crashEnd = hitM + 300;
+          } else {
+            spikeStart = hitM + 60;
+            spikeEnd = hitM + 150;
+            crashStart = hitM + 180;
+            crashEnd = hitM + 300;
+          }
+        }
 
-      let risk = 'Low';
-      if (score === 2) risk = 'Moderate';
-      if (score >= 3) risk = 'High';
+        let msg =
+          'Crash risk: ' + risk + '. Main driver: ' + driver + '. ';
 
-      let driver = 'mixed factors';
-      if (effectiveSugar >= 7 && caf >= 5) {
-        driver = 'big sugar plus caffeine load';
-      } else if (effectiveSugar >= 6 && caf <= 3) {
-        driver = 'heavier carbs with low caffeine';
-      } else if (effectiveSugar <= 3 && caf >= 7) {
-        driver = 'caffeine more than sugar';
-      } else if (sleep <= 4 && sens >= 7) {
-        driver = 'thin sleep and high sensitivity';
-      }
-
-      let spikeStart = null;
-      let spikeEnd = null;
-      let crashStart = null;
-      let crashEnd = null;
-
-      if (hitTime != null) {
-        if (effectiveSugar >= 7 && caf >= 5) {
-          spikeStart = hitTime + 30;
-          spikeEnd = hitTime + 90;
-          crashStart = hitTime + 120;
-          crashEnd = hitTime + 240;
-        } else if (effectiveSugar >= 6 && caf <= 3) {
-          spikeStart = hitTime + 60;
-          spikeEnd = hitTime + 120;
-          crashStart = hitTime + 180;
-          crashEnd = hitTime + 300;
-        } else if (effectiveSugar <= 3 && caf >= 7) {
-          spikeStart = hitTime + 30;
-          spikeEnd = hitTime + 90;
-          crashStart = hitTime + 180;
-          crashEnd = hitTime + 300;
+        if (hitM != null && spikeStart != null && crashStart != null) {
+          const spikeWindow =
+            minutesToClockString(spikeStart) +
+            ' to ' +
+            minutesToClockString(spikeEnd);
+          const crashWindow =
+            minutesToClockString(crashStart) +
+            ' to ' +
+            minutesToClockString(crashEnd);
+          msg +=
+            'Spike window: ' +
+            spikeWindow +
+            '. Crash window: ' +
+            crashWindow +
+            '. ';
         } else {
-          spikeStart = hitTime + 60;
-          spikeEnd = hitTime + 150;
-          crashStart = hitTime + 180;
-          crashEnd = hitTime + 300;
+          msg +=
+            'Set a main carb or sugar time to get a more precise spike and crash window. ';
+        }
+
+        if (a.foodsNotes) {
+          if (foodEstimate.matches.length) {
+            msg +=
+              'From your foods, this looks like roughly a ' +
+              effectiveSugar +
+              '/10 sugar day (matches: ' +
+              foodEstimate.matches.join(', ') +
+              '). ';
+          } else {
+            msg +=
+              'Foods are logged but did not match the current list yet; the sugar slider is doing most of the work. ';
+          }
+        }
+
+        if (a.sleepQuality <= 4 || a.baselineSensitivity >= 7) {
+          msg +=
+            'Because sleep is thin or baseline sensitivity is high, whatever lands inside that crash window is likely to feel louder than it really is. ';
+        }
+
+        let meaning;
+        if (risk === 'High') {
+          meaning =
+            'wired then flat kind of day, with more body noise than usual in the crash window.';
+        } else if (risk === 'Moderate') {
+          meaning =
+            'mild spike then drift down type of day; you may feel off in the crash window but not wrecked.';
+        } else {
+          meaning =
+            'low crash risk day; small waves more than a true crash.';
+        }
+
+        msg += 'What this means: ' + meaning;
+        return msg.trim();
+      }
+    }
+
+    function preset(type) {
+      const stress = Number(document.getElementById('stress').value || 0);
+      const shoulder = Number(document.getElementById('shoulder').value || 0);
+      const gut = Number(document.getElementById('gut').value || 0);
+      const anx = Number(document.getElementById('anx').value || 0);
+
+      const tDrink = timeToMinutes('drinkTime');
+      const tMag = timeToMinutes('magTime');
+      const drinkGap =
+        tDrink != null && tMag != null ? tMag - tDrink : null;
+
+      const tBm = timeToMinutes('bmTime');
+      const bmForm = Number(document.getElementById('bmForm').value || 4);
+      const bmPain = Number(document.getElementById('bmPain').value || 0);
+      const ibsMeal = document.getElementById('ibsMeal').value.trim();
+
+      if (type === 'log_today') {
+        let summary =
+          'Save today: stress=' +
+          stress +
+          ', shoulder=' +
+          shoulder +
+          ', gut=' +
+          gut +
+          ', anxiety=' +
+          anx +
+          ', BM form=' +
+          bmForm +
+          ', BM pain=' +
+          bmPain +
+          '.';
+        addMessage('You', summary);
+        if (ibsMeal) addMessage('You', 'Last meal: ' + ibsMeal);
+
+        const classInfo = classifyDay({
+          drinkGap: drinkGap,
+          stress: stress,
+          anx: anx,
+          shoulder: shoulder,
+          gut: gut,
+          bmForm: bmForm,
+          bmPain: bmPain
+        });
+
+        const today = new Date();
+        const dayLabel = today.toLocaleDateString(undefined, {
+          weekday: 'short',
+          month: 'numeric',
+          day: 'numeric'
+        });
+
+        const history = loadHistory();
+        history.push({
+          dayLabel: dayLabel,
+          label: classInfo.label,
+          driver: classInfo.driver
+        });
+        const trimmed = history.slice(-30);
+        saveHistory(trimmed);
+        renderHistory();
+
+        addMessage(
+          'App',
+          'Today at a glance: ' +
+            classInfo.label +
+            ' day, main driver: ' +
+            classInfo.driver +
+            '.'
+        );
+        addMessage(
+          'App',
+          'Logged as a "' +
+            classInfo.label +
+            '" day with main driver: ' +
+            classInfo.driver +
+            '. In a fuller build this history would be used to refine your personal rhythm model over time.'
+        );
+      }
+
+      if (type === 'insight') {
+        addMessage('You', 'Show me today’s pattern.');
+        let msg;
+        if (drinkGap != null && drinkGap < 75) {
+          msg =
+            'Your last drink is fairly close to magnesium glycinate. On systems like yours, mornings tend to be softer or more unpredictable when that gap is under about 75 to 90 minutes.';
+        } else if (shoulder >= 7) {
+          msg =
+            'Shoulder tension is high. On days like this, splenic flexure and left side sensitivity often show up even if digestion itself is fine. This is more nervous system than gut tissue.';
+        } else if (anx >= 6 && stress >= 6) {
+          msg =
+            'Both stress and anxiety are elevated. That usually raises your internal volume knob and makes normal sensations feel louder, even when timing is decent.';
+        } else if (
+          gut >= 7 &&
+          stress <= 3 &&
+          (drinkGap == null || drinkGap >= 90)
+        ) {
+          msg =
+            'This looks close to your stable rhythm: decent gut comfort, low stress, and a solid gap between last drink and magnesium glycinate. That is usually a strong setup for a predictable morning.';
+        } else {
+          msg =
+            'Today looks mixed. Nothing screams disaster, but sensitivity is a bit elevated. Small improvements in cutoff or evening calm will likely pay off tomorrow.';
+        }
+        if (tBm != null) {
+          if (bmForm >= 6) {
+            msg +=
+              ' This morning’s form suggests your system is still on the softer side. That often tracks back to either a tight last drink to magnesium glycinate gap or more nervous system load than ideal.';
+          } else if (bmForm === 4 && bmPain <= 2) {
+            msg +=
+              ' The morning outcome you logged, smooth form and low pain, fits your more stable pattern and is a good sign that timing is on the right track.';
+          }
+        }
+        addMessage('App', msg);
+      }
+
+      if (type === 'forecast') {
+        addMessage('You', 'Predict tomorrow morning.');
+        let msg =
+          'Given this setup, tomorrow looks like a sensitive but workable morning. Not perfect, not terrible. Expect more awareness than true pain.';
+        if (
+          drinkGap != null &&
+          drinkGap >= 90 &&
+          stress <= 3 &&
+          anx <= 3 &&
+          shoulder <= 4 &&
+          gut >= 6
+        ) {
+          msg =
+            'This is one of your stronger setups. I would expect a single mostly solid morning BM, low pain, and a quieter nervous system overall.';
+        } else if (drinkGap != null && drinkGap < 60) {
+          msg =
+            'Tomorrow has a higher chance of a soft or partly watery morning, mostly due to the tight last drink to magnesium glycinate gap. Not dangerous, just less stable.';
+        } else if (anx >= 7 || stress >= 7) {
+          msg =
+            'Tomorrow may feel louder in your body even if the gut behaves. Expect more internal noise, mostly driven by nervous system state rather than true gut trouble.';
+        }
+        addMessage('App', msg);
+      }
+
+      if (type === 'explain') {
+        addMessage('You', 'Explain my system.');
+        const msg =
+          'You have a timing sensitive, nervous system heavy pattern. Evenings with calmer stress, lower shoulder tension, and a clear cutoff between last drink and magnesium glycinate usually give you stable mornings. When stress, anxiety, or shoulder tension run high, your sensitivity goes up even if nothing is wrong in the gut itself.';
+        addMessage('App', msg);
+      }
+
+      if (type === 'driving') {
+        addMessage('You', 'What is driving today?');
+        const drivers = [];
+        if (drinkGap != null && drinkGap < 75)
+          drivers.push('tight last drink to magnesium glycinate gap');
+        if (shoulder >= 6) drivers.push('shoulder and neck tension');
+        if (anx >= 6) drivers.push('anxiety level');
+        if (stress >= 6) drivers.push('overall stress load');
+        if (!drivers.length) {
+          addMessage(
+            'App',
+            'Nothing is screaming as a strong driver today from the sliders alone. This looks more like a fine tune and watch what happens kind of day rather than a clear trigger day.'
+          );
+        } else {
+          addMessage(
+            'App',
+            'The main drivers tonight look like: ' +
+              drivers.join(', ') +
+              '. Those are the knobs that usually change your sensitivity the most.'
+          );
         }
       }
 
-      let msg = 'Crash risk: ' + risk + '. Main driver: ' + driver + '. ';
-      if (hitTime != null && spikeStart != null && crashStart != null) {
-        const spikeWindow = minutesToClockString(spikeStart) + ' to ' + minutesToClockString(spikeEnd);
-        const crashWindow = minutesToClockString(crashStart) + ' to ' + minutesToClockString(crashEnd);
-        msg += 'Spike window: ' + spikeWindow + '. Crash window: ' + crashWindow + '. ';
-      } else {
-        msg += 'Add a main carb or sugar time to see a more precise spike and crash window. ';
+      if (type === 'questions') {
+        addMessage('You', 'Ask me some narrowing questions.');
+        const qs = [];
+        if (drinkGap != null && drinkGap < 75) {
+          qs.push(
+            'Your last drink is fairly close to magnesium glycinate. On nights like this, have your worst or softest mornings usually happened, or does it still feel random to you?'
+          );
+        }
+        if (shoulder >= 7) {
+          qs.push(
+            'With shoulder tension this high, do you usually notice more left side gut awareness or splenic flexure style pressure either that night or the next morning?'
+          );
+        }
+        if (anx >= 6) {
+          qs.push(
+            'When anxiety is this elevated, do you tend to feel the anxiety first and then the gut reacts, or does the gut flare first and your mind responds after?'
+          );
+        }
+        if (stress >= 6 && anx < 6) {
+          qs.push(
+            'Stress is high but anxiety is a bit lower. Does your body hold this mostly in muscle tension, shoulders, neck, jaw, or does your gut often join in too on days like this?'
+          );
+        }
+        if (gut <= 4) {
+          qs.push(
+            'Gut comfort is low. Would you describe it more as sharp pain, pressure, bloating, or just hypersensitive awareness where everything inside feels too loud?'
+          );
+        }
+        if (!qs.length) {
+          qs.push(
+            'Nothing jumps out as a clear driver. If you had to guess, what part of today feels most off: timing, stress, sleep, or body tension?'
+          );
+        }
+        qs.forEach(q => addMessage('App', q));
       }
+    }
 
-      if (foods) {
+    function anxAction(type) {
+      const sugar = Number(document.getElementById('anxSugar').value || 0);
+      const caf = Number(document.getElementById('anxCaf').value || 0);
+      const sleep = Number(document.getElementById('anxSleep').value || 0);
+      const sens = Number(document.getElementById('anxSens').value || 0);
+      const foods = document.getElementById('anxFoods').value.trim();
+      const hitTime = timeToMinutes('anxHitTime');
+
+      const foodEstimate = estimateFoodLoad(foods);
+      const effectiveSugar = Math.max(sugar, foodEstimate.sugar);
+
+      if (type === 'log') {
+        addMessage(
+          'You',
+          'Log anxiety day: sugar slider=' +
+            sugar +
+            '/10, caffeine=' +
+            caf +
+            '/10, sleep=' +
+            sleep +
+            '/10, baseline sensitivity=' +
+            sens +
+            '/10.'
+        );
+        if (foods) {
+          addMessage('You', 'Foods or notes: ' + foods);
+        }
         if (foodEstimate.matches.length) {
-          msg += 'Foods suggest roughly a ' + effectiveSugar + '/10 sugar day (matches: ' + foodEstimate.matches.join(', ') + '). ';
-        } else {
-          msg += 'Foods are noted but did not match the list yet, so the slider value is doing most of the work here. ';
+          addMessage(
+            'App',
+            'From foods this looks like about a ' +
+              effectiveSugar +
+              '/10 sugar load (matches: ' +
+              foodEstimate.matches.join(', ') +
+              ').'
+          );
+        } else if (foods) {
+          addMessage(
+            'App',
+            'Foods are logged but did not match the current list yet. Slider value is used as the main sugar estimate.'
+          );
         }
+        addMessage(
+          'App',
+          'Logged this anxiety day. In a fuller build this would be stored along with your IBS timing so both rhythms can be compared side by side.'
+        );
       }
 
-      if (sleep <= 4 || sens >= 7) {
-        msg += 'Because sleep was rough or sensitivity is high, whatever lands in that crash window is likely to feel louder than it really is. ';
+      if (type === 'forecast') {
+        addMessage('You', 'Show spike and crash time.');
+        let score = 0;
+        if (effectiveSugar >= 6) score++;
+        if (caf >= 5) score++;
+        if (sleep <= 4) score++;
+        if (sens >= 7) score++;
+
+        let risk = 'Low';
+        if (score === 2) risk = 'Moderate';
+        if (score >= 3) risk = 'High';
+
+        let driver = 'mixed factors';
+        if (effectiveSugar >= 7 && caf >= 5) {
+          driver = 'big sugar plus caffeine load';
+        } else if (effectiveSugar >= 6 && caf <= 3) {
+          driver = 'heavier carbs with low caffeine';
+        } else if (effectiveSugar <= 3 && caf >= 7) {
+          driver = 'caffeine more than sugar';
+        } else if (sleep <= 4 && sens >= 7) {
+          driver = 'thin sleep and high sensitivity';
+        }
+
+        let spikeStart = null;
+        let spikeEnd = null;
+        let crashStart = null;
+        let crashEnd = null;
+
+        if (hitTime != null) {
+          if (effectiveSugar >= 7 && caf >= 5) {
+            spikeStart = hitTime + 30;
+            spikeEnd = hitTime + 90;
+            crashStart = hitTime + 120;
+            crashEnd = hitTime + 240;
+          } else if (effectiveSugar >= 6 && caf <= 3) {
+            spikeStart = hitTime + 60;
+            spikeEnd = hitTime + 120;
+            crashStart = hitTime + 180;
+            crashEnd = hitTime + 300;
+          } else if (effectiveSugar <= 3 && caf >= 7) {
+            spikeStart = hitTime + 30;
+            spikeEnd = hitTime + 90;
+            crashStart = hitTime + 180;
+            crashEnd = hitTime + 300;
+          } else {
+            spikeStart = hitTime + 60;
+            spikeEnd = hitTime + 150;
+            crashStart = hitTime + 180;
+            crashEnd = hitTime + 300;
+          }
+        }
+
+        let msg =
+          'Crash risk: ' + risk + '. Main driver: ' + driver + '. ';
+        if (hitTime != null && spikeStart != null && crashStart != null) {
+          const spikeWindow =
+            minutesToClockString(spikeStart) +
+            ' to ' +
+            minutesToClockString(spikeEnd);
+          const crashWindow =
+            minutesToClockString(crashStart) +
+            ' to ' +
+            minutesToClockString(crashEnd);
+          msg +=
+            'Spike window: ' +
+            spikeWindow +
+            '. Crash window: ' +
+            crashWindow +
+            '. ';
+        } else {
+          msg +=
+            'Add a main carb or sugar time to see a more precise spike and crash window. ';
+        }
+
+        if (foods) {
+          if (foodEstimate.matches.length) {
+            msg +=
+              'Foods suggest roughly a ' +
+              effectiveSugar +
+              '/10 sugar day (matches: ' +
+              foodEstimate.matches.join(', ') +
+              '). ';
+          } else {
+            msg +=
+              'Foods are noted but did not match the list yet, so the slider value is doing most of the work here. ';
+          }
+        }
+
+        if (sleep <= 4 || sens >= 7) {
+          msg +=
+            'Because sleep was rough or sensitivity is high, whatever lands in that crash window is likely to feel louder than it really is. ';
+        }
+
+        let meaning;
+        if (risk === 'High') {
+          meaning =
+            'wired then flat kind of day, with more body noise than usual in the crash window.';
+        } else if (risk === 'Moderate') {
+          meaning =
+            'mild spike then drift down type of day; you may feel off in the crash window but not wrecked.';
+        } else {
+          meaning =
+            'low crash risk day; small waves more than a true crash.';
+        }
+
+        msg += 'What this means: ' + meaning;
+        addMessage('App', msg);
       }
 
-      let meaning;
-      if (risk === 'High') {
-        meaning = 'wired then flat kind of day, with more body noise than usual in the crash window.';
-      } else if (risk === 'Moderate') {
-        meaning = 'mild spike then drift down type of day; you may feel off in the crash window but not wrecked.';
-      } else {
-        meaning = 'low crash risk day; small waves more than a true crash.';
+      if (type === 'explain') {
+        addMessage('You', 'Explain today on the anxiety side.');
+        let msg =
+          'Today’s anxiety pattern is being driven mainly by timing and load rather than something random. Sugar or carbs, caffeine, sleep quality, and your baseline sensitivity are all feeding the same nervous system.';
+        const foodEstimate2 = estimateFoodLoad(foods);
+        const effectiveSugar2 = Math.max(sugar, foodEstimate2.sugar);
+        if (effectiveSugar2 >= 7) {
+          msg +=
+            ' The sugar or carb load is high enough that your body will likely do a spike then correction, which your nervous system often reads as unease or anxiety.';
+        } else if (effectiveSugar2 <= 3) {
+          msg +=
+            ' Sugar and carbs are not major triggers today, so your anxiety is more likely tied to caffeine, sleep, or baseline sensitivity.';
+        }
+        if (caf >= 6) {
+          msg +=
+            ' Caffeine is strong enough that it probably raised your internal volume knob on its own.';
+        }
+        if (sleep <= 4) {
+          msg +=
+            ' Short or poor sleep lowers your buffer, so even small fluctuations can feel bigger.';
+        }
+        if (sens >= 7) {
+          msg +=
+            ' A high baseline sensitivity means your nervous system is already closer to the edge, so normal shifts can feel like something is wrong.';
+        }
+        addMessage('App', msg);
       }
 
-      msg += 'What this means: ' + meaning;
-      addMessage('App', msg);
+      if (type === 'questions') {
+        addMessage(
+          'You',
+          'Ask me some narrowing questions on the anxiety side.'
+        );
+        const qs = [];
+        const foodEstimate2 = estimateFoodLoad(foods);
+        const effectiveSugar2 = Math.max(sugar, foodEstimate2.sugar);
+        if (effectiveSugar2 >= 6) {
+          qs.push(
+            'On days with this much sugar or carbs, do you usually notice a clear pattern of feeling ok, then wired or anxious, then flat, or is it more subtle for you?'
+          );
+        }
+        if (caf >= 5) {
+          qs.push(
+            'When caffeine is this high, do you tend to feel the mental anxiety first or the body sensations first, such as heart, chest, jitter, or spacey feeling?'
+          );
+        }
+        if (sleep <= 4) {
+          qs.push(
+            'With sleep this low, do you usually feel more fragile all day, or does it mostly show up in certain windows like mid afternoon or late at night?'
+          );
+        }
+        if (sens >= 7) {
+          qs.push(
+            'When your baseline sensitivity is this high, do gut sensations and anxiety usually trade places like they do on IBS heavy days, or do they stack together?'
+          );
+        }
+        if (!qs.length) {
+          qs.push(
+            'Nothing jumps out as a single obvious driver. If you had to pick one, does today feel more driven by sugar timing, caffeine, sleep, or overall stress load?'
+          );
+        }
+        qs.forEach(q => addMessage('App', q));
+      }
     }
 
-    if (type === 'explain') {
-      addMessage('You', 'Explain today on the anxiety side.');
-      let msg = 'Today’s anxiety pattern is being driven mainly by timing and load rather than something random. Sugar or carbs, caffeine, sleep quality, and your baseline sensitivity are all feeding the same nervous system.';
-
-      const foodEstimate2 = estimateFoodLoad(foods);
-      const effectiveSugar2 = Math.max(sugar, foodEstimate2.sugar);
-
-      if (effectiveSugar2 >= 7) {
-        msg += ' The sugar or carb load is high enough that your body will likely do a spike then correction, which your nervous system often reads as unease or anxiety.';
-      } else if (effectiveSugar2 <= 3) {
-        msg += ' Sugar and carbs are not major triggers today, so your anxiety is more likely tied to caffeine, sleep, or baseline sensitivity.';
-      }
-      if (caf >= 6) {
-        msg += ' Caffeine is strong enough that it probably raised your internal volume knob on its own.';
-      }
-      if (sleep <= 4) {
-        msg += ' Short or poor sleep lowers your buffer, so even small fluctuations can feel bigger.';
-      }
-      if (sens >= 7) {
-        msg += ' A high baseline sensitivity means your nervous system is already closer to the edge, so normal shifts can feel like something is wrong.';
-      }
-      addMessage('App', msg);
-    }
-
-    if (type === 'questions') {
-      addMessage('You', 'Ask me some narrowing questions on the anxiety side.');
-      const qs = [];
-      const foodEstimate2 = estimateFoodLoad(foods);
-      const effectiveSugar2 = Math.max(sugar, foodEstimate2.sugar);
-      if (effectiveSugar2 >= 6) {
-        qs.push('On days with this much sugar or carbs, do you usually notice a clear pattern of feeling ok, then wired or anxious, then flat, or is it more subtle for you?');
-      }
-      if (caf >= 5) {
-        qs.push('When caffeine is this high, do you tend to feel the mental anxiety first or the body sensations first, such as heart, chest, jitter, or spacey feeling?');
-      }
-      if (sleep <= 4) {
-        qs.push('With sleep this low, do you usually feel more fragile all day, or does it mostly show up in certain windows like mid afternoon or late at night?');
-      }
-      if (sens >= 7) {
-        qs.push('When your baseline sensitivity is this high, do gut sensations and anxiety usually trade places like they do on IBS heavy days, or do they stack together?');
-      }
-      if (!qs.length) {
-        qs.push('Nothing jumps out as a single obvious driver. If you had to pick one, does today feel more driven by sugar timing, caffeine, sleep, or overall stress load?');
-      }
-      qs.forEach(q => addMessage('App', q));
-    }
-  }
-
-  // Make sure history renders after DOM is ready
-  window.addEventListener('load', function () {
-    renderHistory();
-    setMode(currentMode);
-  });
-</script>
+    window.addEventListener('load', function () {
+      renderHistory();
+      setMode(currentMode);
+    });
+  </script>
+</body>
+</html>
