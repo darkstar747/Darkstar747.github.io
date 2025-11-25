@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>What Your Doctor Never Checked – Free PDF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Free PDF book about the timing pattern behind IBS and daily gut pain. Learn how evenings, liquids, magnesium, and sleep rhythms shape your mornings."
+  />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --card: #020617;
+      --card-border: #1f2937;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.15);
+      --accent-border: rgba(34, 197, 94, 0.4);
+      --pill-bg: #0f172a;
+      --pill-border: #1f2937;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .logo span {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .nav-link {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--pill-border);
+      background: var(--pill-bg);
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+      border-color: var(--accent-border);
+    }
+
+    .hero {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 18px;
+      padding: 28px 24px 28px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.9);
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 28px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 840px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-border);
+      background: var(--accent-soft);
+      color: #bbf7d0;
+      margin-bottom: 14px;
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 38px);
+      letter-spacing: 0.03em;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 38rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--accent), #16a34a);
+      color: #022c22;
+      box-shadow: 0 16px 40px rgba(22, 163, 74, 0.45);
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 50px rgba(22, 163, 74, 0.5);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--pill-border);
+      background: var(--pill-bg);
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-border);
+    }
+
+    .hero-note {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .hero-note span {
+      color: #a5b4fc;
+      font-weight: 500;
+    }
+
+    .hero-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .cover-card {
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      background: radial-gradient(circle at top left, #111827 0, #020617 60%);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cover-image {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+    }
+
+    .cover-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cover-meta strong {
+      color: var(--text-main);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 22px;
+    }
+
+    @media (max-width: 880px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      border-radius: 18px;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.85);
+      padding: 20px 20px 18px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .card ul {
+      list-style: none;
+      margin-top: 4px;
+    }
+
+    .card li {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      padding-left: 18px;
+      position: relative;
+      margin-bottom: 6px;
+    }
+
+    .card li::before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: var(--accent);
+    }
+
+    footer {
+      margin-top: 28px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    footer a {
+      color: #a5b4fc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">
+        <span>IBS Morning Timing Project</span>
+        <span style="opacity:0.6;"> / Free book</span>
+      </div>
+      <a href="/" class="nav-link">← Back to timing calculator</a>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="pill">
+          <span class="pill-dot"></span>
+          100% free, no email, no tracking
+        </div>
+
+        <h1>What Your Doctor Never Checked</h1>
+
+        <p class="subtitle">
+          A short, practical book about the timing pattern behind IBS and daily gut pain.
+          If your mornings feel random and brutal even when your food is safe, this shows
+          you the rhythm that typical gut advice ignores.
+        </p>
+
+        <div class="cta-row">
+          <a
+            href="What%20Your%20Doctor%20Never%20Checked%20.pdf"
+            class="btn-primary"
+            download
+          >
+            📥 Download the free PDF
+          </a>
+
+          <a
+            href="What%20Your%20Doctor%20Never%20Checked%20.pdf"
+            class="btn-secondary"
+            target="_blank"
+            rel="noopener"
+          >
+            Open in your browser
+          </a>
+        </div>
+
+        <div class="hero-note">
+          No account, no signup. Just a free book from someone who lived with
+          <span>visceral hypersensitivity</span> for decades and finally found the pattern.
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="cover-card">
+          <!-- Replace src with the path to your cover image in the repo -->
+          <img
+            src="book-cover-what-your-doctor-never-checked.png"
+            alt="Book cover – What Your Doctor Never Checked"
+            class="cover-image"
+          />
+
+          <div class="cover-meta">
+            <div><strong>Title:</strong> What Your Doctor Never Checked</div>
+            <div><strong>Subtitle:</strong> The Timing Pattern Behind IBS and Daily Gut Pain</div>
+            <div><strong>Author:</strong> C. R.</div>
+            <div><strong>Length:</strong> About a 1 to 2 hour read</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <section class="card">
+        <h2>What this book is</h2>
+        <p>
+          This is not another IBS diet or restriction plan. It is a simple explanation
+          of the internal clock that has been driving your symptoms the whole time,
+          especially if your worst pain or urgency hits in the morning.
+        </p>
+        <p>
+          You will see how evenings, liquids, magnesium, sleep timing, and the way a
+          hypersensitive gut processes all of that can create either calm mornings or
+          chaos. The goal is not perfection. The goal is to finally see a pattern.
+        </p>
+        <p>
+          The book is written in plain language, with short chapters and lived
+          experience, not just theory.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Who this might help</h2>
+        <ul>
+          <li>Your IBS or visceral hypersensitivity hits hardest in the morning.</li>
+          <li>
+            You already tried low FODMAP or food elimination and still feel like your
+            gut is random.
+          </li>
+          <li>
+            You notice late drinking, magnesium, or sleep changes your gut, but you
+            cannot line it up.
+          </li>
+          <li>
+            You want a map you can test in your own life instead of another list of
+            foods to fear.
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>What you will learn</h2>
+        <ul>
+          <li>Why IBS can feel random even when it is following a strict timing pattern.</li>
+          <li>
+            How visceral hypersensitivity turns normal gut events into amplified pain or
+            urgency.
+          </li>
+          <li>
+            Why common “triggers” sometimes get blamed by accident when timing is the
+            real driver.
+          </li>
+          <li>
+            A simple way to sketch your own timing blueprint so you can predict your
+            mornings more often.
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>How this connects to the calculator</h2>
+        <p>
+          If the IBS Morning Timing Calculator gave you strange moments of “this is
+          exactly what my gut does,” this book is the long version of that insight.
+          The calculator lets you test timing day by day. The book explains the
+          background, the patterns, and the science in a way that actually matches
+          lived experience.
+        </p>
+        <p>
+          You can use one without the other, but they were built from the same years
+          of trial, error, and tracking.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      Built as part of the IBS Morning Timing project.  
+      You can always return to the main tool at
+      <a href="/">darkstar747.github.io</a>.
+    </footer>
+  </div>
+</body>
+</html>
