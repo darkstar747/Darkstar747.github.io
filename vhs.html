@@ -3,8 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V-HS Progress Tracker</title>
+    <title>V-HS Progress Tracker Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #e0e0e0;
+        }
+        
+        [data-theme="dark"] {
+            --primary: #8b9dff;
+            --secondary: #9d7bc4;
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #eee;
+            --text-secondary: #bbb;
+            --border-color: #2d3748;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,37 +41,125 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
             padding: 20px;
+            color: var(--text-primary);
+            transition: all 0.3s;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: var(--bg-primary);
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
         h1 {
-            color: #667eea;
+            color: var(--primary);
             margin-bottom: 10px;
             font-size: 2.5em;
         }
         
         .subtitle {
-            color: #666;
-            margin-bottom: 30px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
             font-size: 1.1em;
+        }
+        
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .quick-entry-btn {
+            background: var(--info);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .export-menu {
+            position: relative;
+        }
+        
+        .export-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .export-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 150px;
+        }
+        
+        .export-dropdown.show {
+            display: block;
+        }
+        
+        .export-option {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .export-option:hover {
+            background: var(--bg-secondary);
         }
         
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
         }
         
         .tab {
@@ -52,19 +168,19 @@
             border: none;
             font-size: 1.1em;
             cursor: pointer;
-            color: #666;
+            color: var(--text-secondary);
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
         }
         
         .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: var(--primary);
+            border-bottom-color: var(--primary);
             font-weight: 600;
         }
         
         .tab:hover {
-            color: #667eea;
+            color: var(--primary);
         }
         
         .tab-content {
@@ -82,14 +198,14 @@
         }
         
         .module {
-            background: #f8f9fa;
+            background: var(--bg-secondary);
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
         }
         
         .module h3 {
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 20px;
             font-size: 1.4em;
             display: flex;
@@ -108,7 +224,7 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: var(--text-secondary);
             font-weight: 500;
         }
         
@@ -116,7 +232,7 @@
             width: 100%;
             height: 8px;
             border-radius: 5px;
-            background: #e0e0e0;
+            background: var(--border-color);
             outline: none;
             -webkit-appearance: none;
         }
@@ -127,7 +243,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #667eea;
+            background: var(--primary);
             cursor: pointer;
         }
         
@@ -135,7 +251,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #667eea;
+            background: var(--primary);
             cursor: pointer;
             border: none;
         }
@@ -145,12 +261,12 @@
             justify-content: space-between;
             margin-top: 5px;
             font-size: 0.9em;
-            color: #888;
+            color: var(--text-secondary);
         }
         
         .value-display {
             display: inline-block;
-            background: #667eea;
+            background: var(--primary);
             color: white;
             padding: 5px 15px;
             border-radius: 20px;
@@ -158,18 +274,20 @@
             margin-left: 10px;
         }
         
-        select, input[type="text"], textarea {
+        select, input[type="text"], input[type="number"], textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1em;
             transition: border-color 0.3s;
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
         
-        select:focus, input[type="text"]:focus, textarea:focus {
+        select:focus, input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
         }
         
         textarea {
@@ -196,7 +314,7 @@
         }
         
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border: none;
             padding: 15px 40px;
@@ -216,10 +334,15 @@
             transform: translateY(0);
         }
         
+        .btn-secondary {
+            background: var(--text-secondary);
+            margin-left: 10px;
+        }
+        
         .vhs-display {
             text-align: center;
             padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border-radius: 15px;
             margin: 20px 0;
@@ -245,11 +368,11 @@
         }
         
         .phase-card {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid var(--primary);
         }
         
         .phase-header {
@@ -257,36 +380,37 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         
         .phase-title {
             font-size: 1.4em;
-            color: #667eea;
+            color: var(--primary);
             font-weight: 600;
         }
         
         .phase-status {
             padding: 8px 20px;
             background: #e8f0fe;
-            color: #667eea;
+            color: var(--primary);
             border-radius: 20px;
             font-weight: 600;
         }
         
         .phase-status.completed {
             background: #d4edda;
-            color: #155724;
+            color: var(--success);
         }
         
         .phase-status.locked {
             background: #f8d7da;
-            color: #721c24;
+            color: var(--danger);
         }
         
         .progress-bar {
             width: 100%;
             height: 20px;
-            background: #e0e0e0;
+            background: var(--border-color);
             border-radius: 10px;
             overflow: hidden;
             margin: 15px 0;
@@ -294,7 +418,7 @@
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
             transition: width 0.5s;
             display: flex;
             align-items: center;
@@ -313,7 +437,7 @@
         .milestone-item {
             padding: 10px;
             margin: 8px 0;
-            background: #f8f9fa;
+            background: var(--bg-secondary);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -336,16 +460,16 @@
         }
         
         .achievement-card {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 15px;
             padding: 20px;
             text-align: center;
-            border: 3px solid #e0e0e0;
+            border: 3px solid var(--border-color);
             transition: all 0.3s;
         }
         
         .achievement-card.unlocked {
-            border-color: #667eea;
+            border-color: var(--primary);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
         }
         
@@ -360,18 +484,18 @@
         
         .achievement-title {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
         
         .achievement-desc {
             font-size: 0.9em;
-            color: #666;
+            color: var(--text-secondary);
         }
         
         .recommendation-box {
             background: #fff3cd;
-            border-left: 5px solid #ffc107;
+            border-left: 5px solid var(--warning);
             padding: 20px;
             border-radius: 10px;
             margin: 15px 0;
@@ -388,7 +512,7 @@
         }
         
         .chart-container {
-            background: white;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 15px;
             margin: 20px 0;
@@ -402,7 +526,7 @@
         }
         
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             padding: 25px;
             border-radius: 15px;
@@ -425,11 +549,11 @@
         }
         
         .entry-item {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 15px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--primary);
         }
         
         .entry-header {
@@ -437,7 +561,7 @@
             justify-content: space-between;
             margin-bottom: 10px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
         }
         
         .entry-details {
@@ -449,7 +573,7 @@
         
         .entry-detail {
             font-size: 0.9em;
-            color: #666;
+            color: var(--text-secondary);
         }
         
         .alert {
@@ -460,32 +584,254 @@
         
         .alert-success {
             background: #d4edda;
-            border-left: 4px solid #28a745;
+            border-left: 4px solid var(--success);
             color: #155724;
         }
         
         .alert-info {
             background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
+            border-left: 4px solid var(--info);
             color: #0c5460;
         }
         
         .alert-warning {
             background: #fff3cd;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid var(--warning);
             color: #856404;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            border-left: 4px solid var(--danger);
+            color: #721c24;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2em;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .intervention-item {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .intervention-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .intervention-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .intervention-desc {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .intervention-duration {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .correlation-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .correlation-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .correlation-strength {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .correlation-strong {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .correlation-moderate {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .correlation-weak {
+            background: var(--info);
+            color: white;
+        }
+        
+        .trigger-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+        
+        .heatmap-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+        }
+        
+        .heatmap-day {
+            aspect-ratio: 1;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .heatmap-day:hover {
+            transform: scale(1.1);
+        }
+        
+        .heatmap-excellent {
+            background: #28a745;
+            color: white;
+        }
+        
+        .heatmap-good {
+            background: #90ee90;
+            color: #333;
+        }
+        
+        .heatmap-neutral {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .heatmap-difficult {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .heatmap-no-data {
+            background: var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+            }
+            
+            .tab {
+                padding: 12px 15px;
+                font-size: 1em;
+            }
+            
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .achievement-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎯 V-HS Progress Tracker</h1>
-        <p class="subtitle">Visceral Hypersensitivity Management & Nervous System Retraining</p>
+        <div class="header">
+            <div class="header-left">
+                <h1>🎯 V-HS Progress Tracker Pro</h1>
+                <p class="subtitle">Advanced Visceral Hypersensitivity Management & Nervous System Retraining</p>
+            </div>
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+                <button class="quick-entry-btn" onclick="openQuickEntry()">⚡ Quick Entry</button>
+                <div class="export-menu">
+                    <button class="export-btn" onclick="toggleExportMenu()">📥 Export</button>
+                    <div class="export-dropdown" id="exportDropdown">
+                        <div class="export-option" onclick="exportCSV()">Export to CSV</div>
+                        <div class="export-option" onclick="exportJSON()">Export to JSON</div>
+                        <div class="export-option" onclick="exportPDF()">Generate PDF Report</div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div class="tabs">
             <button class="tab active" onclick="switchTab('daily-input')">Daily Input</button>
             <button class="tab" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab" onclick="switchTab('analytics')">Analytics</button>
             <button class="tab" onclick="switchTab('progress')">Progress</button>
+            <button class="tab" onclick="switchTab('interventions')">Interventions</button>
             <button class="tab" onclick="switchTab('achievements')">Achievements</button>
             <button class="tab" onclick="switchTab('history')">History</button>
         </div>
@@ -614,6 +960,45 @@
             </div>
             
             <div class="module">
+                <h3><span class="module-icon">🏷️</span>Triggers & Tags</h3>
+                
+                <div class="input-group">
+                    <label>Select any triggers present today:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" class="trigger-check" value="Poor Sleep">
+                            <label>Poor Sleep</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" class="trigger-check" value="High Stress">
+                            <label>High Stress</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" class="trigger-check" value="Certain Foods">
+                            <label>Certain Foods</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" class="trigger-check" value="Weather Change">
+                            <label>Weather Change</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" class="trigger-check" value="Social Situation">
+                            <label>Social Situation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" class="trigger-check" value="Travel">
+                            <label>Travel</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Custom Trigger (optional)</label>
+                    <input type="text" id="custom-trigger" placeholder="Add your own trigger...">
+                </div>
+            </div>
+            
+            <div class="module">
                 <h3><span class="module-icon">📋</span>Context Tracking</h3>
                 
                 <div class="input-group">
@@ -653,10 +1038,16 @@
             
             <div style="text-align: center; margin-top: 30px;">
                 <button class="btn" onclick="saveEntry()">💾 Save Today's Entry</button>
+                <button class="btn btn-secondary" onclick="clearForm()">🔄 Clear Form</button>
             </div>
             
             <div id="save-message" class="alert alert-success" style="display: none; margin-top: 20px;">
                 ✅ Entry saved successfully! Check your Dashboard for analysis.
+            </div>
+            
+            <div id="flare-alert" class="alert alert-danger" style="display: none; margin-top: 20px;">
+                ⚠️ <strong>High Pain Detected!</strong> Would you like immediate access to calming interventions?
+                <button class="btn" style="margin-top: 10px;" onclick="openFlareProtocol()">Access Flare Protocol</button>
             </div>
         </div>
         
@@ -688,6 +1079,16 @@
                     <div class="stat-value" id="tracking-streak">0</div>
                     <div class="stat-label">Days</div>
                 </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">Avg V-HS Gap</div>
+                    <div class="stat-value" id="avg-vhs-gap">--</div>
+                    <div class="stat-label">Last 7 Days</div>
+                </div>
+            </div>
+            
+            <div id="pattern-alerts-container">
+                <!-- Pattern alerts will be generated here -->
             </div>
             
             <div id="recommendations-container">
@@ -695,8 +1096,32 @@
             </div>
             
             <div class="chart-container">
-                <h3>7-Day Trend</h3>
-                anvas id="trendChart" width="800" height="300"></canvas>
+                <h3>7-Day Trend Analysis</h3>
+                anvas id="trendChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Monthly Heatmap Calendar</h3>
+                <div id="heatmap-container"></div>
+            </div>
+        </div>
+        
+        <!-- ANALYTICS TAB -->
+        <div id="analytics" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Correlation Analysis</h2>
+            
+            <div id="correlations-container">
+                <!-- Correlations will be generated here -->
+            </div>
+            
+            <div class="chart-container">
+                <h3>Pain vs Anxiety Correlation</h3>
+                anvas id="correlationChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Trigger Frequency Analysis</h3>
+                anvas id="triggerChart"></canvas>
             </div>
         </div>
         
@@ -704,8 +1129,21 @@
         <div id="progress" class="tab-content">
             <h2 style="margin-bottom: 20px;">Phase Progression</h2>
             
+            <div id="baseline-info" class="alert alert-info" style="display: none;">
+                📊 Your baseline will be recalculated every 30 days to reflect your evolving progress.
+            </div>
+            
             <div id="phases-container">
                 <!-- Phases will be dynamically generated -->
+            </div>
+        </div>
+        
+        <!-- INTERVENTIONS TAB -->
+        <div id="interventions" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Guided Interventions Library</h2>
+            
+            <div id="interventions-list">
+                <!-- Interventions will be generated here -->
             </div>
         </div>
         
@@ -728,14 +1166,62 @@
         </div>
     </div>
     
+    <!-- MODALS -->
+    <div id="quickEntryModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeQuickEntry()">×</span>
+            <h2 style="margin-bottom: 20px;">⚡ Quick Entry</h2>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">Capture the essentials quickly</p>
+            
+            <div class="input-group">
+                <label>How are you feeling overall? <span class="value-display" id="quick-overall-value">5</span></label>
+                <input type="range" id="quick-overall" min="0" max="10" value="5" oninput="document.getElementById('quick-overall-value').textContent = this.value">
+                <div class="range-labels">
+                    <span>Terrible (0)</span>
+                    <span>Perfect (10)</span>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Pain Level <span class="value-display" id="quick-pain-value">5</span></label>
+                <input type="range" id="quick-pain" min="0" max="10" value="5" oninput="document.getElementById('quick-pain-value').textContent = this.value">
+            </div>
+            
+            <div class="input-group">
+                <label>Anxiety Level <span class="value-display" id="quick-anxiety-value">5</span></label>
+                <input type="range" id="quick-anxiety" min="0" max="10" value="5" oninput="document.getElementById('quick-anxiety-value').textContent = this.value">
+            </div>
+            
+            <div class="input-group">
+                <label>Quick Notes (optional)</label>
+                <textarea id="quick-notes" placeholder="Anything notable?"></textarea>
+            </div>
+            
+            <button class="btn" onclick="saveQuickEntry()">Save Quick Entry</button>
+        </div>
+    </div>
+    
+    <div id="interventionModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeIntervention()">×</span>
+            <h2 id="intervention-modal-title" style="margin-bottom: 20px;"></h2>
+            <div id="intervention-modal-content"></div>
+        </div>
+    </div>
+    
     <script>
         // Data storage
         let appData = {
             entries: [],
             currentPhase: 1,
             achievements: [],
-            startDate: new Date().toISOString()
+            startDate: new Date().toISOString(),
+            lastBaselineUpdate: new Date().toISOString(),
+            baselineMetrics: {},
+            theme: 'light'
         };
+        
+        let charts = {};
         
         // Load data from localStorage
         function loadData() {
@@ -744,11 +1230,23 @@
                 appData = JSON.parse(saved);
             }
             initializeAchievements();
+            applyTheme();
         }
         
         // Save data to localStorage
         function saveData() {
             localStorage.setItem('vhsTrackerData', JSON.stringify(appData));
+        }
+        
+        // Theme toggle
+        function toggleTheme() {
+            appData.theme = appData.theme === 'light' ? 'dark' : 'light';
+            applyTheme();
+            saveData();
+        }
+        
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', appData.theme);
         }
         
         // Initialize achievements
@@ -761,7 +1259,9 @@
                 { id: 'no-catastrophize', name: 'Clear Mind', desc: '7 days without catastrophizing', icon: '🧘', unlocked: false },
                 { id: 'phase-2', name: 'Breaking the Loop', desc: 'Advanced to Phase 2', icon: '🚀', unlocked: false },
                 { id: 'low-anxiety', name: 'Calm Response', desc: 'Pain high but anxiety low', icon: '😌', unlocked: false },
-                { id: 'month-complete', name: 'Monthly Milestone', desc: '30 days of tracking', icon: '🏆', unlocked: false }
+                { id: 'month-complete', name: 'Monthly Milestone', desc: '30 days of tracking', icon: '🏆', unlocked: false },
+                { id: 'three-months', name: 'Quarter Champion', desc: '90 days of tracking', icon: '🌟', unlocked: false },
+                { id: 'ten-comfort', name: 'Comfort Master', desc: '10 comfort days achieved', icon: '💫', unlocked: false }
             ];
             
             if (appData.achievements.length === 0) {
@@ -771,7 +1271,6 @@
         
         // Switch between tabs
         function switchTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -779,15 +1278,17 @@
                 tab.classList.remove('active');
             });
             
-            // Show selected tab
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
             
-            // Update content based on tab
             if (tabName === 'dashboard') {
                 updateDashboard();
+            } else if (tabName === 'analytics') {
+                updateAnalyticsTab();
             } else if (tabName === 'progress') {
                 updateProgressTab();
+            } else if (tabName === 'interventions') {
+                updateInterventionsTab();
             } else if (tabName === 'achievements') {
                 updateAchievementsTab();
             } else if (tabName === 'history') {
@@ -797,21 +1298,21 @@
         
         // Update slider value displays
         function updateValue(type) {
-            const slider = document.getElementById(`${type}-${type === 'pain' ? 'intensity' : type === 'anxiety' || type === 'distress' || type === 'stress' || type === 'wellbeing' || type === 'sleep' ? 'level' : 'quality'}`);
-            const display = document.getElementById(`${type}-value`);
+            const inputs = {
+                'pain': 'pain-intensity',
+                'anxiety': 'anxiety-level',
+                'distress': 'distress-level',
+                'stress': 'stress-level',
+                'wellbeing': 'wellbeing',
+                'sleep': 'sleep-quality'
+            };
             
-            if (type === 'pain') {
-                display.textContent = document.getElementById('pain-intensity').value;
-            } else if (type === 'anxiety') {
-                display.textContent = document.getElementById('anxiety-level').value;
-            } else if (type === 'distress') {
-                display.textContent = document.getElementById('distress-level').value;
-            } else if (type === 'stress') {
-                display.textContent = document.getElementById('stress-level').value;
-            } else if (type === 'wellbeing') {
-                display.textContent = document.getElementById('wellbeing').value;
-            } else if (type === 'sleep') {
-                display.textContent = document.getElementById('sleep-quality').value;
+            const value = document.getElementById(inputs[type]).value;
+            document.getElementById(`${type}-value`).textContent = value;
+            
+            // Check for flare conditions
+            if (type === 'pain' && parseInt(value) >= 8) {
+                document.getElementById('flare-alert').style.display = 'block';
             }
         }
         
@@ -831,6 +1332,47 @@
             return characters;
         }
         
+        // Get trigger selections
+        function getTriggers() {
+            const triggers = [];
+            document.querySelectorAll('.trigger-check:checked').forEach(checkbox => {
+                triggers.push(checkbox.value);
+            });
+            
+            const custom = document.getElementById('custom-trigger').value.trim();
+            if (custom) {
+                triggers.push(custom);
+            }
+            
+            return triggers;
+        }
+        
+        // Clear form
+        function clearForm() {
+            document.querySelectorAll('input[type="range"]').forEach(input => {
+                input.value = 5;
+                const type = input.id.split('-')[0];
+                if (document.getElementById(`${type}-value`)) {
+                    document.getElementById(`${type}-value`).textContent = '5';
+                }
+            });
+            
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.value = '';
+            });
+            
+            document.querySelectorAll('select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+            
+            document.getElementById('checking-count').value = 0;
+            document.getElementById('custom-trigger').value = '';
+        }
+        
         // Save daily entry
         function saveEntry() {
             const entry = {
@@ -846,73 +1388,112 @@
                 wellbeing: parseInt(document.getElementById('wellbeing').value),
                 comfortMoment: document.getElementById('comfort-moment').checked,
                 comfortNotes: document.getElementById('comfort-notes').value,
+                triggers: getTriggers(),
                 bmStatus: document.getElementById('bm-status').value,
                 stressLevel: parseInt(document.getElementById('stress-level').value),
                 sleepQuality: parseInt(document.getElementById('sleep-quality').value),
                 notes: document.getElementById('daily-notes').value
             };
             
-            // Calculate V-HS gap
             entry.vhsGap = calculateVHSGap(entry.painIntensity, entry.distressLevel);
             
-            // Add to entries
             appData.entries.push(entry);
-            
-            // Check for achievements
             checkAchievements(entry);
-            
-            // Save data
+            checkBaselineUpdate();
             saveData();
             
-            // Show success message
             const message = document.getElementById('save-message');
             message.style.display = 'block';
             setTimeout(() => {
                 message.style.display = 'none';
             }, 3000);
             
-            // Switch to dashboard
             setTimeout(() => {
                 switchTab('dashboard');
                 document.querySelector('.tab:nth-child(2)').classList.add('active');
             }, 1500);
         }
         
+        // Quick entry functions
+        function openQuickEntry() {
+            document.getElementById('quickEntryModal').classList.add('show');
+        }
+        
+        function closeQuickEntry() {
+            document.getElementById('quickEntryModal').classList.remove('show');
+        }
+        
+        function saveQuickEntry() {
+            const entry = {
+                date: new Date().toISOString(),
+                painIntensity: parseInt(document.getElementById('quick-pain').value),
+                painLocation: 'none',
+                painCharacters: [],
+                anxietyLevel: parseInt(document.getElementById('quick-anxiety').value),
+                distressLevel: parseInt(document.getElementById('quick-anxiety').value),
+                catastrophizing: false,
+                catastrophizingNotes: '',
+                checkingCount: 0,
+                wellbeing: parseInt(document.getElementById('quick-overall').value),
+                comfortMoment: false,
+                comfortNotes: '',
+                triggers: [],
+                bmStatus: 'no',
+                stressLevel: 5,
+                sleepQuality: 5,
+                notes: document.getElementById('quick-notes').value,
+                isQuickEntry: true
+            };
+            
+            entry.vhsGap = calculateVHSGap(entry.painIntensity, entry.distressLevel);
+            
+            appData.entries.push(entry);
+            checkAchievements(entry);
+            saveData();
+            
+            closeQuickEntry();
+            
+            alert('✅ Quick entry saved!');
+            switchTab('dashboard');
+        }
+        
         // Check and unlock achievements
         function checkAchievements(latestEntry) {
-            // First entry
             if (appData.entries.length === 1) {
                 unlockAchievement('first-entry');
             }
             
-            // First comfort day
             if (latestEntry.comfortMoment && !appData.achievements.find(a => a.id === 'first-comfort').unlocked) {
                 unlockAchievement('first-comfort');
             }
             
-            // 7-day streak
             if (appData.entries.length >= 7) {
                 unlockAchievement('week-streak');
             }
             
-            // 30-day streak
             if (appData.entries.length >= 30) {
                 unlockAchievement('month-complete');
             }
             
-            // Low anxiety despite pain
+            if (appData.entries.length >= 90) {
+                unlockAchievement('three-months');
+            }
+            
+            const comfortDays = appData.entries.filter(e => e.comfortMoment).length;
+            if (comfortDays >= 10) {
+                unlockAchievement('ten-comfort');
+            }
+            
             if (latestEntry.painIntensity >= 6 && latestEntry.anxietyLevel <= 3) {
                 unlockAchievement('low-anxiety');
             }
             
-            // Check for no catastrophizing streak
             const last7 = appData.entries.slice(-7);
             if (last7.length === 7 && last7.every(e => !e.catastrophizing)) {
                 unlockAchievement('no-catastrophize');
             }
             
-            // V-HS improvement
-            if (appData.entries.length >= 7) {
+            if (appData.entries.length >= 14) {
                 const baseline = appData.entries.slice(0, 7).reduce((sum, e) => sum + e.vhsGap, 0) / 7;
                 const recent = appData.entries.slice(-7).reduce((sum, e) => sum + e.vhsGap, 0) / 7;
                 if (recent <= baseline * 0.75) {
@@ -930,6 +1511,27 @@
             }
         }
         
+        // Check baseline update (every 30 days)
+        function checkBaselineUpdate() {
+            const lastUpdate = new Date(appData.lastBaselineUpdate);
+            const now = new Date();
+            const daysSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60 * 24);
+            
+            if (daysSinceUpdate >= 30 && appData.entries.length >= 7) {
+                const recent = appData.entries.slice(-30);
+                appData.baselineMetrics = {
+                    avgVhsGap: recent.reduce((sum, e) => sum + e.vhsGap, 0) / recent.length,
+                    avgPain: recent.reduce((sum, e) => sum + e.painIntensity, 0) / recent.length,
+                    avgAnxiety: recent.reduce((sum, e) => sum + e.anxietyLevel, 0) / recent.length,
+                    comfortDayRate: recent.filter(e => e.comfortMoment).length / recent.length
+                };
+                appData.lastBaselineUpdate = now.toISOString();
+                saveData();
+                
+                document.getElementById('baseline-info').style.display = 'block';
+            }
+        }
+        
         // Update dashboard
         function updateDashboard() {
             if (appData.entries.length === 0) {
@@ -938,10 +1540,8 @@
             
             const latest = appData.entries[appData.entries.length - 1];
             
-            // Update V-HS display
             document.getElementById('current-vhs').textContent = latest.vhsGap.toFixed(1);
             
-            // Interpretation
             let interpretation = '';
             if (latest.vhsGap < 2) {
                 interpretation = '🎉 Excellent regulation! Your nervous system is responding well to sensations without overreacting.';
@@ -954,12 +1554,10 @@
             }
             document.getElementById('vhs-interpretation').textContent = interpretation;
             
-            // Update stats
             document.getElementById('current-phase-num').textContent = appData.currentPhase;
             const phaseNames = ['', 'Recognition', 'Breaking Loop', 'Retraining', 'Maintenance'];
             document.getElementById('current-phase-name').textContent = phaseNames[appData.currentPhase];
             
-            // Comfort days this month
             const thisMonth = appData.entries.filter(e => {
                 const entryDate = new Date(e.date);
                 const now = new Date();
@@ -967,11 +1565,16 @@
             });
             document.getElementById('comfort-days-count').textContent = thisMonth.length;
             
-            // Tracking streak
             document.getElementById('tracking-streak').textContent = appData.entries.length;
             
-            // Generate recommendations
+            const last7 = appData.entries.slice(-7);
+            const avgGap = last7.reduce((sum, e) => sum + e.vhsGap, 0) / last7.length;
+            document.getElementById('avg-vhs-gap').textContent = avgGap.toFixed(1);
+            
             generateRecommendations(latest);
+            generatePatternAlerts();
+            updateTrendChart();
+            updateHeatmap();
         }
         
         // Generate personalized recommendations
@@ -979,17 +1582,16 @@
             const container = document.getElementById('recommendations-container');
             container.innerHTML = '';
             
-            // High pain + high anxiety
             if (entry.painIntensity >= 7 && entry.anxietyLevel >= 7) {
                 container.innerHTML += `
                     <div class="recommendation-box">
                         <h4>🎯 Today's Focus: Nervous System Calming</h4>
                         <p>Your nervous system is amplifying pain signals. Try a 10-minute guided body scan meditation to reduce the pain-anxiety coupling. Remember: high pain doesn't always mean danger, especially with V-HS.</p>
+                        <button class="btn" style="margin-top: 10px;" onclick="openIntervention('body-scan')">Start Body Scan</button>
                     </div>
                 `;
             }
             
-            // High pain + low anxiety (good!)
             if (entry.painIntensity >= 6 && entry.anxietyLevel <= 3) {
                 container.innerHTML += `
                     <div class="recommendation-box" style="background: #d4edda; border-left-color: #28a745;">
@@ -999,17 +1601,16 @@
                 `;
             }
             
-            // Low pain + high anxiety (pure V-HS)
             if (entry.painIntensity <= 3 && entry.anxietyLevel >= 6) {
                 container.innerHTML += `
                     <div class="recommendation-box">
                         <h4>🧠 Pure Hypersensitivity Pattern</h4>
-                        <p>Your anxiety is high despite low physical symptoms. This indicates your nervous system is in hypervigilance mode rather than responding to actual problems. Practice cognitive reframing: "My gut feels fine. This is just my nervous system being cautious."</p>
+                        <p>Your anxiety is high despite low physical symptoms. This indicates your nervous system is in hypervigilance mode. Practice cognitive reframing techniques.</p>
+                        <button class="btn" style="margin-top: 10px;" onclick="openIntervention('reframing')">Try Reframing Exercise</button>
                     </div>
                 `;
             }
             
-            // Comfort moment
             if (entry.comfortMoment) {
                 container.innerHTML += `
                     <div class="recommendation-box" style="background: #d1ecf1; border-left-color: #17a2b8;">
@@ -1019,15 +1620,375 @@
                 `;
             }
             
-            // Catastrophizing
             if (entry.catastrophizing) {
                 container.innerHTML += `
                     <div class="recommendation-box">
                         <h4>💭 Catastrophizing Detected</h4>
-                        <p>When "what if" thoughts arise, try the 5-4-3-2-1 grounding technique: Name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste. This interrupts the catastrophizing loop.</p>
+                        <p>Try the 5-4-3-2-1 grounding technique to interrupt the catastrophizing loop.</p>
+                        <button class="btn" style="margin-top: 10px;" onclick="openIntervention('grounding')">Start Grounding Exercise</button>
                     </div>
                 `;
             }
+        }
+        
+        // Generate pattern alerts
+        function generatePatternAlerts() {
+            const container = document.getElementById('pattern-alerts-container');
+            container.innerHTML = '';
+            
+            if (appData.entries.length < 7) return;
+            
+            const last7 = appData.entries.slice(-7);
+            
+            // Check for worsening V-HS gap
+            const avgGap = last7.reduce((sum, e) => sum + e.vhsGap, 0) / 7;
+            if (appData.baselineMetrics.avgVhsGap && avgGap > appData.baselineMetrics.avgVhsGap * 1.3) {
+                container.innerHTML += `
+                    <div class="alert alert-warning">
+                        ⚠️ <strong>Pattern Alert:</strong> Your V-HS gap has increased 30% above your baseline this week. Consider reviewing your stress management and sleep quality.
+                    </div>
+                `;
+            }
+            
+            // Check for comfort day drought
+            const daysSinceComfort = appData.entries.reverse().findIndex(e => e.comfortMoment);
+            appData.entries.reverse();
+            if (daysSinceComfort > 14 && appData.entries.some(e => e.comfortMoment)) {
+                container.innerHTML += `
+                    <div class="alert alert-info">
+                        💡 <strong>Observation:</strong> It's been ${daysSinceComfort} days since your last comfort day. This is unusual for your pattern. Consider what has changed recently.
+                    </div>
+                `;
+            }
+            
+            // Check for checking behavior increase
+            const avgChecking = last7.reduce((sum, e) => sum + e.checkingCount, 0) / 7;
+            const previous7 = appData.entries.slice(-14, -7);
+            if (previous7.length === 7) {
+                const prevAvgChecking = previous7.reduce((sum, e) => sum + e.checkingCount, 0) / 7;
+                if (avgChecking > prevAvgChecking * 1.5) {
+                    container.innerHTML += `
+                        <div class="alert alert-warning">
+                            📊 <strong>Behavior Alert:</strong> Your symptom checking has increased 50% this week. This hypervigilance can amplify V-HS. Try distraction techniques.
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // Update trend chart
+        function updateTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+            
+            const last7 = appData.entries.slice(-7);
+            const labels = last7.map(e => new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            const painData = last7.map(e => e.painIntensity);
+            const anxietyData = last7.map(e => e.anxietyLevel);
+            const vhsData = last7.map(e => e.vhsGap);
+            
+            if (charts.trend) {
+                charts.trend.destroy();
+            }
+            
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Pain Intensity',
+                            data: painData,
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Anxiety Level',
+                            data: anxietyData,
+                            borderColor: '#ffc107',
+                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'V-HS Gap',
+                            data: vhsData,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update heatmap
+        function updateHeatmap() {
+            const container = document.getElementById('heatmap-container');
+            if (!container) return;
+            
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            
+            container.innerHTML = '';
+            
+            const daysInMonth = lastDay.getDate();
+            const startDayOfWeek = firstDay.getDay();
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < startDayOfWeek; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'heatmap-day heatmap-no-data';
+                container.appendChild(emptyDiv);
+            }
+            
+            // Add cells for each day
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDate = new Date(now.getFullYear(), now.getMonth(), day);
+                const dateStr = currentDate.toISOString().split('T')[0];
+                
+                const entry = appData.entries.find(e => e.date.startsWith(dateStr));
+                
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'heatmap-day';
+                dayDiv.textContent = day;
+                
+                if (entry) {
+                    if (entry.comfortMoment || entry.wellbeing >= 8) {
+                        dayDiv.classList.add('heatmap-excellent');
+                    } else if (entry.wellbeing >= 6) {
+                        dayDiv.classList.add('heatmap-good');
+                    } else if (entry.wellbeing >= 4) {
+                        dayDiv.classList.add('heatmap-neutral');
+                    } else {
+                        dayDiv.classList.add('heatmap-difficult');
+                    }
+                    dayDiv.title = `Wellbeing: ${entry.wellbeing}/10, V-HS Gap: ${entry.vhsGap.toFixed(1)}`;
+                } else {
+                    dayDiv.classList.add('heatmap-no-data');
+                }
+                
+                container.appendChild(dayDiv);
+            }
+        }
+        
+        // Update analytics tab
+        function updateAnalyticsTab() {
+            if (appData.entries.length < 7) {
+                document.getElementById('correlations-container').innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">Need at least 7 entries for correlation analysis.</p>';
+                return;
+            }
+            
+            generateCorrelations();
+            updateCorrelationChart();
+            updateTriggerChart();
+        }
+        
+        // Generate correlations
+        function generateCorrelations() {
+            const container = document.getElementById('correlations-container');
+            container.innerHTML = '';
+            
+            // Sleep quality vs V-HS gap
+            const sleepCorr = calculateCorrelation(
+                appData.entries.map(e => e.sleepQuality),
+                appData.entries.map(e => e.vhsGap)
+            );
+            
+            if (Math.abs(sleepCorr) > 0.3) {
+                const strength = Math.abs(sleepCorr) > 0.7 ? 'strong' : Math.abs(sleepCorr) > 0.5 ? 'moderate' : 'weak';
+                container.innerHTML += `
+                    <div class="correlation-card">
+                        <div class="correlation-title">Sleep Quality Impact</div>
+                        <span class="correlation-strength correlation-${strength}">${(Math.abs(sleepCorr) * 100).toFixed(0)}% correlation</span>
+                        <p style="margin-top: 10px; color: var(--text-secondary);">
+                            ${sleepCorr < 0 ? 'Poor sleep strongly correlates with higher V-HS gap.' : 'Better sleep correlates with lower V-HS gap.'}
+                            ${Math.abs(sleepCorr) > 0.5 ? ' This is a significant pattern - prioritize sleep quality.' : ''}
+                        </p>
+                    </div>
+                `;
+            }
+            
+            // Stress vs anxiety
+            const stressCorr = calculateCorrelation(
+                appData.entries.map(e => e.stressLevel),
+                appData.entries.map(e => e.anxietyLevel)
+            );
+            
+            if (Math.abs(stressCorr) > 0.3) {
+                const strength = Math.abs(stressCorr) > 0.7 ? 'strong' : Math.abs(stressCorr) > 0.5 ? 'moderate' : 'weak';
+                container.innerHTML += `
+                    <div class="correlation-card">
+                        <div class="correlation-title">Stress-Anxiety Connection</div>
+                        <span class="correlation-strength correlation-${strength}">${(Math.abs(stressCorr) * 100).toFixed(0)}% correlation</span>
+                        <p style="margin-top: 10px; color: var(--text-secondary);">
+                            High stress days strongly predict high anxiety about symptoms. Stress management may reduce V-HS amplification.
+                        </p>
+                    </div>
+                `;
+            }
+            
+            // Trigger analysis
+            const triggerImpact = {};
+            appData.entries.forEach(e => {
+                e.triggers.forEach(trigger => {
+                    if (!triggerImpact[trigger]) {
+                        triggerImpact[trigger] = { count: 0, totalGap: 0 };
+                    }
+                    triggerImpact[trigger].count++;
+                    triggerImpact[trigger].totalGap += e.vhsGap;
+                });
+            });
+            
+            const avgGapWithoutTriggers = appData.entries
+                .filter(e => e.triggers.length === 0)
+                .reduce((sum, e) => sum + e.vhsGap, 0) / appData.entries.filter(e => e.triggers.length === 0).length;
+            
+            Object.keys(triggerImpact).forEach(trigger => {
+                const avgGap = triggerImpact[trigger].totalGap / triggerImpact[trigger].count;
+                const impact = avgGap - avgGapWithoutTriggers;
+                
+                if (Math.abs(impact) > 0.5 && triggerImpact[trigger].count >= 3) {
+                    container.innerHTML += `
+                        <div class="correlation-card">
+                            <div class="correlation-title">Trigger: ${trigger}</div>
+                            <p style="margin-top: 10px; color: var(--text-secondary);">
+                                This trigger appears in ${triggerImpact[trigger].count} entries and ${impact > 0 ? 'increases' : 'decreases'} 
+                                your V-HS gap by ${Math.abs(impact).toFixed(1)} points on average.
+                            </p>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        // Calculate correlation coefficient
+        function calculateCorrelation(x, y) {
+            const n = x.length;
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+            const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+            const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+            
+            return (n * sumXY - sumX * sumY) / Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+        }
+        
+        // Update correlation chart
+        function updateCorrelationChart() {
+            const ctx = document.getElementById('correlationChart');
+            if (!ctx) return;
+            
+            const painData = appData.entries.map(e => ({ x: e.painIntensity, y: e.anxietyLevel }));
+            
+            if (charts.correlation) {
+                charts.correlation.destroy();
+            }
+            
+            charts.correlation = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Pain vs Anxiety',
+                        data: painData,
+                        backgroundColor: 'rgba(102, 126, 234, 0.5)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Pain Intensity'
+                            },
+                            min: 0,
+                            max: 10
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Anxiety Level'
+                            },
+                            min: 0,
+                            max: 10
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update trigger chart
+        function updateTriggerChart() {
+            const ctx = document.getElementById('triggerChart');
+            if (!ctx) return;
+            
+            const triggerCounts = {};
+            appData.entries.forEach(e => {
+                e.triggers.forEach(trigger => {
+                    triggerCounts[trigger] = (triggerCounts[trigger] || 0) + 1;
+                });
+            });
+            
+            const labels = Object.keys(triggerCounts);
+            const data = Object.values(triggerCounts);
+            
+            if (charts.trigger) {
+                charts.trigger.destroy();
+            }
+            
+            charts.trigger = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Frequency',
+                        data: data,
+                        backgroundColor: '#667eea',
+                        borderColor: '#764ba2',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
         }
         
         // Update progress tab
@@ -1118,7 +2079,7 @@
                                 ${status === 'completed' ? '✅ Completed' : status === 'current' ? '🔄 In Progress' : '🔒 Locked'}
                             </div>
                         </div>
-                        <p style="color: #666; margin-bottom: 15px;">${phase.duration}</p>
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">${phase.duration}</p>
                         
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: ${progress}%">
@@ -1127,7 +2088,7 @@
                         </div>
                         
                         <h4 style="margin: 20px 0 10px 0;">Goals:</h4>
-                        <ul style="padding-left: 20px; color: #666;">
+                        <ul style="padding-left: 20px; color: var(--text-secondary);">
                             ${phase.goals.map(goal => `<li style="margin: 5px 0;">${goal}</li>`).join('')}
                         </ul>
                         
@@ -1147,69 +2108,88 @@
             });
         }
         
-        // Update achievements tab
-        function updateAchievementsTab() {
-            const container = document.getElementById('achievements-grid');
+        // Update interventions tab
+        function updateInterventionsTab() {
+            const container = document.getElementById('interventions-list');
+            
+            const interventions = [
+                {
+                    id: 'body-scan',
+                    title: 'Body Scan Meditation',
+                    description: 'Progressive relaxation to reduce pain-anxiety coupling',
+                    duration: '10 minutes',
+                    icon: '🧘'
+                },
+                {
+                    id: 'breathing',
+                    title: 'Box Breathing',
+                    description: 'Calming breath technique for acute anxiety',
+                    duration: '5 minutes',
+                    icon: '💨'
+                },
+                {
+                    id: 'grounding',
+                    title: '5-4-3-2-1 Grounding',
+                    description: 'Sensory technique to interrupt catastrophizing',
+                    duration: '3 minutes',
+                    icon: '🌍'
+                },
+                {
+                    id: 'reframing',
+                    title: 'Cognitive Reframing',
+                    description: 'Challenge and reframe anxious thoughts',
+                    duration: '7 minutes',
+                    icon: '🔄'
+                },
+                {
+                    id: 'progressive',
+                    title: 'Progressive Muscle Relaxation',
+                    description: 'Tension release for visceral hypersensitivity',
+                    duration: '12 minutes',
+                    icon: '💪'
+                },
+                {
+                    id: 'mindfulness',
+                    title: 'Mindful Observation',
+                    description: 'Non-judgmental awareness of gut sensations',
+                    duration: '8 minutes',
+                    icon: '👁️'
+                }
+            ];
+            
             container.innerHTML = '';
             
-            appData.achievements.forEach(achievement => {
-                const html = `
-                    <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}">
-                        <div class="achievement-icon">${achievement.icon}</div>
-                        <div class="achievement-title">${achievement.name}</div>
-                        <div class="achievement-desc">${achievement.desc}</div>
-                        ${achievement.unlocked ? `<div style="margin-top: 10px; color: #28a745; font-weight: 600;">Unlocked!</div>` : ''}
+            interventions.forEach(intervention => {
+                container.innerHTML += `
+                    <div class="intervention-item" onclick="openIntervention('${intervention.id}')">
+                        <div style="font-size: 2em; margin-bottom: 10px;">${intervention.icon}</div>
+                        <div class="intervention-title">${intervention.title}</div>
+                        <div class="intervention-desc">${intervention.description}</div>
+                        <div class="intervention-duration">⏱️ ${intervention.duration}</div>
                     </div>
                 `;
-                container.innerHTML += html;
             });
         }
         
-        // Update history tab
-        function updateHistoryTab() {
-            const container = document.getElementById('entry-list');
+        // Open intervention modal
+        function openIntervention(interventionId) {
+            const modal = document.getElementById('interventionModal');
+            const titleEl = document.getElementById('intervention-modal-title');
+            const contentEl = document.getElementById('intervention-modal-content');
             
-            if (appData.entries.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No entries yet. Start tracking on the Daily Input tab!</p>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            // Show most recent entries first
-            const recentEntries = [...appData.entries].reverse().slice(0, 30);
-            
-            recentEntries.forEach(entry => {
-                const date = new Date(entry.date);
-                const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-                
-                const html = `
-                    <div class="entry-item">
-                        <div class="entry-header">
-                            <span>${dateStr}</span>
-                            <span>V-HS Gap: ${entry.vhsGap.toFixed(1)}</span>
-                        </div>
-                        <div class="entry-details">
-                            <div class="entry-detail">Pain: ${entry.painIntensity}/10</div>
-                            <div class="entry-detail">Anxiety: ${entry.anxietyLevel}/10</div>
-                            <div class="entry-detail">Distress: ${entry.distressLevel}/10</div>
-                            <div class="entry-detail">Wellbeing: ${entry.wellbeing}/10</div>
-                            <div class="entry-detail">BM: ${entry.bmStatus}</div>
-                            <div class="entry-detail">Sleep: ${entry.sleepQuality}/10</div>
-                        </div>
-                        ${entry.comfortMoment ? '<div style="margin-top: 10px; color: #28a745;">✨ Comfort day!</div>' : ''}
-                        ${entry.catastrophizing ? '<div style="margin-top: 10px; color: #ffc107;">💭 Catastrophizing noted</div>' : ''}
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-        }
-        
-        // Initialize app
-        window.onload = function() {
-            loadData();
-            updateDashboard();
-        };
-    </script>
-</body>
-</html>
+            const scripts = {
+                'body-scan': {
+                    title: '🧘 Body Scan Meditation',
+                    content: `
+                        <p style="margin-bottom: 20px;">Find a comfortable position and follow these steps:</p>
+                        <ol style="padding-left: 20px; line-height: 2;">
+                            <li>Close your eyes and take 3 deep breaths</li>
+                            <li>Bring attention to your feet. Notice any sensations without judgment</li>
+                            <li>Slowly move awareness up through legs, hips, abdomen</li>
+                            <li>When you reach your gut area, observe sensations with curiosity, not fear</li>
+                            <li>Remind yourself: "These sensations are not dangerous"</li>
+                            <li>Continue scanning through chest, arms, neck, and head</li>
+                            <li>Return to natural breathing for 2 minutes</li>
+                            <li>Open eyes slowly when ready</li>
+                        </ol>
+                        <p style="margin-top: 20px; color: var(--text-secondary);"><em>Remember
