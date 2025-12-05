@@ -1391,960 +1391,733 @@
     </div>
     
     <script>
-        let appData = {
-            entries: [],
-            currentPhase: 1,
-            achievements: [],
-            startDate: new Date().toISOString(),
-            lastBaselineUpdate: new Date().toISOString(),
-            baselineMetrics: {},
-            theme: 'light'
-        };
-        
-        let charts = {};
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
+let appData = {
+    entries: [],
+    currentPhase: 1,
+    achievements: [],
+    startDate: new Date().toISOString(),
+    lastBaselineUpdate: new Date().toISOString(),
+    baselineMetrics: {},
+    theme: 'light'
+};
+
+let charts = {};
+
+// Immediate initialization
+(function() {
+    loadData();
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    
+    setTimeout(init, 100);
+})();
+
+function init() {
+    try {
+        setupEventListeners();
+        syncSelectorsWithSliders();
+    } catch(e) {
+        console.error('Init error:', e);
+        setTimeout(function() {
             setupEventListeners();
             syncSelectorsWithSliders();
+        }, 500);
+    }
+}
+
+function setupEventListeners() {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const clickEvent = isMobile ? 'touchend' : 'click';
+    
+    // Tabs with cloning to remove old listeners
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(function(tab) {
+        const newTab = tab.cloneNode(true);
+        tab.parentNode.replaceChild(newTab, tab);
+        
+        newTab.addEventListener(clickEvent, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const tabName = this.getAttribute('data-tab');
+            
+            document.querySelectorAll('.tab').forEach(function(t) {
+                t.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(function(tc) {
+                tc.classList.remove('active');
+            });
+            
+            this.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            loadTabContent(tabName);
+        }, { passive: false });
+    });
+    
+    // All other buttons
+    addListener('themeToggle', clickEvent, toggleTheme);
+    addListener('quickEntryBtn', clickEvent, openQuickEntry);
+    addListener('exportBtn', clickEvent, toggleExportMenu);
+    addListener('saveEntryBtn', clickEvent, saveEntry);
+    addListener('clearFormBtn', clickEvent, clearForm);
+    addListener('closeQuickEntry', clickEvent, closeQuickEntry);
+    addListener('closeIntervention', clickEvent, closeIntervention);
+    addListener('saveQuickEntryBtn', clickEvent, saveQuickEntry);
+    addListener('exportCSV', clickEvent, exportCSV);
+    addListener('exportJSON', clickEvent, exportJSON);
+    addListener('exportPDF', clickEvent, exportPDF);
+    
+    setupInputSync();
+    
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        modal.addEventListener(clickEvent, function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        }, { passive: false });
+    });
+    
+    document.addEventListener(clickEvent, function(e) {
+        if (!e.target.closest('.export-menu')) {
+            const dropdown = document.getElementById('exportDropdown');
+            if (dropdown) dropdown.classList.remove('show');
+        }
+    }, { passive: false });
+}
+
+function addListener(id, event, handler) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener(event, function(e) {
+            e.preventDefault();
+            handler();
+        }, { passive: false });
+    }
+}
+
+function loadTabContent(tabName) {
+    switch(tabName) {
+        case 'dashboard':
+            updateDashboard();
+            break;
+        case 'analytics':
+            updateAnalyticsTab();
+            break;
+        case 'progress':
+            updateProgressTab();
+            break;
+        case 'interventions':
+            updateInterventionsTab();
+            break;
+        case 'achievements':
+            updateAchievementsTab();
+            break;
+        case 'history':
+            updateHistoryTab();
+            break;
+    }
+}
+
+function setupInputSync() {
+    const inputPairs = [
+        { select: 'pain-intensity-select', slider: 'pain-intensity', display: 'pain-value' },
+        { select: 'anxiety-level-select', slider: 'anxiety-level', display: 'anxiety-value' },
+        { select: 'distress-level-select', slider: 'distress-level', display: 'distress-value' },
+        { select: 'wellbeing-select', slider: 'wellbeing', display: 'wellbeing-value' },
+        { select: 'stress-level-select', slider: 'stress-level', display: 'stress-value' },
+        { select: 'sleep-quality-select', slider: 'sleep-quality', display: 'sleep-value' },
+        { select: 'quick-overall-select', slider: 'quick-overall', display: 'quick-overall-value' },
+        { select: 'quick-pain-select', slider: 'quick-pain', display: 'quick-pain-value' },
+        { select: 'quick-anxiety-select', slider: 'quick-anxiety', display: 'quick-anxiety-value' }
+    ];
+    
+    inputPairs.forEach(function(pair) {
+        const selectEl = document.getElementById(pair.select);
+        const sliderEl = document.getElementById(pair.slider);
+        const displayEl = document.getElementById(pair.display);
+        
+        if (selectEl && displayEl) {
+            selectEl.addEventListener('change', function() {
+                const value = this.value;
+                displayEl.textContent = value;
+                if (sliderEl) sliderEl.value = value;
+                checkFlareAlert(pair.select, value);
+            });
+        }
+        
+        if (sliderEl && displayEl) {
+            sliderEl.addEventListener('input', function() {
+                const value = this.value;
+                displayEl.textContent = value;
+                if (selectEl) selectEl.value = value;
+                checkFlareAlert(pair.slider, value);
+            });
+        }
+    });
+}
+
+function syncSelectorsWithSliders() {
+    const pairs = [
+        'pain-intensity', 'anxiety-level', 'distress-level',
+        'wellbeing', 'stress-level', 'sleep-quality'
+    ];
+    
+    pairs.forEach(function(id) {
+        const select = document.getElementById(id + '-select');
+        const slider = document.getElementById(id);
+        if (select && slider) {
+            select.value = slider.value;
+        }
+    });
+}
+
+function checkFlareAlert(inputId, value) {
+    if ((inputId.includes('pain') || inputId === 'pain-intensity-select') && parseInt(value) >= 8) {
+        document.getElementById('flare-alert').style.display = 'block';
+    }
+}
+
+function loadData() {
+    const saved = localStorage.getItem('vhsTrackerData');
+    if (saved) {
+        appData = JSON.parse(saved);
+    }
+    initializeAchievements();
+    applyTheme();
+}
+
+function saveData() {
+    localStorage.setItem('vhsTrackerData', JSON.stringify(appData));
+}
+
+function toggleTheme() {
+    appData.theme = appData.theme === 'light' ? 'dark' : 'light';
+    applyTheme();
+    saveData();
+}
+
+function applyTheme() {
+    document.documentElement.setAttribute('data-theme', appData.theme);
+}
+
+function initializeAchievements() {
+    const list = [
+        { id: 'first-entry', name: 'First Step', desc: 'Complete your first entry', icon: '🎯', unlocked: false },
+        { id: 'week-streak', name: 'Consistent Tracker', desc: '7 days of tracking', icon: '📅', unlocked: false },
+        { id: 'first-comfort', name: 'First Comfort Day', desc: 'Experience your first unexpected comfort day', icon: '✨', unlocked: false },
+        { id: 'vhs-improvement', name: 'Gap Narrowing', desc: 'V-HS gap reduced by 25%', icon: '📉', unlocked: false },
+        { id: 'no-catastrophize', name: 'Clear Mind', desc: '7 days without catastrophizing', icon: '🧘', unlocked: false },
+        { id: 'phase-2', name: 'Breaking the Loop', desc: 'Advanced to Phase 2', icon: '🚀', unlocked: false },
+        { id: 'low-anxiety', name: 'Calm Response', desc: 'Pain high but anxiety low', icon: '😌', unlocked: false },
+        { id: 'month-complete', name: 'Monthly Milestone', desc: '30 days of tracking', icon: '🏆', unlocked: false },
+        { id: 'three-months', name: 'Quarter Champion', desc: '90 days of tracking', icon: '🌟', unlocked: false },
+        { id: 'ten-comfort', name: 'Comfort Master', desc: '10 comfort days achieved', icon: '💫', unlocked: false }
+    ];
+    
+    if (appData.achievements.length === 0) {
+        appData.achievements = list;
+    }
+}
+
+function getInputValue(id) {
+    const select = document.getElementById(id + '-select');
+    const slider = document.getElementById(id);
+    return parseInt(select ? select.value : slider.value);
+}
+
+function calculateVHSGap(painIntensity, distressLevel) {
+    return Math.abs(distressLevel - painIntensity);
+}
+
+function getPainCharacters() {
+    const chars = [];
+    ['cramping', 'burning', 'pressure', 'sharp', 'dull'].forEach(function(char) {
+        if (document.getElementById(char).checked) {
+            chars.push(char);
+        }
+    });
+    return chars;
+}
+
+function getTriggers() {
+    const triggers = [];
+    document.querySelectorAll('.trigger-check:checked').forEach(function(cb) {
+        triggers.push(cb.value);
+    });
+    
+    const custom = document.getElementById('custom-trigger').value.trim();
+    if (custom) triggers.push(custom);
+    
+    return triggers;
+}
+
+function clearForm() {
+    document.querySelectorAll('select:not([id*="quick"])').forEach(function(s) {
+        s.selectedIndex = 0;
+    });
+    
+    document.querySelectorAll('.desktop-slider:not([id*="quick"])').forEach(function(slider) {
+        slider.value = 5;
+    });
+    
+    ['pain', 'anxiety', 'distress', 'wellbeing', 'stress', 'sleep'].forEach(function(type) {
+        const display = document.getElementById(type + '-value');
+        if (display) display.textContent = '5';
+    });
+    
+    document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+        cb.checked = false;
+    });
+    
+    document.querySelectorAll('textarea').forEach(function(ta) {
+        ta.value = '';
+    });
+    
+    document.getElementById('checking-count').value = 0;
+    document.getElementById('custom-trigger').value = '';
+    document.getElementById('flare-alert').style.display = 'none';
+}
+
+function saveEntry() {
+    const entry = {
+        date: new Date().toISOString(),
+        painIntensity: getInputValue('pain-intensity'),
+        painLocation: document.getElementById('pain-location').value,
+        painCharacters: getPainCharacters(),
+        anxietyLevel: getInputValue('anxiety-level'),
+        distressLevel: getInputValue('distress-level'),
+        catastrophizing: document.getElementById('catastrophizing').checked,
+        catastrophizingNotes: document.getElementById('catastrophizing-notes').value,
+        checkingCount: parseInt(document.getElementById('checking-count').value),
+        wellbeing: getInputValue('wellbeing'),
+        comfortMoment: document.getElementById('comfort-moment').checked,
+        comfortNotes: document.getElementById('comfort-notes').value,
+        triggers: getTriggers(),
+        bmStatus: document.getElementById('bm-status').value,
+        stressLevel: getInputValue('stress-level'),
+        sleepQuality: getInputValue('sleep-quality'),
+        notes: document.getElementById('daily-notes').value
+    };
+    
+    entry.vhsGap = calculateVHSGap(entry.painIntensity, entry.distressLevel);
+    
+    appData.entries.push(entry);
+    checkAchievements(entry);
+    checkBaselineUpdate();
+    saveData();
+    
+    document.getElementById('save-message').style.display = 'block';
+    setTimeout(function() {
+        document.getElementById('save-message').style.display = 'none';
+    }, 3000);
+    
+    setTimeout(function() {
+        document.querySelectorAll('.tab').forEach(function(t) {
+            t.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-content').forEach(function(tc) {
+            tc.classList.remove('active');
+        });
+        document.querySelector('[data-tab="dashboard"]').classList.add('active');
+        document.getElementById('dashboard').classList.add('active');
+        loadTabContent('dashboard');
+    }, 1500);
+}
+
+function openQuickEntry() {
+    document.getElementById('quickEntryModal').classList.add('show');
+}
+
+function closeQuickEntry() {
+    document.getElementById('quickEntryModal').classList.remove('show');
+}
+
+function saveQuickEntry() {
+    const entry = {
+        date: new Date().toISOString(),
+        painIntensity: getInputValue('quick-pain'),
+        painLocation: 'none',
+        painCharacters: [],
+        anxietyLevel: getInputValue('quick-anxiety'),
+        distressLevel: getInputValue('quick-anxiety'),
+        catastrophizing: false,
+        catastrophizingNotes: '',
+        checkingCount: 0,
+        wellbeing: getInputValue('quick-overall'),
+        comfortMoment: false,
+        comfortNotes: '',
+        triggers: [],
+        bmStatus: 'no',
+        stressLevel: 5,
+        sleepQuality: 5,
+        notes: document.getElementById('quick-notes').value,
+        isQuickEntry: true
+    };
+    
+    entry.vhsGap = calculateVHSGap(entry.painIntensity, entry.distressLevel);
+    
+    appData.entries.push(entry);
+    checkAchievements(entry);
+    saveData();
+    
+    closeQuickEntry();
+    alert('✅ Quick entry saved!');
+    
+    document.querySelectorAll('.tab').forEach(function(t) {
+        t.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-content').forEach(function(tc) {
+        tc.classList.remove('active');
+    });
+    document.querySelector('[data-tab="dashboard"]').classList.add('active');
+    document.getElementById('dashboard').classList.add('active');
+    loadTabContent('dashboard');
+}
+
+function checkAchievements(entry) {
+    if (appData.entries.length === 1) unlockAchievement('first-entry');
+    if (entry.comfortMoment) unlockAchievement('first-comfort');
+    if (appData.entries.length >= 7) unlockAchievement('week-streak');
+    if (appData.entries.length >= 30) unlockAchievement('month-complete');
+    if (appData.entries.length >= 90) unlockAchievement('three-months');
+    if (appData.entries.filter(function(e) { return e.comfortMoment; }).length >= 10) {
+        unlockAchievement('ten-comfort');
+    }
+    if (entry.painIntensity >= 6 && entry.anxietyLevel <= 3) {
+        unlockAchievement('low-anxiety');
+    }
+    
+    const last7 = appData.entries.slice(-7);
+    if (last7.length === 7 && last7.every(function(e) { return !e.catastrophizing; })) {
+        unlockAchievement('no-catastrophize');
+    }
+    
+    if (appData.entries.length >= 14) {
+        const baseline = appData.entries.slice(0, 7).reduce(function(sum, e) {
+            return sum + e.vhsGap;
+        }, 0) / 7;
+        const recent = appData.entries.slice(-7).reduce(function(sum, e) {
+            return sum + e.vhsGap;
+        }, 0) / 7;
+        if (recent <= baseline * 0.75) {
+            unlockAchievement('vhs-improvement');
+        }
+    }
+}
+
+function unlockAchievement(id) {
+    const ach = appData.achievements.find(function(a) { return a.id === id; });
+    if (ach && !ach.unlocked) {
+        ach.unlocked = true;
+        ach.unlockedDate = new Date().toISOString();
+        saveData();
+    }
+}
+
+function checkBaselineUpdate() {
+    const last = new Date(appData.lastBaselineUpdate);
+    const now = new Date();
+    const days = (now - last) / (1000 * 60 * 60 * 24);
+    
+    if (days >= 30 && appData.entries.length >= 7) {
+        const recent = appData.entries.slice(-30);
+        appData.baselineMetrics = {
+            avgVhsGap: recent.reduce(function(s, e) { return s + e.vhsGap; }, 0) / recent.length,
+            avgPain: recent.reduce(function(s, e) { return s + e.painIntensity; }, 0) / recent.length,
+            avgAnxiety: recent.reduce(function(s, e) { return s + e.anxietyLevel; }, 0) / recent.length,
+            comfortDayRate: recent.filter(function(e) { return e.comfortMoment; }).length / recent.length
+        };
+        appData.lastBaselineUpdate = now.toISOString();
+        saveData();
+    }
+}
+
+function updateDashboard() {
+    if (appData.entries.length === 0) return;
+    
+    const latest = appData.entries[appData.entries.length - 1];
+    
+    document.getElementById('current-vhs').textContent = latest.vhsGap.toFixed(1);
+    
+    let interp = '';
+    if (latest.vhsGap < 2) {
+        interp = '🎉 Excellent regulation! Your nervous system is responding well.';
+    } else if (latest.vhsGap < 4) {
+        interp = '👍 Good progress. Your emotional response is becoming balanced.';
+    } else if (latest.vhsGap < 6) {
+        interp = '📊 Moderate hypersensitivity. You\'re on the right track.';
+    } else {
+        interp = '⚠️ High hypersensitivity detected. Focus on retraining techniques.';
+    }
+    document.getElementById('vhs-interpretation').textContent = interp;
+    
+    document.getElementById('current-phase-num').textContent = appData.currentPhase;
+    const phaseNames = ['', 'Recognition', 'Breaking Loop', 'Retraining', 'Maintenance'];
+    document.getElementById('current-phase-name').textContent = phaseNames[appData.currentPhase];
+    
+    const now = new Date();
+    const thisMonth = appData.entries.filter(function(e) {
+        const d = new Date(e.date);
+        return d.getMonth() === now.getMonth() && e.comfortMoment;
+    });
+    document.getElementById('comfort-days-count').textContent = thisMonth.length;
+    
+    document.getElementById('tracking-streak').textContent = appData.entries.length;
+    
+    const last7 = appData.entries.slice(-7);
+    if (last7.length > 0) {
+        const avg = last7.reduce(function(s, e) { return s + e.vhsGap; }, 0) / last7.length;
+        document.getElementById('avg-vhs-gap').textContent = avg.toFixed(1);
+    }
+    
+    generateRecommendations(latest);
+    updateTrendChart();
+    updateHeatmap();
+}
+
+function generateRecommendations(entry) {
+    const container = document.getElementById('recommendations-container');
+    container.innerHTML = '';
+    
+    if (entry.painIntensity >= 7 && entry.anxietyLevel >= 7) {
+        container.innerHTML += '<div class="recommendation-box"><h4>🎯 Nervous System Calming</h4><p>Your nervous system is amplifying pain signals. Try a 10-minute body scan meditation.</p></div>';
+    }
+    
+    if (entry.painIntensity >= 6 && entry.anxietyLevel <= 3) {
+        container.innerHTML += '<div class="recommendation-box" style="background: #d4edda; border-left-color: #28a745;"><h4 style="color: #155724;">🎉 Excellent Regulation!</h4><p style="color: #155724;">Your brain is learning that pain doesn\'t equal danger. Continue!</p></div>';
+    }
+    
+    if (entry.comfortMoment) {
+        container.innerHTML += '<div class="recommendation-box" style="background: #d1ecf1; border-left-color: #17a2b8;"><h4 style="color: #0c5460;">✨ Comfort Day!</h4><p style="color: #0c5460;">Your nervous system is successfully recalibrating. This is genuine progress!</p></div>';
+    }
+}
+
+function updateTrendChart() {
+    const ctx = document.getElementById('trendChart');
+    if (!ctx) return;
+    
+    const last7 = appData.entries.slice(-7);
+    if (last7.length === 0) return;
+    
+    const labels = last7.map(function(e) {
+        return new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    
+    if (charts.trend) charts.trend.destroy();
+    
+    charts.trend = new Chart(ctx, {
+        type: 'line',
+         {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Pain',
+                     last7.map(function(e) { return e.painIntensity; }),
+                    borderColor: '#dc3545',
+                    tension: 0.4
+                },
+                {
+                    label: 'Anxiety',
+                     last7.map(function(e) { return e.anxietyLevel; }),
+                    borderColor: '#ffc107',
+                    tension: 0.4
+                },
+                {
+                    label: 'V-HS Gap',
+                     last7.map(function(e) { return e.vhsGap; }),
+                    borderColor: '#667eea',
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10
+                }
+            }
+        }
+    });
+}
+
+function updateHeatmap() {
+    const container = document.getElementById('heatmap-container');
+    if (!container) return;
+    
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    
+    container.innerHTML = '';
+    
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        const div = document.createElement('div');
+        div.className = 'heatmap-day heatmap-no-data';
+        container.appendChild(div);
+    }
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(now.getFullYear(), now.getMonth(), day);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const entry = appData.entries.find(function(e) {
+            return e.date.startsWith(dateStr);
         });
         
-        function setupEventListeners() {
-            // Tab switching - FIXED FOR MOBILE
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const tabName = this.getAttribute('data-tab');
-                    
-                    // Remove active from all
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-                    
-                    // Add active to clicked
-                    this.classList.add('active');
-                    document.getElementById(tabName).classList.add('active');
-                    
-                    // Load content
-                    loadTabContent(tabName);
-                });
-            });
-            
-            document.getElementById('themeToggle').addEventListener('click', function(e) {
-                e.preventDefault();
-                toggleTheme();
-            });
-            
-            document.getElementById('quickEntryBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                openQuickEntry();
-            });
-            document.getElementById('closeQuickEntry').addEventListener('click', closeQuickEntry);
-            document.getElementById('saveQuickEntryBtn').addEventListener('click', saveQuickEntry);
-            
-            document.getElementById('exportBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleExportMenu();
-            });
-            document.getElementById('exportCSV').addEventListener('click', exportCSV);
-            document.getElementById('exportJSON').addEventListener('click', exportJSON);
-            document.getElementById('exportPDF').addEventListener('click', exportPDF);
-            
-            document.getElementById('saveEntryBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                saveEntry();
-            });
-            document.getElementById('clearFormBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                clearForm();
-            });
-            
-            document.getElementById('closeIntervention').addEventListener('click', closeIntervention);
-            
-            setupInputSync();
-            
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.classList.remove('show');
-                    }
-                });
-            });
-            
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.export-menu')) {
-                    document.getElementById('exportDropdown').classList.remove('show');
-                }
-            });
-        }
+        const div = document.createElement('div');
+        div.className = 'heatmap-day';
+        div.textContent = day;
         
-        function loadTabContent(tabName) {
-            switch(tabName) {
-                case 'dashboard':
-                    updateDashboard();
-                    break;
-                case 'analytics':
-                    updateAnalyticsTab();
-                    break;
-                case 'progress':
-                    updateProgressTab();
-                    break;
-                case 'interventions':
-                    updateInterventionsTab();
-                    break;
-                case 'achievements':
-                    updateAchievementsTab();
-                    break;
-                case 'history':
-                    updateHistoryTab();
-                    break;
-            }
-        }
-        
-        function setupInputSync() {
-            const inputPairs = [
-                { select: 'pain-intensity-select', slider: 'pain-intensity', display: 'pain-value' },
-                { select: 'anxiety-level-select', slider: 'anxiety-level', display: 'anxiety-value' },
-                { select: 'distress-level-select', slider: 'distress-level', display: 'distress-value' },
-                { select: 'wellbeing-select', slider: 'wellbeing', display: 'wellbeing-value' },
-                { select: 'stress-level-select', slider: 'stress-level', display: 'stress-value' },
-                { select: 'sleep-quality-select', slider: 'sleep-quality', display: 'sleep-value' },
-                { select: 'quick-overall-select', slider: 'quick-overall', display: 'quick-overall-value' },
-                { select: 'quick-pain-select', slider: 'quick-pain', display: 'quick-pain-value' },
-                { select: 'quick-anxiety-select', slider: 'quick-anxiety', display: 'quick-anxiety-value' }
-            ];
-            
-            inputPairs.forEach(pair => {
-                const selectEl = document.getElementById(pair.select);
-                const sliderEl = document.getElementById(pair.slider);
-                const displayEl = document.getElementById(pair.display);
-                
-                if (selectEl && displayEl) {
-                    selectEl.addEventListener('change', function() {
-                        const value = this.value;
-                        displayEl.textContent = value;
-                        if (sliderEl) sliderEl.value = value;
-                        checkFlareAlert(pair.select, value);
-                    });
-                }
-                
-                if (sliderEl && displayEl) {
-                    sliderEl.addEventListener('input', function() {
-                        const value = this.value;
-                        displayEl.textContent = value;
-                        if (selectEl) selectEl.value = value;
-                        checkFlareAlert(pair.slider, value);
-                    });
-                }
-            });
-        }
-        
-        function syncSelectorsWithSliders() {
-            const inputPairs = [
-                { select: 'pain-intensity-select', slider: 'pain-intensity' },
-                { select: 'anxiety-level-select', slider: 'anxiety-level' },
-                { select: 'distress-level-select', slider: 'distress-level' },
-                { select: 'wellbeing-select', slider: 'wellbeing' },
-                { select: 'stress-level-select', slider: 'stress-level' },
-                { select: 'sleep-quality-select', slider: 'sleep-quality' }
-            ];
-            
-            inputPairs.forEach(pair => {
-                const selectEl = document.getElementById(pair.select);
-                const sliderEl = document.getElementById(pair.slider);
-                
-                if (selectEl && sliderEl) {
-                    selectEl.value = sliderEl.value;
-                }
-            });
-        }
-        
-        function checkFlareAlert(inputId, value) {
-            if ((inputId.includes('pain') || inputId === 'pain-intensity-select') && parseInt(value) >= 8) {
-                document.getElementById('flare-alert').style.display = 'block';
-            }
-        }
-        
-        function loadData() {
-            const saved = localStorage.getItem('vhsTrackerData');
-            if (saved) {
-                appData = JSON.parse(saved);
-            }
-            initializeAchievements();
-            applyTheme();
-        }
-        
-        function saveData() {
-            localStorage.setItem('vhsTrackerData', JSON.stringify(appData));
-        }
-        
-        function toggleTheme() {
-            appData.theme = appData.theme === 'light' ? 'dark' : 'light';
-            applyTheme();
-            saveData();
-        }
-        
-        function applyTheme() {
-            document.documentElement.setAttribute('data-theme', appData.theme);
-        }
-        
-        function initializeAchievements() {
-            const achievementsList = [
-                { id: 'first-entry', name: 'First Step', desc: 'Complete your first entry', icon: '🎯', unlocked: false },
-                { id: 'week-streak', name: 'Consistent Tracker', desc: '7 days of tracking', icon: '📅', unlocked: false },
-                { id: 'first-comfort', name: 'First Comfort Day', desc: 'Experience your first unexpected comfort day', icon: '✨', unlocked: false },
-                { id: 'vhs-improvement', name: 'Gap Narrowing', desc: 'V-HS gap reduced by 25%', icon: '📉', unlocked: false },
-                { id: 'no-catastrophize', name: 'Clear Mind', desc: '7 days without catastrophizing', icon: '🧘', unlocked: false },
-                { id: 'phase-2', name: 'Breaking the Loop', desc: 'Advanced to Phase 2', icon: '🚀', unlocked: false },
-                { id: 'low-anxiety', name: 'Calm Response', desc: 'Pain high but anxiety low', icon: '😌', unlocked: false },
-                { id: 'month-complete', name: 'Monthly Milestone', desc: '30 days of tracking', icon: '🏆', unlocked: false },
-                { id: 'three-months', name: 'Quarter Champion', desc: '90 days of tracking', icon: '🌟', unlocked: false },
-                { id: 'ten-comfort', name: 'Comfort Master', desc: '10 comfort days achieved', icon: '💫', unlocked: false }
-            ];
-            
-            if (appData.achievements.length === 0) {
-                appData.achievements = achievementsList;
-            }
-        }
-        
-        function getInputValue(id) {
-            const selectEl = document.getElementById(id + '-select');
-            const sliderEl = document.getElementById(id);
-            return parseInt(selectEl ? selectEl.value : sliderEl.value);
-        }
-        
-        function calculateVHSGap(painIntensity, distressLevel) {
-            return Math.abs(distressLevel - painIntensity);
-        }
-        
-        function getPainCharacters() {
-            const characters = [];
-            ['cramping', 'burning', 'pressure', 'sharp', 'dull'].forEach(char => {
-                if (document.getElementById(char).checked) {
-                    characters.push(char);
-                }
-            });
-            return characters;
-        }
-        
-        function getTriggers() {
-            const triggers = [];
-            document.querySelectorAll('.trigger-check:checked').forEach(checkbox => {
-                triggers.push(checkbox.value);
-            });
-            
-            const custom = document.getElementById('custom-trigger').value.trim();
-            if (custom) {
-                triggers.push(custom);
-            }
-            
-            return triggers;
-        }
-        
-        function clearForm() {
-            document.querySelectorAll('select:not([id*="quick"])').forEach(select => {
-                select.selectedIndex = 0;
-                if (select.id.includes('select')) {
-                    const baseId = select.id.replace('-select', '');
-                    const displayEl = document.getElementById(baseId.split('-')[0] + '-value');
-                    if (displayEl && select.options[select.selectedIndex]) {
-                        displayEl.textContent = select.options[select.selectedIndex].value;
-                    }
-                }
-            });
-            
-            document.querySelectorAll('.desktop-slider:not([id*="quick"])').forEach(slider => {
-                slider.value = 5;
-            });
-            
-            ['pain', 'anxiety', 'distress', 'wellbeing', 'stress', 'sleep'].forEach(type => {
-                const displayEl = document.getElementById(type + '-value');
-                if (displayEl) displayEl.textContent = '5';
-            });
-            
-            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            
-            document.querySelectorAll('textarea').forEach(textarea => {
-                textarea.value = '';
-            });
-            
-            document.getElementById('checking-count').value = 0;
-            document.getElementById('custom-trigger').value = '';
-            document.getElementById('flare-alert').style.display = 'none';
-        }
-        
-        function saveEntry() {
-            const entry = {
-                date: new Date().toISOString(),
-                painIntensity: getInputValue('pain-intensity'),
-                painLocation: document.getElementById('pain-location').value,
-                painCharacters: getPainCharacters(),
-                anxietyLevel: getInputValue('anxiety-level'),
-                distressLevel: getInputValue('distress-level'),
-                catastrophizing: document.getElementById('catastrophizing').checked,
-                catastrophizingNotes: document.getElementById('catastrophizing-notes').value,
-                checkingCount: parseInt(document.getElementById('checking-count').value),
-                wellbeing: getInputValue('wellbeing'),
-                comfortMoment: document.getElementById('comfort-moment').checked,
-                comfortNotes: document.getElementById('comfort-notes').value,
-                triggers: getTriggers(),
-                bmStatus: document.getElementById('bm-status').value,
-                stressLevel: getInputValue('stress-level'),
-                sleepQuality: getInputValue('sleep-quality'),
-                notes: document.getElementById('daily-notes').value
-            };
-            
-            entry.vhsGap = calculateVHSGap(entry.painIntensity, entry.distressLevel);
-            
-            appData.entries.push(entry);
-            checkAchievements(entry);
-            checkBaselineUpdate();
-            saveData();
-            
-            const message = document.getElementById('save-message');
-            message.style.display = 'block';
-            setTimeout(() => {
-                message.style.display = 'none';
-            }, 3000);
-            
-            setTimeout(() => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-                document.querySelector('[data-tab="dashboard"]').classList.add('active');
-                document.getElementById('dashboard').classList.add('active');
-                loadTabContent('dashboard');
-            }, 1500);
-        }
-        
-        function openQuickEntry() {
-            document.getElementById('quickEntryModal').classList.add('show');
-        }
-        
-        function closeQuickEntry() {
-            document.getElementById('quickEntryModal').classList.remove('show');
-        }
-        
-        function saveQuickEntry() {
-            const entry = {
-                date: new Date().toISOString(),
-                painIntensity: getInputValue('quick-pain'),
-                painLocation: 'none',
-                painCharacters: [],
-                anxietyLevel: getInputValue('quick-anxiety'),
-                distressLevel: getInputValue('quick-anxiety'),
-                catastrophizing: false,
-                catastrophizingNotes: '',
-                checkingCount: 0,
-                wellbeing: getInputValue('quick-overall'),
-                comfortMoment: false,
-                comfortNotes: '',
-                triggers: [],
-                bmStatus: 'no',
-                stressLevel: 5,
-                sleepQuality: 5,
-                notes: document.getElementById('quick-notes').value,
-                isQuickEntry: true
-            };
-            
-            entry.vhsGap = calculateVHSGap(entry.painIntensity, entry.distressLevel);
-            
-            appData.entries.push(entry);
-            checkAchievements(entry);
-            saveData();
-            
-            closeQuickEntry();
-            alert('✅ Quick entry saved!');
-            
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.querySelector('[data-tab="dashboard"]').classList.add('active');
-            document.getElementById('dashboard').classList.add('active');
-            loadTabContent('dashboard');
-        }
-        
-        function checkAchievements(latestEntry) {
-            if (appData.entries.length === 1) {
-                unlockAchievement('first-entry');
-            }
-            
-            if (latestEntry.comfortMoment && !appData.achievements.find(a => a.id === 'first-comfort').unlocked) {
-                unlockAchievement('first-comfort');
-            }
-            
-            if (appData.entries.length >= 7) {
-                unlockAchievement('week-streak');
-            }
-            
-            if (appData.entries.length >= 30) {
-                unlockAchievement('month-complete');
-            }
-            
-            if (appData.entries.length >= 90) {
-                unlockAchievement('three-months');
-            }
-            
-            const comfortDays = appData.entries.filter(e => e.comfortMoment).length;
-            if (comfortDays >= 10) {
-                unlockAchievement('ten-comfort');
-            }
-            
-            if (latestEntry.painIntensity >= 6 && latestEntry.anxietyLevel <= 3) {
-                unlockAchievement('low-anxiety');
-            }
-            
-            const last7 = appData.entries.slice(-7);
-            if (last7.length === 7 && last7.every(e => !e.catastrophizing)) {
-                unlockAchievement('no-catastrophize');
-            }
-            
-            if (appData.entries.length >= 14) {
-                const baseline = appData.entries.slice(0, 7).reduce((sum, e) => sum + e.vhsGap, 0) / 7;
-                const recent = appData.entries.slice(-7).reduce((sum, e) => sum + e.vhsGap, 0) / 7;
-                if (recent <= baseline * 0.75) {
-                    unlockAchievement('vhs-improvement');
-                }
-            }
-        }
-        
-        function unlockAchievement(achievementId) {
-            const achievement = appData.achievements.find(a => a.id === achievementId);
-            if (achievement && !achievement.unlocked) {
-                achievement.unlocked = true;
-                achievement.unlockedDate = new Date().toISOString();
-                saveData();
-            }
-        }
-        
-        function checkBaselineUpdate() {
-            const lastUpdate = new Date(appData.lastBaselineUpdate);
-            const now = new Date();
-            const daysSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60 * 24);
-            
-            if (daysSinceUpdate >= 30 && appData.entries.length >= 7) {
-                const recent = appData.entries.slice(-30);
-                appData.baselineMetrics = {
-                    avgVhsGap: recent.reduce((sum, e) => sum + e.vhsGap, 0) / recent.length,
-                    avgPain: recent.reduce((sum, e) => sum + e.painIntensity, 0) / recent.length,
-                    avgAnxiety: recent.reduce((sum, e) => sum + e.anxietyLevel, 0) / recent.length,
-                    comfortDayRate: recent.filter(e => e.comfortMoment).length / recent.length
-                };
-                appData.lastBaselineUpdate = now.toISOString();
-                saveData();
-                
-                const baselineInfo = document.getElementById('baseline-info');
-                if (baselineInfo) baselineInfo.style.display = 'block';
-            }
-        }
-        
-        function updateDashboard() {
-            if (appData.entries.length === 0) {
-                return;
-            }
-            
-            const latest = appData.entries[appData.entries.length - 1];
-            
-            document.getElementById('current-vhs').textContent = latest.vhsGap.toFixed(1);
-            
-            let interpretation = '';
-            if (latest.vhsGap < 2) {
-                interpretation = '🎉 Excellent regulation! Your nervous system is responding well without overreacting.';
-            } else if (latest.vhsGap < 4) {
-                interpretation = '👍 Good progress. Your emotional response is becoming more balanced.';
-            } else if (latest.vhsGap < 6) {
-                interpretation = '📊 Moderate hypersensitivity. You\'re on the right track.';
+        if (entry) {
+            if (entry.comfortMoment || entry.wellbeing >= 8) {
+                div.classList.add('heatmap-excellent');
+            } else if (entry.wellbeing >= 6) {
+                div.classList.add('heatmap-good');
+            } else if (entry.wellbeing >= 4) {
+                div.classList.add('heatmap-neutral');
             } else {
-                interpretation = '⚠️ High hypersensitivity detected. Focus on retraining techniques.';
+                div.classList.add('heatmap-difficult');
             }
-            document.getElementById('vhs-interpretation').textContent = interpretation;
-            
-            document.getElementById('current-phase-num').textContent = appData.currentPhase;
-            const phaseNames = ['', 'Recognition', 'Breaking Loop', 'Retraining', 'Maintenance'];
-            document.getElementById('current-phase-name').textContent = phaseNames[appData.currentPhase];
-            
-            const thisMonth = appData.entries.filter(e => {
-                const entryDate = new Date(e.date);
-                const now = new Date();
-                return entryDate.getMonth() === now.getMonth() && e.comfortMoment;
-            });
-            document.getElementById('comfort-days-count').textContent = thisMonth.length;
-            
-            document.getElementById('tracking-streak').textContent = appData.entries.length;
-            
-            const last7 = appData.entries.slice(-7);
-            if (last7.length > 0) {
-                const avgGap = last7.reduce((sum, e) => sum + e.vhsGap, 0) / last7.length;
-                document.getElementById('avg-vhs-gap').textContent = avgGap.toFixed(1);
-            }
-            
-            generateRecommendations(latest);
-            generatePatternAlerts();
-            updateTrendChart();
-            updateHeatmap();
+        } else {
+            div.classList.add('heatmap-no-data');
         }
         
-        function generateRecommendations(entry) {
-            const container = document.getElementById('recommendations-container');
-            container.innerHTML = '';
-            
-            if (entry.painIntensity >= 7 && entry.anxietyLevel >= 7) {
-                container.innerHTML += `
-                    <div class="recommendation-box">
-                        <h4>🎯 Today's Focus: Nervous System Calming</h4>
-                        <p>Your nervous system is amplifying pain signals. Try a 10-minute guided body scan meditation.</p>
-                    </div>
-                `;
-            }
-            
-            if (entry.painIntensity >= 6 && entry.anxietyLevel <= 3) {
-                container.innerHTML += `
-                    <div class="recommendation-box" style="background: #d4edda; border-left-color: #28a745;">
-                        <h4 style="color: #155724;">🎉 Excellent Regulation!</h4>
-                        <p style="color: #155724;">Your brain is learning that pain doesn't equal danger. Continue your current approach!</p>
-                    </div>
-                `;
-            }
-            
-            if (entry.painIntensity <= 3 && entry.anxietyLevel >= 6) {
-                container.innerHTML += `
-                    <div class="recommendation-box">
-                        <h4>🧠 Pure Hypersensitivity Pattern</h4>
-                        <p>Your anxiety is high despite low symptoms. Practice cognitive reframing techniques.</p>
-                    </div>
-                `;
-            }
-            
-            if (entry.comfortMoment) {
-                container.innerHTML += `
-                    <div class="recommendation-box" style="background: #d1ecf1; border-left-color: #17a2b8;">
-                        <h4 style="color: #0c5460;">✨ Comfort Day Noted!</h4>
-                        <p style="color: #0c5460;">Your nervous system is successfully recalibrating. This is genuine progress!</p>
-                    </div>
-                `;
-            }
-            
-            if (entry.catastrophizing) {
-                container.innerHTML += `
-                    <div class="recommendation-box">
-                        <h4>💭 Catastrophizing Detected</h4>
-                        <p>Try the 5-4-3-2-1 grounding technique to interrupt the catastrophizing loop.</p>
-                    </div>
-                `;
-            }
+        container.appendChild(div);
+    }
+}
+
+function updateAnalyticsTab() {
+    if (appData.entries.length < 7) {
+        document.getElementById('correlations-container').innerHTML = 
+            '<p style="text-align: center; padding: 40px;">Need at least 7 entries for analysis.</p>';
+        return;
+    }
+}
+
+function updateProgressTab() {
+    const container = document.getElementById('phases-container');
+    const phases = [
+        {
+            number: 1,
+            name: 'Recognition',
+            duration: 'Weeks 1-4',
+            goals: ['Establish baseline', 'Identify triggers', 'Distinguish sensation from fear'],
+            milestones: [
+                { text: '14 days tracking', completed: appData.entries.length >= 14 },
+                { text: 'First comfort moment', completed: appData.entries.some(function(e) { return e.comfortMoment; }) },
+                { text: 'Identified patterns', completed: appData.entries.length >= 7 }
+            ]
         }
+    ];
+    
+    container.innerHTML = '';
+    
+    phases.forEach(function(phase) {
+        const completed = phase.milestones.filter(function(m) { return m.completed; }).length;
+        const progress = (completed / phase.milestones.length) * 100;
         
-        function generatePatternAlerts() {
-            const container = document.getElementById('pattern-alerts-container');
-            container.innerHTML = '';
-            
-            if (appData.entries.length < 7) return;
-            
-            const last7 = appData.entries.slice(-7);
-            const avgGap = last7.reduce((sum, e) => sum + e.vhsGap, 0) / 7;
-            
-            if (appData.baselineMetrics.avgVhsGap && avgGap > appData.baselineMetrics.avgVhsGap * 1.3) {
-                container.innerHTML += `
-                    <div class="alert alert-warning">
-                        ⚠️ <strong>Pattern Alert:</strong> Your V-HS gap has increased 30% this week. Consider reviewing stress and sleep.
-                    </div>
-                `;
-            }
-        }
-        
-        function updateTrendChart() {
-            const ctx = document.getElementById('trendChart');
-            if (!ctx) return;
-            
-            const last7 = appData.entries.slice(-7);
-            if (last7.length === 0) return;
-            
-            const labels = last7.map(e => new Date(e.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-            const painData = last7.map(e => e.painIntensity);
-            const anxietyData = last7.map(e => e.anxietyLevel);
-            const vhsData = last7.map(e => e.vhsGap);
-            
-            if (charts.trend) {
-                charts.trend.destroy();
-            }
-            
-            charts.trend = new Chart(ctx, {
-                type: 'line',
-                 {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Pain',
-                             painData,
-                            borderColor: '#dc3545',
-                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Anxiety',
-                             anxietyData,
-                            borderColor: '#ffc107',
-                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: 'V-HS Gap',
-                             vhsData,
-                            borderColor: '#667eea',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            tension: 0.4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10
-                        }
-                    }
-                }
-            });
-        }
-        
-        function updateHeatmap() {
-            const container = document.getElementById('heatmap-container');
-            if (!container) return;
-            
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            
-            container.innerHTML = '';
-            
-            const daysInMonth = lastDay.getDate();
-            const startDayOfWeek = firstDay.getDay();
-            
-            for (let i = 0; i < startDayOfWeek; i++) {
-                const emptyDiv = document.createElement('div');
-                emptyDiv.className = 'heatmap-day heatmap-no-data';
-                container.appendChild(emptyDiv);
-            }
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                const currentDate = new Date(now.getFullYear(), now.getMonth(), day);
-                const dateStr = currentDate.toISOString().split('T')[0];
-                
-                const entry = appData.entries.find(e => e.date.startsWith(dateStr));
-                
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'heatmap-day';
-                dayDiv.textContent = day;
-                
-                if (entry) {
-                    if (entry.comfortMoment || entry.wellbeing >= 8) {
-                        dayDiv.classList.add('heatmap-excellent');
-                    } else if (entry.wellbeing >= 6) {
-                        dayDiv.classList.add('heatmap-good');
-                    } else if (entry.wellbeing >= 4) {
-                        dayDiv.classList.add('heatmap-neutral');
-                    } else {
-                        dayDiv.classList.add('heatmap-difficult');
-                    }
-                } else {
-                    dayDiv.classList.add('heatmap-no-data');
-                }
-                
-                container.appendChild(dayDiv);
-            }
-        }
-        
-        function updateAnalyticsTab() {
-            if (appData.entries.length < 7) {
-                document.getElementById('correlations-container').innerHTML = 
-                    '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">Need at least 7 entries for analysis.</p>';
-                return;
-            }
-            
-            generateCorrelations();
-            updateCorrelationChart();
-            updateTriggerChart();
-        }
-        
-        function generateCorrelations() {
-            const container = document.getElementById('correlations-container');
-            container.innerHTML = '<p style="color: var(--text-secondary);">Analyzing your patterns...</p>';
-        }
-        
-        function updateCorrelationChart() {
-            const ctx = document.getElementById('correlationChart');
-            if (!ctx || appData.entries.length < 7) return;
-            
-            const painData = appData.entries.map(e => ({ x: e.painIntensity, y: e.anxietyLevel }));
-            
-            if (charts.correlation) charts.correlation.destroy();
-            
-            charts.correlation = new Chart(ctx, {
-                type: 'scatter',
-                 {
-                    datasets: [{
-                        label: 'Pain vs Anxiety',
-                         painData,
-                        backgroundColor: 'rgba(102, 126, 234, 0.5)',
-                        borderColor: '#667eea'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: { display: true, text: 'Pain' },
-                            min: 0,
-                            max: 10
-                        },
-                        y: {
-                            title: { display: true, text: 'Anxiety' },
-                            min: 0,
-                            max: 10
-                        }
-                    }
-                }
-            });
-        }
-        
-        function updateTriggerChart() {
-            const ctx = document.getElementById('triggerChart');
-            if (!ctx || appData.entries.length < 7) return;
-            
-            const triggerCounts = {};
-            appData.entries.forEach(e => {
-                e.triggers.forEach(trigger => {
-                    triggerCounts[trigger] = (triggerCounts[trigger] || 0) + 1;
-                });
-            });
-            
-            if (charts.trigger) charts.trigger.destroy();
-            
-            charts.trigger = new Chart(ctx, {
-                type: 'bar',
-                 {
-                    labels: Object.keys(triggerCounts),
-                    datasets: [{
-                        label: 'Frequency',
-                         Object.values(triggerCounts),
-                        backgroundColor: '#667eea'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function updateProgressTab() {
-            const container = document.getElementById('phases-container');
-            const phases = [
-                {
-                    number: 1,
-                    name: 'Recognition',
-                    duration: 'Weeks 1-4',
-                    goals: ['Establish baseline', 'Identify triggers', 'Distinguish sensation from fear'],
-                    milestones: [
-                        { text: '14 days tracking', completed: appData.entries.length >= 14 },
-                        { text: 'First comfort moment', completed: appData.entries.some(e => e.comfortMoment) },
-                        { text: 'Identified patterns', completed: appData.entries.length >= 7 }
-                    ]
-                },
-                {
-                    number: 2,
-                    name: 'Breaking the Loop',
-                    duration: 'Weeks 5-12',
-                    goals: ['Reduce catastrophizing', 'Experience comfort days', 'Lower anxiety despite pain'],
-                    milestones: [
-                        { text: '3 comfort days', completed: appData.entries.filter(e => e.comfortMoment).length >= 3 },
-                        { text: 'V-HS gap narrowed 25%', completed: false },
-                        { text: '7 days no catastrophizing', completed: false }
-                    ]
-                }
-            ];
-            
-            container.innerHTML = '';
-            
-            phases.forEach(phase => {
-                const completedMilestones = phase.milestones.filter(m => m.completed).length;
-                const progress = (completedMilestones / phase.milestones.length) * 100;
-                
-                container.innerHTML += `
-                    <div class="phase-card">
-                        <div class="phase-header">
-                            <div class="phase-title">Phase ${phase.number}: ${phase.name}</div>
-                        </div>
-                        <p style="color: var(--text-secondary);">${phase.duration}</p>
-                        
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progress}%">
-                                ${progress > 15 ? Math.round(progress) + '%' : ''}
-                            </div>
-                        </div>
-                        
-                        <h4 style="margin: 20px 0 10px 0;">Goals:</h4>
-                        <ul style="padding-left: 20px;">
-                            ${phase.goals.map(g => `<li style="margin: 5px 0;">${g}</li>`).join('')}
-                        </ul>
-                        
-                        <h4 style="margin: 20px 0 10px 0;">Milestones:</h4>
-                        <ul class="milestone-list">
-                            ${phase.milestones.map(m => `
-                                <li class="milestone-item ${m.completed ? 'completed' : ''}">
-                                    <span class="milestone-icon">${m.completed ? '✅' : '⬜'}</span>
-                                    ${m.text}
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                `;
-            });
-        }
-        
-        function updateInterventionsTab() {
-            const container = document.getElementById('interventions-list');
-            const interventions = [
-                { id: 'body-scan', title: 'Body Scan Meditation', desc: 'Progressive relaxation', duration: '10 min', icon: '🧘' },
-                { id: 'breathing', title: 'Box Breathing', desc: 'Calming breath technique', duration: '5 min', icon: '💨' },
-                { id: 'grounding', title: '5-4-3-2-1 Grounding', desc: 'Interrupt catastrophizing', duration: '3 min', icon: '🌍' },
-                { id: 'reframing', title: 'Cognitive Reframing', desc: 'Challenge anxious thoughts', duration: '7 min', icon: '🔄' }
-            ];
-            
-            container.innerHTML = '';
-            
-            interventions.forEach(int => {
-                const div = document.createElement('div');
-                div.className = 'intervention-item';
-                div.innerHTML = `
-                    <div style="font-size: 2em;">${int.icon}</div>
-                    <div class="intervention-title">${int.title}</div>
-                    <div class="intervention-desc">${int.desc}</div>
-                    <div class="intervention-duration">⏱️ ${int.duration}</div>
-                `;
-                div.addEventListener('click', () => openIntervention(int.id));
-                container.appendChild(div);
-            });
-        }
-        
-        function openIntervention(id) {
-            document.getElementById('interventionModal').classList.add('show');
-            document.getElementById('intervention-modal-title').textContent = '🧘 Intervention: ' + id;
-            document.getElementById('intervention-modal-content').innerHTML = '<p>Intervention content for ' + id + '</p>';
-        }
-        
-        function closeIntervention() {
-            document.getElementById('interventionModal').classList.remove('show');
-        }
-        
-        function updateAchievementsTab() {
-            const container = document.getElementById('achievements-grid');
-            container.innerHTML = '';
-            
-            appData.achievements.forEach(ach => {
-                container.innerHTML += `
-                    <div class="achievement-card ${ach.unlocked ? 'unlocked' : 'locked'}">
-                        <div class="achievement-icon">${ach.icon}</div>
-                        <div class="achievement-title">${ach.name}</div>
-                        <div class="achievement-desc">${ach.desc}</div>
-                        ${ach.unlocked ? '<div style="margin-top: 10px; color: #28a745; font-weight: 600;">Unlocked!</div>' : ''}
-                    </div>
-                `;
-            });
-        }
-        
-        function updateHistoryTab() {
-            const container = document.getElementById('entry-list');
-            
-            if (appData.entries.length === 0) {
-                container.innerHTML = '<p style="text-align: center; padding: 40px;">No entries yet.</p>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            
-            const recentEntries = [...appData.entries].reverse().slice(0, 30);
-            
-            recentEntries.forEach(entry => {
-                const date = new Date(entry.date);
-                const dateStr = date.toLocaleDateString();
-                
-                container.innerHTML += `
-                    <div class="entry-item">
-                        <div class="entry-header">
-                            <span>${dateStr}</span>
-                            <span>V-HS: ${entry.vhsGap.toFixed(1)}</span>
-                        </div>
-                        <div class="entry-details">
-                            <div class="entry-detail">Pain: ${entry.painIntensity}/10</div>
-                            <div class="entry-detail">Anxiety: ${entry.anxietyLevel}/10</div>
-                            <div class="entry-detail">Wellbeing: ${entry.wellbeing}/10</div>
-                            <div class="entry-detail">BM: ${entry.bmStatus}</div>
-                        </div>
-                        ${entry.comfortMoment ? '<div style="margin-top: 10px; color: #28a745;">✨ Comfort day!</div>' : ''}
-                    </div>
-                `;
-            });
-        }
-        
-        function toggleExportMenu() {
-            document.getElementById('exportDropdown').classList.toggle('show');
-        }
-        
-        function exportCSV() {
-            if (appData.entries.length === 0) {
-                alert('No data to export');
-                return;
-            }
-            
-            let csv = 'Date,Pain,Anxiety,Distress,VHS Gap,Wellbeing,Stress,Sleep,BM Status,Comfort Moment\n';
-            appData.entries.forEach(e => {
-                csv += `${new Date(e.date).toLocaleDateString()},${e.painIntensity},${e.anxietyLevel},${e.distressLevel},${e.vhsGap.toFixed(1)},${e.wellbeing},${e.stressLevel},${e.sleepQuality},${e.bmStatus},${e.comfortMoment}\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'vhs-tracker-data.csv';
-            a.click();
-            
-            document.getElementById('exportDropdown').classList.remove('show');
-        }
-        
-        function exportJSON() {
-            if (appData.entries.length === 0) {
-                alert('No data to export');
-                return;
-            }
-            
-            const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'vhs-tracker-backup.json';
-            a.click();
-            
-            document.getElementById('exportDropdown').classList.remove('show');
-        }
-        
-        function exportPDF() {
-            alert('PDF export feature coming soon!');
-            document.getElementById('exportDropdown').classList.remove('show');
-        }
+        container.innerHTML += '<div class="phase-card"><div class="phase-header"><div class="phase-title">Phase ' + phase.number + ': ' + phase.name + '</div></div><p>' + phase.duration + '</p><div class="progress-bar"><div class="progress-fill" style="width: ' + progress + '%">' + (progress > 15 ? Math.round(progress) + '%' : '') + '</div></div></div>';
+    });
+}
+
+function updateInterventionsTab() {
+    const container = document.getElementById('interventions-list');
+    const interventions = [
+        { id: 'body-scan', title: 'Body Scan', desc: 'Progressive relaxation', duration: '10 min', icon: '🧘' },
+        { id: 'breathing', title: 'Box Breathing', desc: 'Calming technique', duration: '5 min', icon: '💨' }
+    ];
+    
+    container.innerHTML = '';
+    
+    interventions.forEach(function(int) {
+        const div = document.createElement('div');
+        div.className = 'intervention-item';
+        div.innerHTML = '<div style="font-size: 2em;">' + int.icon + '</div><div class="intervention-title">' + int.title + '</div><div class="intervention-desc">' + int.desc + '</div><div class="intervention-duration">⏱️ ' + int.duration + '</div>';
+        container.appendChild(div);
+    });
+}
+
+function updateAchievementsTab() {
+    const container = document.getElementById('achievements-grid');
+    container.innerHTML = '';
+    
+    appData.achievements.forEach(function(ach) {
+        container.innerHTML += '<div class="achievement-card ' + (ach.unlocked ? 'unlocked' : 'locked') + '"><div class="achievement-icon">' + ach.icon + '</div><div class="achievement-title">' + ach.name + '</div><div class="achievement-desc">' + ach.desc + '</div>' + (ach.unlocked ? '<div style="margin-top: 10px; color: #28a745; font-weight: 600;">Unlocked!</div>' : '') + '</div>';
+    });
+}
+
+function updateHistoryTab() {
+    const container = document.getElementById('entry-list');
+    
+    if (appData.entries.length === 0) {
+        container.innerHTML = '<p style="text-align: center; padding: 40px;">No entries yet.</p>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    appData.entries.slice().reverse().slice(0, 30).forEach(function(entry) {
+        const date = new Date(entry.date).toLocaleDateString();
+        container.innerHTML += '<div class="entry-item"><div class="entry-header"><span>' + date + '</span><span>V-HS: ' + entry.vhsGap.toFixed(1) + '</span></div><div class="entry-details"><div class="entry-detail">Pain: ' + entry.painIntensity + '/10</div><div class="entry-detail">Anxiety: ' + entry.anxietyLevel + '/10</div><div class="entry-detail">Wellbeing: ' + entry.wellbeing + '/10</div></div>' + (entry.comfortMoment ? '<div style="margin-top: 10px; color: #28a745;">✨ Comfort day!</div>' : '') + '</div>';
+    });
+}
+
+function toggleExportMenu() {
+    document.getElementById('exportDropdown').classList.toggle('show');
+}
+
+function exportCSV() {
+    if (appData.entries.length === 0) {
+        alert('No data to export');
+        return;
+    }
+    
+    let csv = 'Date,Pain,Anxiety,Distress,VHS Gap,Wellbeing\n';
+    appData.entries.forEach(function(e) {
+        csv += new Date(e.date).toLocaleDateString() + ',' + e.painIntensity + ',' + e.anxietyLevel + ',' + e.distressLevel + ',' + e.vhsGap.toFixed(1) + ',' + e.wellbeing + '\n';
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vhs-tracker-data.csv';
+    a.click();
+    
+    document.getElementById('exportDropdown').classList.remove('show');
+}
+
+function exportJSON() {
+    if (appData.entries.length === 0) {
+        alert('No data to export');
+        return;
+    }
+    
+    const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vhs-tracker-backup.json';
+    a.click();
+    
+    document.getElementById('exportDropdown').classList.remove('show');
+}
+
+function exportPDF() {
+    alert('PDF export feature coming soon!');
+    document.getElementById('exportDropdown').classList.remove('show');
+}
+
+function closeIntervention() {
+    document.getElementById('interventionModal').classList.remove('show');
+}
     </script>
 </body>
 </html>
